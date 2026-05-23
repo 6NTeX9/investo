@@ -1,0 +1,22 @@
+{
+  "name": "luxury-estate-platform",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace apps/web & npm run start:dev --workspace apps/api",
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:api": "npm run start:dev --workspace apps/api",
+    "build": "npm run build --workspace apps/web && npm run build --workspace apps/api",
+    "lint": "npm run lint --workspace apps/web && npm run lint --workspace apps/api",
+    "prisma:generate": "npm run prisma:generate --workspace apps/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace apps/api",
+    "seed": "npm run seed --workspace apps/api"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

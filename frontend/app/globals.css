@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f4ee;
+  --foreground: #151515;
+  --ink-muted: #68625a;
+  --gold: #b89658;
+  --charcoal: #171717;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.glass {
+  background: rgb(255 255 255 / 0.76);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgb(255 255 255 / 0.45);
+}
+
+.section-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.luxury-shadow {
+  box-shadow: 0 24px 80px rgb(22 18 14 / 0.14);
+}
+
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus-ring:focus-visible {
+  outline-color: var(--gold);
+}
