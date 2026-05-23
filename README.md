@@ -4,8 +4,8 @@ Production-ready monorepo for a premium real estate marketplace inspired by the 
 
 ## Stack
 
-- `apps/web`: Next.js App Router, React, Tailwind CSS, TanStack Query-ready service layer, Zod-friendly forms, Lucide icons, SEO routes.
-- `apps/api`: NestJS, Prisma, PostgreSQL, JWT auth, RBAC, DTO validation, Swagger, Helmet, CORS, rate limiting, S3 signed uploads.
+- `frontend`: Next.js App Router, React, Tailwind CSS, TanStack Query-ready service layer, Zod-friendly forms, Lucide icons, SEO routes.
+- `backend`: NestJS, Prisma, PostgreSQL, JWT auth, RBAC, DTO validation, Swagger, Helmet, CORS, rate limiting, S3 signed uploads.
 - `docs`: architecture, API, deployment, and roadmap references.
 
 ## Quick Start

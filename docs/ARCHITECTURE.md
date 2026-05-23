@@ -3,9 +3,8 @@
 ## Monorepo Layout
 
 ```text
-apps/
-  web/                 Next.js App Router application
-  api/                 NestJS REST API and Prisma schema
+frontend/             Next.js App Router application
+backend/              NestJS REST API and Prisma schema
 docs/                  Delivery, API, and roadmap documentation
 docker-compose.yml     Local PostgreSQL
 ```
@@ -67,4 +66,4 @@ blogs/{blogId}/covers/
 
 ## Analytics
 
-Google Analytics is initialized in `apps/web/lib/analytics.tsx`. Public interactions call GA events for page views, property views, searches, enquiries, site visits, brochure downloads, and WhatsApp clicks. Backend analytics endpoints are available for internal conversion aggregation and CRM forwarding.
+Google Analytics is initialized in `frontend/lib/analytics.tsx`. Public interactions call GA events for page views, property views, searches, enquiries, site visits, brochure downloads, and WhatsApp clicks. Backend analytics endpoints are available for internal conversion aggregation and CRM forwarding.

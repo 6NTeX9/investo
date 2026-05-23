@@ -3,7 +3,7 @@
 ## Frontend: Vercel
 
 1. Create a Vercel project from the repository.
-2. Set root directory to `apps/web`.
+2. Set root directory to `frontend`.
 3. Add environment variables:
    - `NEXT_PUBLIC_API_URL`
    - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
@@ -12,7 +12,7 @@
 
 ## Backend: Railway or Render
 
-1. Create a Node.js service with root directory `apps/api`.
+1. Create a Node.js service with root directory `backend`.
 2. Set build command: `npm install && npm run prisma:generate && npm run build`.
 3. Set start command: `npm run start:prod`.
 4. Add environment variables from `.env.example`.
