@@ -3,8 +3,16 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  ON_LEAVE
+  INACTIVE
+  SUSPENDED
 }
 
 enum Role {
@@ -59,6 +67,7 @@ model User {
   phone        String?
   passwordHash String
   role         Role            @default(SALES_AGENT)
+  status       UserStatus      @default(ACTIVE)
   isActive     Boolean         @default(true)
   agent        Agent?
   activities   AdminActivity[]
@@ -66,6 +75,7 @@ model User {
   updatedAt    DateTime        @updatedAt
 
   @@index([role])
+  @@index([status])
 }
 
 model Agent {
@@ -102,12 +112,13 @@ model Property {
   slug               String             @unique
   description        String
   price              Decimal            @db.Decimal(14, 2)
-  currency           String             @default("AED")
+  currency           String             @default("INR")
   address            String
   city               String
   location           String
   latitude           Decimal?           @db.Decimal(10, 7)
   longitude          Decimal?           @db.Decimal(10, 7)
+  mapLink            String?
   type               PropertyType
   bedrooms           Int?
   bathrooms          Int?

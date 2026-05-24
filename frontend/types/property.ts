@@ -7,6 +7,8 @@ export type Property = {
   city: string;
   location: string;
   address: string;
+  mapLink?: string | null;
+  mapEmbedUrl?: string | null;
   priceLabel: string;
   price: number;
   type: "Apartment" | "Villa" | "Penthouse" | "Commercial";

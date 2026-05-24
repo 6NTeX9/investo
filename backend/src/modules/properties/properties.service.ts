@@ -65,6 +65,12 @@ export class PropertiesService {
     });
   }
 
+  findAllCategories() {
+    return this.database.propertyCategory.findMany({
+      orderBy: { name: "asc" }
+    });
+  }
+
   async findBySlug(slug: string) {
     const property = await this.database.property.findUnique({
       where: { slug },
@@ -75,22 +81,47 @@ export class PropertiesService {
   }
 
   create(dto: CreatePropertyDto, actorRole: Role) {
+    const { images, ...propertyData } = dto;
     return this.database.property.create({
       data: {
-        ...dto,
-        amenities: dto.amenities ?? [],
-        nearbyLandmarks: dto.nearbyLandmarks ?? [],
-        publishedAt: dto.isPublished ? new Date() : undefined
+        ...propertyData,
+        amenities: propertyData.amenities ?? [],
+        nearbyLandmarks: propertyData.nearbyLandmarks ?? [],
+        publishedAt: propertyData.isPublished ? new Date() : undefined,
+        images: images ? {
+          create: images.map(img => ({
+            url: img.url,
+            key: img.key,
+            alt: img.alt,
+            sortOrder: img.sortOrder ?? 0,
+            type: img.type
+          }))
+        } : undefined
       }
     });
   }
 
-  update(id: string, dto: UpdatePropertyDto) {
+  async update(id: string, dto: UpdatePropertyDto) {
+    const { images, ...propertyData } = dto;
+
+    if (images) {
+      await this.database.propertyImage.deleteMany({ where: { propertyId: id } });
+    }
+
     return this.database.property.update({
       where: { id },
       data: {
-        ...dto,
-        publishedAt: dto.isPublished ? new Date() : undefined
+        ...propertyData,
+        publishedAt: propertyData.isPublished ? new Date() : undefined,
+         images: images ? {
+          create: images.map(img => ({
+            url: img.url,
+            key: img.key,
+            alt: img.alt,
+            sortOrder: img.sortOrder ?? 0,
+            type: img.type
+          }))
+        } : undefined
       }
     });
   }

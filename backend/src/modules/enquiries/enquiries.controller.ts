@@ -4,6 +4,7 @@ import { LeadStatus, Role } from "@prisma/client";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../../common/guards/roles.guard";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { CreateEnquiryDto } from "./dto/create-enquiry.dto";
 import { EnquiriesService } from "./enquiries.service";
 
@@ -21,15 +22,22 @@ export class EnquiriesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER, Role.SALES_AGENT)
-  findAll(@Query("status") status?: LeadStatus) {
-    return this.enquiries.findAll(status);
+  findAll(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Query("status") status?: LeadStatus
+  ) {
+    return this.enquiries.findAll(user.sub, user.role, status);
   }
 
   @Patch(":id/status")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER, Role.SALES_AGENT)
-  updateStatus(@Param("id") id: string, @Body() body: { status: LeadStatus; agentId?: string }) {
-    return this.enquiries.updateStatus(id, body.status, body.agentId);
+  updateStatus(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Param("id") id: string,
+    @Body() body: { status: LeadStatus; agentId?: string }
+  ) {
+    return this.enquiries.updateStatus(user.sub, user.role, id, body.status, body.agentId);
   }
 }

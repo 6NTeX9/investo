@@ -1,6 +1,32 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { ProjectStatus, PropertyType } from "@prisma/client";
-import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { MediaType, ProjectStatus, PropertyType } from "@prisma/client";
+import { Type } from "class-transformer";
+import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
+
+export class PropertyImageDto {
+  @ApiProperty()
+  @IsString()
+  url!: string;
+
+  @ApiProperty()
+  @IsString()
+  key!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  alt?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  sortOrder?: number;
+
+  @ApiPropertyOptional({ enum: MediaType })
+  @IsOptional()
+  @IsEnum(MediaType)
+  type?: MediaType;
+}
 
 export class CreatePropertyDto {
   @ApiProperty()
@@ -32,6 +58,11 @@ export class CreatePropertyDto {
   @IsString()
   location!: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  mapLink?: string;
+
   @ApiProperty({ enum: PropertyType })
   @IsEnum(PropertyType)
   type!: PropertyType;
@@ -44,6 +75,26 @@ export class CreatePropertyDto {
   @IsOptional()
   @IsNumber()
   bedrooms?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  bathrooms?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  siteArea?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  constructionStatus?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  builderName?: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
@@ -76,4 +127,12 @@ export class CreatePropertyDto {
   @IsOptional()
   @IsBoolean()
   isPublished?: boolean;
+
+  @ApiPropertyOptional({ type: [PropertyImageDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PropertyImageDto)
+  images?: PropertyImageDto[];
 }
+

@@ -16,7 +16,7 @@ export function Footer() {
           <Link href="/contact">Book a consultation</Link>
         </div>
         <div className="text-sm text-white/70">
-          <p>Downtown Dubai, UAE</p>
+          <p>Bangalore, India</p>
           <p className="mt-2">hello@aurumestate.com</p>
           <p className="mt-2">Instagram · LinkedIn · YouTube</p>
         </div>

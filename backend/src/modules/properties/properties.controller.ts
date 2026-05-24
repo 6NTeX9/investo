@@ -16,7 +16,12 @@ export class PropertiesController {
 
   @Get()
   findAll(@Query() query: QueryPropertiesDto) {
-    return this.properties.findAll(query);
+    return this.properties.findAll(query, query.includeUnpublished);
+  }
+
+  @Get("categories")
+  findAllCategories() {
+    return this.properties.findAllCategories();
   }
 
   @Get("featured")
@@ -32,7 +37,7 @@ export class PropertiesController {
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   create(@Body() dto: CreatePropertyDto) {
     return this.properties.create(dto, Role.ADMIN);
   }
@@ -40,7 +45,7 @@ export class PropertiesController {
   @Patch(":id")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   update(@Param("id") id: string, @Body() dto: UpdatePropertyDto) {
     return this.properties.update(id, dto);
   }

@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsDate, IsEmail, IsOptional, IsString, MinLength } from "class-validator";
+import { IsDate, IsEmail, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import { VisitStatus } from "@prisma/client";
 
 export class CreateSiteVisitDto {
   @ApiProperty()
@@ -31,4 +32,27 @@ export class CreateSiteVisitDto {
   @IsOptional()
   @IsString()
   propertyId?: string;
+}
+
+export class AdminCreateSiteVisitDto extends CreateSiteVisitDto {
+  @ApiPropertyOptional({ enum: VisitStatus, default: VisitStatus.CONFIRMED })
+  @IsOptional()
+  @IsEnum(VisitStatus)
+  status?: VisitStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  assignedAgentId?: string | null;
+}
+
+export class UpdateSiteVisitStatusDto {
+  @ApiProperty({ enum: VisitStatus })
+  @IsEnum(VisitStatus)
+  status!: VisitStatus;
+
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @IsString()
+  assignedAgentId?: string | null;
 }

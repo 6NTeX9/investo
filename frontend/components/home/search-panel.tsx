@@ -3,18 +3,29 @@
 import { useMemo, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { properties } from "@/lib/data";
 
-export function SearchPanel() {
-  const [city, setCity] = useState("Dubai");
-  const locations = useMemo(() => [...new Set(properties.filter((property) => property.city === city).map((property) => property.location))], [city]);
+type SearchPanelProperty = {
+  city?: string;
+  location?: string;
+};
+
+export function SearchPanel({ properties = [] }: { properties?: SearchPanelProperty[] }) {
+  const cities = useMemo(() => [...new Set(properties.map((property) => property.city).filter(Boolean))], [properties]);
+  const [city, setCity] = useState(cities[0] ?? "");
+  const locations = useMemo(
+    () => [...new Set(properties.filter((property) => !city || property.city === city).map((property) => property.location).filter(Boolean))],
+    [city, properties]
+  );
 
   return (
     <form action="/properties" className="glass grid gap-3 rounded-lg p-3 shadow-2xl md:grid-cols-[1fr_1fr_1fr_auto]">
       <label className="grid gap-1 rounded-md bg-white px-4 py-3 text-xs font-semibold text-[#68625a]">
         City
         <select name="city" value={city} onChange={(event) => setCity(event.target.value)} className="bg-transparent text-sm font-medium text-[#171717] outline-none">
-          <option>Dubai</option>
+          <option value="">Any city</option>
+          {cities.map((item) => (
+            <option key={item} value={item}>{item}</option>
+          ))}
         </select>
       </label>
       <label className="grid gap-1 rounded-md bg-white px-4 py-3 text-xs font-semibold text-[#68625a]">
@@ -30,9 +41,10 @@ export function SearchPanel() {
         Budget
         <select name="maxPrice" className="bg-transparent text-sm font-medium text-[#171717] outline-none">
           <option value="">Any budget</option>
-          <option value="2000000">Under AED 2M</option>
-          <option value="5000000">Under AED 5M</option>
-          <option value="10000000">Under AED 10M</option>
+          <option value="10000000">Under ₹ 1 Cr</option>
+          <option value="20000000">Under ₹ 2 Cr</option>
+          <option value="50000000">Under ₹ 5 Cr</option>
+          <option value="100000000">Under ₹ 10 Cr</option>
         </select>
       </label>
       <Button type="submit" variant="gold" className="gap-2">

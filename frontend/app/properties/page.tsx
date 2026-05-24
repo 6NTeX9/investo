@@ -1,6 +1,10 @@
 import { SlidersHorizontal } from "lucide-react";
+import Link from "next/link";
 import { PropertyCard } from "@/components/property/property-card";
-import { properties } from "@/lib/data";
+import { SortSelect } from "@/components/property/sort-select";
+import { getLiveProperties } from "@/lib/live-properties";
+
+export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -11,16 +15,51 @@ export const metadata = {
 
 export default async function PropertiesPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
+  
+  const q = typeof params.q === "string" ? params.q : "";
   const city = typeof params.city === "string" ? params.city : "";
   const location = typeof params.location === "string" ? params.location : "";
   const maxPrice = typeof params.maxPrice === "string" ? Number(params.maxPrice) : 0;
+  const type = typeof params.type === "string" ? params.type : "";
+  const status = typeof params.status === "string" ? params.status : "";
+  const bedrooms = typeof params.bedrooms === "string" ? Number(params.bedrooms) : 0;
+  const sort = typeof params.sort === "string" ? params.sort : "newest";
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
+  const limit = 12;
 
-  const filtered = properties.filter((property) => {
-    if (city && property.city !== city) return false;
-    if (location && property.location !== location) return false;
-    if (maxPrice && property.price > maxPrice) return false;
-    return true;
-  });
+  let propertiesList: any[] = [];
+  let totalCount = 0;
+  let totalPages = 1;
+  let loadError = false;
+
+  try {
+    const apiParams: Record<string, any> = {
+      page,
+      limit,
+      sort
+    };
+    if (q) apiParams.q = q;
+    if (city) apiParams.city = city;
+    if (location) apiParams.location = location;
+    if (maxPrice) apiParams.maxPrice = maxPrice;
+    if (type) apiParams.type = type;
+    if (status) apiParams.status = status;
+    if (bedrooms) apiParams.bedrooms = bedrooms;
+
+    const res = await getLiveProperties(apiParams);
+    propertiesList = res.items;
+    totalCount = res.meta.total || 0;
+    totalPages = res.meta.pageCount || 1;
+  } catch (error) {
+    console.error("Failed to fetch live properties from backend:", error);
+    loadError = true;
+  }
+
+  // Helper to strip page from params for links
+  const getQueryWithPage = (pNum: number) => {
+    const updated = { ...params, page: pNum.toString() };
+    return updated;
+  };
 
   return (
     <main className="section-shell pt-12">
@@ -29,39 +68,142 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Property search</p>
           <h1 className="mt-2 font-[var(--font-display)] text-5xl">Available properties</h1>
         </div>
-        <p className="text-sm text-[#68625a]">{filtered.length} curated listings</p>
+        <div className="text-right">
+          <p className="text-sm text-[#68625a]">{totalCount} curated listings</p>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="h-fit rounded-lg bg-white p-5 luxury-shadow">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">Filters</h2>
+            <h2 className="font-semibold text-lg">Filters</h2>
             <SlidersHorizontal size={18} />
           </div>
-          <form className="mt-5 grid gap-4">
-            {["City", "Location", "Budget range", "Property type", "Bedrooms/BHK", "Project status", "Amenities"].map((label) => (
-              <label key={label} className="grid gap-2 text-sm font-medium">
-                {label}
-                <input className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder={`Any ${label.toLowerCase()}`} />
-              </label>
-            ))}
-            <button className="rounded-md bg-[#171717] px-4 py-3 text-sm font-semibold text-white">Apply filters</button>
+          <form method="GET" action="/properties" className="mt-5 grid gap-4">
+            {/* Hidden fields to preserve search and sort */}
+            {q && <input type="hidden" name="q" value={q} />}
+            {sort && <input type="hidden" name="sort" value={sort} />}
+
+            <label className="grid gap-2 text-sm font-medium">
+              City
+              <input name="city" defaultValue={city} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. Mumbai" />
+            </label>
+            <label className="grid gap-2 text-sm font-medium">
+              Location / Community
+              <input name="location" defaultValue={location} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. Worli" />
+            </label>
+            <label className="grid gap-2 text-sm font-medium">
+              Max Price (₹)
+              <input type="number" name="maxPrice" defaultValue={maxPrice || ""} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. 50000000" />
+            </label>
+            <label className="grid gap-2 text-sm font-medium">
+              Property Type
+              <select name="type" defaultValue={type} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm bg-white">
+                <option value="">Any Type</option>
+                <option value="APARTMENT">Apartment</option>
+                <option value="VILLA">Villa</option>
+                <option value="PENTHOUSE">Penthouse</option>
+                <option value="COMMERCIAL">Commercial</option>
+                <option value="PLOT">Plot</option>
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-medium">
+              Min Bedrooms
+              <input type="number" name="bedrooms" defaultValue={bedrooms || ""} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. 3" />
+            </label>
+            <label className="grid gap-2 text-sm font-medium">
+              Project Status
+              <select name="status" defaultValue={status} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm bg-white">
+                <option value="">Any Status</option>
+                <option value="UPCOMING">Upcoming</option>
+                <option value="ONGOING">Ongoing</option>
+                <option value="READY_TO_MOVE">Ready to Move</option>
+              </select>
+            </label>
+            <div className="grid gap-2 pt-2">
+              <button type="submit" className="rounded-md bg-[#171717] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2a2a2a]">
+                Apply filters
+              </button>
+              <Link href="/properties" className="rounded-md border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-center text-black hover:bg-black/5 transition">
+                Clear Filters
+              </Link>
+            </div>
           </form>
         </aside>
         <section>
-          <div className="mb-5 flex flex-col justify-between gap-3 rounded-lg bg-white p-4 md:flex-row md:items-center">
-            <input className="focus-ring rounded-md border border-black/10 px-4 py-3 text-sm md:min-w-80" placeholder="Search by project, builder, landmark" />
-            <select className="focus-ring rounded-md border border-black/10 px-4 py-3 text-sm">
-              <option>Newest listings</option>
-              <option>Price low to high</option>
-              <option>Price high to low</option>
-            </select>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
+          {/* Search and Sort controls */}
+          <form method="GET" action="/properties" className="mb-5 flex flex-col justify-between gap-3 rounded-lg bg-white p-4 md:flex-row md:items-center luxury-shadow border border-black/5">
+            {/* Preserving sidebar filters */}
+            {city && <input type="hidden" name="city" value={city} />}
+            {location && <input type="hidden" name="location" value={location} />}
+            {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
+            {type && <input type="hidden" name="type" value={type} />}
+            {bedrooms && <input type="hidden" name="bedrooms" value={bedrooms} />}
+            {status && <input type="hidden" name="status" value={status} />}
+
+            <div className="flex flex-1 items-center gap-2">
+              <input 
+                name="q" 
+                defaultValue={q} 
+                className="focus-ring rounded-md border border-black/10 px-4 py-3 text-sm md:min-w-80 flex-1 bg-white" 
+                placeholder="Search by project, builder, landmark..." 
+              />
+              <button type="submit" className="rounded-md bg-[#b89658] px-5 py-3 text-sm font-semibold text-white hover:bg-[#a38144] transition">
+                Search
+              </button>
+            </div>
+            
+            <SortSelect defaultValue={sort} />
+          </form>
+
+          {loadError ? (
+            <div className="grid place-items-center py-20 text-center rounded-lg bg-amber-50 border border-amber-200 luxury-shadow">
+              <SlidersHorizontal size={40} className="text-amber-500/50" />
+              <h3 className="mt-4 font-semibold text-lg">Live properties could not be loaded</h3>
+              <p className="mt-1 text-sm text-amber-800">Please check that the backend API is running.</p>
+            </div>
+          ) : propertiesList.length === 0 ? (
+            <div className="grid place-items-center py-20 text-center rounded-lg bg-white border border-black/5 luxury-shadow">
+              <SlidersHorizontal size={40} className="text-[#b89658]/40" />
+              <h3 className="mt-4 font-semibold text-lg">No properties found</h3>
+              <p className="mt-1 text-sm text-[#68625a]">Try widening your filters or search keywords.</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {propertiesList.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-between border-t border-black/5 pt-6">
+              <p className="text-sm text-[#68625a]">
+                Showing page <span className="font-semibold text-[#171717]">{page}</span> of <span className="font-semibold text-[#171717]">{totalPages}</span>
+              </p>
+              <div className="flex gap-2">
+                <Link
+                  href={{
+                    pathname: "/properties",
+                    query: getQueryWithPage(page - 1)
+                  }}
+                  className={`rounded-md border border-black/10 bg-white px-4 py-2 text-sm font-semibold transition hover:bg-black/5 ${page === 1 ? "pointer-events-none opacity-50" : ""}`}
+                >
+                  Previous
+                </Link>
+                <Link
+                  href={{
+                    pathname: "/properties",
+                    query: getQueryWithPage(page + 1)
+                  }}
+                  className={`rounded-md border border-black/10 bg-white px-4 py-2 text-sm font-semibold transition hover:bg-black/5 ${page === totalPages ? "pointer-events-none opacity-50" : ""}`}
+                >
+                  Next
+                </Link>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </main>

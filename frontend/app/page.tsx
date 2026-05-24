@@ -1,13 +1,28 @@
 import Image from "next/image";
-import { ArrowRight, BadgeCheck, Building, CalendarDays, MessageSquareText } from "lucide-react";
+import { BadgeCheck, Building, CalendarDays, MessageSquareText } from "lucide-react";
 import { LinkButton } from "@/components/ui/button";
 import { SearchPanel } from "@/components/home/search-panel";
 import { PropertyCard } from "@/components/property/property-card";
-import { properties, testimonials } from "@/lib/data";
+import { testimonials } from "@/lib/data";
+import { getLiveProperties } from "@/lib/live-properties";
 
-export default function HomePage() {
-  const upcoming = properties.filter((property) => property.status === "UPCOMING");
-  const ongoing = properties.filter((property) => property.status === "ONGOING");
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  let allList: any[] = [];
+  let loadError = false;
+
+  try {
+    const all = await getLiveProperties({ limit: 200 });
+    allList = all.items;
+  } catch (error) {
+    console.error("Failed to fetch live homepage properties from backend:", error);
+    loadError = true;
+  }
+
+  const upcoming = allList.filter((property) => property.status === "UPCOMING");
+  const ongoing = allList.filter((property) => property.status === "ONGOING");
+  const readyCount = allList.length - upcoming.length - ongoing.length;
 
   return (
     <main>
@@ -27,7 +42,7 @@ export default function HomePage() {
             Browse curated residences, commercial assets, and investment projects with a sales team built for serious property decisions.
           </p>
           <div className="mt-8 max-w-5xl">
-            <SearchPanel />
+            <SearchPanel properties={allList.map((property) => ({ city: property.city, location: property.location }))} />
           </div>
         </div>
       </section>
@@ -48,18 +63,28 @@ export default function HomePage() {
       <section className="section-shell mt-20">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Featured projects</p>
-            <h2 className="mt-2 font-[var(--font-display)] text-4xl">Residences worth touring</h2>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">All listed properties</p>
+            </div>
+            <h2 className="mt-2 font-[var(--font-display)] text-4xl">Every property available to visitors</h2>
           </div>
-          <LinkButton href="/properties" variant="ghost">
-            View all <ArrowRight className="ml-2" size={17} />
-          </LinkButton>
+          <p className="text-sm text-[#68625a]">{allList.length} published listings</p>
         </div>
-        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {properties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </div>
+        {loadError ? (
+          <div className="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+            Live properties could not be loaded. Please check that the backend API is running.
+          </div>
+        ) : allList.length === 0 ? (
+          <div className="mt-8 rounded-lg border border-black/10 bg-white p-6 text-sm text-[#68625a]">
+            No published properties are available yet. Add and publish a property from the admin panel to show it here.
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {allList.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-24 bg-white py-20">
@@ -70,11 +95,11 @@ export default function HomePage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {[
-              { icon: CalendarDays, label: "Upcoming", count: upcoming.length },
-              { icon: Building, label: "Ongoing", count: ongoing.length },
-              { icon: BadgeCheck, label: "Ready to move", count: properties.length - upcoming.length - ongoing.length }
+              { icon: CalendarDays, label: "Upcoming", count: upcoming.length, statusVal: "UPCOMING" },
+              { icon: Building, label: "Ongoing", count: ongoing.length, statusVal: "ONGOING" },
+              { icon: BadgeCheck, label: "Ready to move", count: readyCount, statusVal: "READY_TO_MOVE" }
             ].map((item) => (
-              <a key={item.label} href={`/projects/${item.label === "Ready to move" ? "READY_TO_MOVE" : item.label.toUpperCase()}`} className="rounded-lg border border-black/10 p-6 transition hover:-translate-y-1 hover:shadow-xl">
+              <a key={item.label} href={`/projects/${item.statusVal}`} className="rounded-lg border border-black/10 p-6 transition hover:-translate-y-1 hover:shadow-xl">
                 <item.icon size={24} className="text-[#b89658]" />
                 <p className="mt-5 text-3xl font-semibold">{item.count}</p>
                 <p className="mt-2 text-sm text-[#68625a]">{item.label} projects</p>
@@ -84,7 +109,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section-shell mt-20 grid gap-8 lg:grid-cols-[1fr_0.8fr]">
+      <section className="section-shell mt-20 grid gap-8 lg:grid-cols-[1fr_0.8fr] pb-20">
         <div className="rounded-lg bg-[#171717] p-8 text-white md:p-12">
           <MessageSquareText size={28} className="text-[#d6bd82]" />
           <h2 className="mt-8 max-w-2xl font-[var(--font-display)] text-4xl">Need a sharper shortlist before the weekend?</h2>

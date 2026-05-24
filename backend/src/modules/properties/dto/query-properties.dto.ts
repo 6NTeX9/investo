@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { ProjectStatus, PropertyType } from "@prisma/client";
 import { Transform } from "class-transformer";
-import { IsEnum, IsInt, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsBoolean, IsEnum, IsInt, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 
 export class QueryPropertiesDto {
   @ApiPropertyOptional()
@@ -47,6 +47,12 @@ export class QueryPropertiesDto {
   @IsInt()
   bedrooms?: number;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => value === "true" || value === true)
+  @IsBoolean()
+  includeUnpublished?: boolean;
+
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @Transform(({ value }) => Number(value ?? 1))
@@ -59,7 +65,7 @@ export class QueryPropertiesDto {
   @Transform(({ value }) => Number(value ?? 12))
   @IsInt()
   @Min(1)
-  @Max(50)
+  @Max(200)
   limit = 12;
 
   @ApiPropertyOptional({ enum: ["newest", "price_asc", "price_desc"] })

@@ -16,7 +16,18 @@
     "prisma:migrate": "npm run prisma:migrate --workspace backend",
     "seed": "npm run seed --workspace backend"
   },
+  "overrides": {
+    "next@16.2.6": {
+      "postcss": "8.5.15"
+    },
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
   "engines": {
     "node": ">=20.11.0"
+  },
+  "devDependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }
