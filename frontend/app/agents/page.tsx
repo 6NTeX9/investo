@@ -43,14 +43,14 @@ export default async function AgentsPage() {
             <p className="text-sm text-[#68625a]">Add agents from the admin panel to display them here.</p>
           </div>
         ) : (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="agents-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {agents.map((agent: any) => {
               const role = agent.user?.role;
               const isManager = role === "SALES_MANAGER";
               return (
                 <div
                   key={agent.id}
-                  className="group overflow-hidden rounded-2xl bg-white border border-black/5 luxury-shadow transition hover:shadow-lg"
+                  className="agent-card group overflow-hidden rounded-2xl bg-white border border-black/5 luxury-shadow"
                 >
                 {/* Avatar */}
                 <div className="relative h-72 w-full overflow-hidden bg-[#f0ece4]">
@@ -90,9 +90,9 @@ export default async function AgentsPage() {
                         Call {agent.name.split(" ")[0]}
                       </LinkButton>
                     )}
-                    {agent.whatsapp && (
+                    {(agent.whatsapp || agent.phone) && (
                       <LinkButton
-                        href={`https://wa.me/${agent.whatsapp.replace(/\D/g, "")}`}
+                        href={`https://wa.me/${(agent.whatsapp || agent.phone).replace(/\D/g, "")}`}
                         variant="gold"
                         className="justify-center gap-2"
                       >

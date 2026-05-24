@@ -49,3 +49,28 @@ a {
 .focus-ring:focus-visible {
   outline-color: var(--gold);
 }
+
+/* Agents Grid Interactive Hover Animation */
+.agent-card {
+  position: relative;
+  transition: opacity 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              filter 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform, opacity, filter, box-shadow;
+}
+
+.agent-card:hover {
+  transform: scale(1.04) translateY(-6px);
+  box-shadow: 0 32px 90px rgb(22 18 14 / 0.22);
+  z-index: 10;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.agents-grid:hover .agent-card:not(:hover) {
+  opacity: 0.55;
+  filter: blur(0.8px) grayscale(15%);
+  transform: scale(0.96);
+}
+
