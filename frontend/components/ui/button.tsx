@@ -3,9 +3,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const styles = {
-  primary: "bg-[#171717] text-white hover:bg-[#2d2a26]",
-  gold: "bg-[#b89658] text-[#171717] hover:bg-[#c8a96c]",
-  ghost: "border border-black/10 bg-white/70 text-[#171717] hover:bg-white"
+  primary: "bg-[#171717] !text-white hover:bg-[#2d2a26]",
+  gold: "bg-[#b89658] !text-[#171717] hover:bg-[#c8a96c]",
+  ghost: "border border-black/10 bg-white/70 !text-[#171717] hover:bg-white"
 };
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
