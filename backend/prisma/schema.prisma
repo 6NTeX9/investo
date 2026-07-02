@@ -175,6 +175,7 @@ model Enquiry {
   agent      Agent?     @relation(fields: [agentId], references: [id])
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+  notes      String?
 
   @@index([status, createdAt])
   @@index([propertyId])

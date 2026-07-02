@@ -1,22 +1,31 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, Role, VisitStatus } from "@prisma/client";
 import { DatabaseService } from "../database/database.service";
-import { AdminCreateSiteVisitDto, CreateSiteVisitDto } from "./dto/create-site-visit.dto";
+import { AdminCreateSiteVisitDto, CreateSiteVisitDto, UpdateSiteVisitDto } from "./dto/create-site-visit.dto";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class SiteVisitsService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async create(dto: CreateSiteVisitDto) {
     await this.validateVisitRequest(dto);
 
-    return this.database.siteVisit.create({
-      data: {
-        ...dto,
-        status: VisitStatus.REQUESTED
-      },
-      include: this.includeRelations()
+    const visit = await this.database.siteVisit.create({
+      data: { ...dto, status: VisitStatus.REQUESTED },
+      include: { ...this.includeRelations(), property: true },
     });
+
+    // Fire-and-forget — notification failure must never block the booking
+    this.notifications.sendSiteVisitAlert(
+      { name: visit.name, phone: visit.phone, email: visit.email, preferredAt: visit.preferredAt, message: visit.message },
+      (visit as any).property?.title ?? null,
+    );
+
+    return visit;
   }
 
   async createAdmin(userId: string, role: Role, dto: AdminCreateSiteVisitDto) {
@@ -97,6 +106,65 @@ export class SiteVisitsService {
     if (assignedAgentId !== undefined) {
       data.assignedAgent = assignedAgentId
         ? { connect: { id: assignedAgentId } }
+        : { disconnect: true };
+    }
+
+    return this.database.siteVisit.update({
+      where: { id },
+      data,
+      include: this.includeRelations()
+    });
+  }
+
+  async update(
+    userId: string,
+    role: Role,
+    id: string,
+    dto: UpdateSiteVisitDto
+  ) {
+    const visit = await this.ensureVisit(id);
+
+    if (role === Role.SALES_AGENT) {
+      const agent = await this.database.agent.findUnique({
+        where: { userId }
+      });
+      if (!agent || visit.assignedAgentId !== agent.id) {
+        throw new BadRequestException("You can only modify your own assigned site visits.");
+      }
+      if (dto.assignedAgentId !== undefined && dto.assignedAgentId !== agent.id) {
+        throw new BadRequestException("You cannot reassign this site visit to another agent.");
+      }
+    } else if (dto.assignedAgentId !== undefined) {
+      await this.validateAgent(dto.assignedAgentId);
+    }
+
+    if (dto.propertyId) {
+      const property = await this.database.property.findUnique({
+        where: { id: dto.propertyId },
+        select: { id: true }
+      });
+      if (!property) throw new NotFoundException("Selected property was not found.");
+    }
+
+    const data: Prisma.SiteVisitUpdateInput = {};
+    if (dto.name !== undefined) data.name = dto.name;
+    if (dto.phone !== undefined) data.phone = dto.phone;
+    if (dto.email !== undefined) data.email = dto.email;
+    if (dto.message !== undefined) data.message = dto.message;
+    if (dto.preferredAt !== undefined) {
+      data.preferredAt = dto.preferredAt;
+    }
+    if (dto.status !== undefined) data.status = dto.status;
+
+    if (dto.assignedAgentId !== undefined) {
+      data.assignedAgent = dto.assignedAgentId
+        ? { connect: { id: dto.assignedAgentId } }
+        : { disconnect: true };
+    }
+
+    if (dto.propertyId !== undefined) {
+      data.property = dto.propertyId
+        ? { connect: { id: dto.propertyId } }
         : { disconnect: true };
     }
 

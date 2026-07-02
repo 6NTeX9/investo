@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import {
   Calendar, Phone, Mail, Clock, User, UserPlus, Loader2,
-  Sparkles, AlertCircle, Plus, X, ChevronDown, CheckCircle2, Trash2
+  Sparkles, AlertCircle, Plus, X, ChevronDown, CheckCircle2, Trash2, Pencil
 } from "lucide-react";
 
 type VisitStatus = "REQUESTED" | "CONFIRMED" | "RESCHEDULED" | "COMPLETED" | "CANCELLED";
@@ -56,18 +55,19 @@ function hasTimeClash(a: SiteVisit, b: SiteVisit) {
 }
 
 export default function AdminSiteVisitsPage() {
-  const router = useRouter();
-
   const [visits, setVisits]           = useState<SiteVisit[]>([]);
+  const [allVisits, setAllVisits]     = useState<SiteVisit[]>([]); // always unfiltered — for stats
   const [agents, setAgents]           = useState<Agent[]>([]);
   const [properties, setProperties]   = useState<Property[]>([]);
   const [loading, setLoading]         = useState(true);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("REQUESTED");
   const [savingId, setSavingId]       = useState<string | null>(null);
 
   // Drawer
   const [drawerOpen, setDrawerOpen]   = useState(false);
   const [submitting, setSubmitting]   = useState(false);
+  const [drawerMode, setDrawerMode]   = useState<"create" | "edit">("create");
+  const [editingVisit, setEditingVisit] = useState<SiteVisit | null>(null);
 
   // Form fields
   const [fName, setFName]             = useState("");
@@ -86,43 +86,47 @@ export default function AdminSiteVisitsPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) { router.push("/login"); return; }
-    loadAll();
-  }, [router]);
+    loadMetadata();
+  }, []);
 
   useEffect(() => { loadVisits(); }, [statusFilter]);
 
-  const loadAll = async () => {
-    setLoading(true);
+  const loadMetadata = async () => {
     try {
-      const [vRes, aRes, pRes, meRes] = await Promise.all([
-        api.get("/site-visits"),
+      const [aRes, pRes, meRes, allRes] = await Promise.all([
         api.get("/agents"),
         api.get("/properties", { params: { limit: 200 } }),
-        api.get("/auth/me")
+        api.get("/auth/me"),
+        api.get("/site-visits"),   // unfiltered — powers the stats strip
       ]);
-      setVisits(vRes.data);
       setAgents(aRes.data);
       setProperties(pRes.data?.items || pRes.data || []);
       setCurrentUser(meRes.data);
+      setAllVisits(allRes.data);
     } catch {
-      toast.error("Failed to load data.");
+      toast.error("Failed to load metadata.");
+    }
+  };
+
+  const loadVisits = async () => {
+    setLoading(true);
+    try {
+      const [filteredRes, allRes] = await Promise.all([
+        api.get(statusFilter ? `/site-visits?status=${statusFilter}` : "/site-visits"),
+        api.get("/site-visits"),   // always refresh unfiltered stats too
+      ]);
+      setVisits(filteredRes.data);
+      setAllVisits(allRes.data);
+    } catch {
+      toast.error("Failed to refresh visits.");
     } finally {
       setLoading(false);
     }
   };
 
-  const loadVisits = async () => {
-    try {
-      const res = await api.get(statusFilter ? `/site-visits?status=${statusFilter}` : "/site-visits");
-      setVisits(res.data);
-    } catch {
-      toast.error("Failed to refresh visits.");
-    }
-  };
-
   const openDrawer = () => {
+    setDrawerMode("create");
+    setEditingVisit(null);
     setFName(""); setFPhone(""); setFEmail(""); setFDate("");
     setFTime("10:00"); setFPropertyId(""); 
     
@@ -137,7 +141,31 @@ export default function AdminSiteVisitsPage() {
     setDrawerOpen(true);
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const openEditDrawer = (visit: SiteVisit) => {
+    setDrawerMode("edit");
+    setEditingVisit(visit);
+    setFName(visit.name);
+    setFPhone(visit.phone);
+    setFEmail(visit.email || "");
+    
+    const dateObj = new Date(visit.preferredAt);
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const dd = String(dateObj.getDate()).padStart(2, "0");
+    setFDate(`${yyyy}-${mm}-${dd}`);
+    
+    const hh = String(dateObj.getHours()).padStart(2, "0");
+    const min = String(dateObj.getMinutes()).padStart(2, "0");
+    setFTime(`${hh}:${min}`);
+    
+    setFPropertyId(visit.propertyId || "");
+    setFAgentId(visit.assignedAgentId || "");
+    setFMessage(visit.message || "");
+    setFStatus(visit.status);
+    setDrawerOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fName || !fPhone || !fDate || !fTime) {
       toast.error("Client name, phone, date and time are required.");
@@ -146,22 +174,29 @@ export default function AdminSiteVisitsPage() {
     setSubmitting(true);
     try {
       const preferredAt = new Date(`${fDate}T${fTime}`).toISOString();
-      await api.post("/site-visits/admin", {
+      const payload = {
         name: fName,
         phone: fPhone,
-        email: fEmail || undefined,
+        email: fEmail || null,
         preferredAt,
-        propertyId: fPropertyId || undefined,
-        assignedAgentId: fAgentId || undefined,
-        message: fMessage || undefined,
+        propertyId: fPropertyId || null,
+        assignedAgentId: fAgentId || null,
+        message: fMessage || null,
         status: fStatus,
-      });
-      toast.success("Site visit booked successfully!");
+      };
+
+      if (drawerMode === "edit" && editingVisit) {
+        const res = await api.patch(`/site-visits/${editingVisit.id}`, payload);
+        toast.success("Site visit updated successfully!");
+      } else {
+        await api.post("/site-visits/admin", payload);
+        toast.success("Site visit booked successfully!");
+      }
       setDrawerOpen(false);
       loadVisits();
     } catch (err: any) {
       const msg = err.response?.data?.message;
-      toast.error(Array.isArray(msg) ? msg[0] : (msg ?? "Failed to book site visit."));
+      toast.error(Array.isArray(msg) ? msg[0] : (msg ?? `Failed to ${drawerMode === "edit" ? "update" : "book"} site visit.`));
     } finally {
       setSubmitting(false);
     }
@@ -239,7 +274,7 @@ export default function AdminSiteVisitsPage() {
       {!loading && (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {STATUS_OPTIONS.map(opt => {
-            const count = visits.filter(v => v.status === opt.value).length;
+            const count = allVisits.filter(v => v.status === opt.value).length;
             return (
               <button
                 key={opt.value}
@@ -279,133 +314,131 @@ export default function AdminSiteVisitsPage() {
             <p className="mt-1 text-sm text-[#68625a]">Book the first site visit using the button above.</p>
           </div>
         ) : (
-          Object.entries(grouped)
-            .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-            .map(([day, dayVisits]) => (
-              <div key={day}>
-                {/* Day header */}
-                <div className="mb-3 flex items-center gap-3">
-                  <div className="flex items-center gap-2 rounded-md bg-[#171717] px-3 py-1.5">
-                    <Calendar size={13} className="text-[#b89658]" />
-                    <span className="text-xs font-semibold text-white">
-                      {new Date(day).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
-                    </span>
-                  </div>
-                  <span className="text-xs text-[#68625a] font-medium">{dayVisits.length} visit{dayVisits.length > 1 ? "s" : ""}</span>
-                </div>
+          <div className="space-y-3">
+            {[...visits]
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .map(visit => {
+                const opt = STATUS_OPTIONS.find(o => o.value === visit.status) || STATUS_OPTIONS[0];
+                const isClash = clashSet.has(visit.id);
+                const isSaving = savingId === visit.id;
+                return (
+                  <div
+                    key={visit.id}
+                    className={`relative rounded-xl border bg-white p-5 luxury-shadow transition flex flex-col md:grid md:grid-cols-[1fr_260px] gap-5 items-start ${
+                      isClash ? "border-amber-300 bg-amber-50/30" : "border-black/5 hover:border-[#b89658]/30"
+                    } ${isSaving ? "opacity-60 pointer-events-none" : ""}`}
+                  >
+                    {isSaving && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-xl z-10">
+                        <Loader2 className="animate-spin text-[#b89658]" size={22} />
+                      </div>
+                    )}
 
-                <div className="space-y-3">
-                  {dayVisits
-                    .sort((a, b) => new Date(a.preferredAt).getTime() - new Date(b.preferredAt).getTime())
-                    .map(visit => {
-                      const opt = STATUS_OPTIONS.find(o => o.value === visit.status) || STATUS_OPTIONS[0];
-                      const isClash = clashSet.has(visit.id);
-                      const isSaving = savingId === visit.id;
-                      return (
-                        <div
-                          key={visit.id}
-                          className={`relative rounded-xl border bg-white p-5 luxury-shadow transition flex flex-col md:grid md:grid-cols-[1fr_260px] gap-5 items-start ${
-                            isClash ? "border-amber-300 bg-amber-50/30" : "border-black/5 hover:border-[#b89658]/30"
-                          } ${isSaving ? "opacity-60 pointer-events-none" : ""}`}
+                    {/* ── Left: client details ── */}
+                    <div className="space-y-2.5 w-full min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="flex items-center gap-1.5 font-semibold text-[#171717]">
+                          <User size={15} className="text-[#b89658]" />
+                          {visit.name}
+                        </span>
+                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${opt.color}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${opt.dot}`} />
+                          {opt.label}
+                        </span>
+                        {isClash && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 border border-amber-200 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                            ⚠️ Time clash
+                          </span>
+                        )}
+                        {visit.property && (
+                          <span className="inline-flex items-center gap-1 rounded bg-[#f7f4ee] px-2 py-0.5 text-xs font-semibold text-[#b89658]">
+                            <Sparkles size={10} /> {visit.property.title}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Time block */}
+                      <div className="inline-flex items-center gap-2 rounded-md bg-[#171717]/5 px-3 py-2 text-sm">
+                        <Clock size={14} className="text-[#b89658] shrink-0" />
+                        <span className="font-semibold">{formatDateTime(visit.preferredAt)}</span>
+                      </div>
+
+                      {/* Contact row */}
+                      <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-[#68625a] font-medium">
+                        <span className="flex items-center gap-1.5"><Phone size={12} /> {visit.phone}</span>
+                        {visit.email && <span className="flex items-center gap-1.5"><Mail size={12} /> {visit.email}</span>}
+                        {visit.assignedAgent && (
+                          <span className="flex items-center gap-1.5 text-[#b89658] font-semibold">
+                            <UserPlus size={12} /> Assigned: {visit.assignedAgent.name}
+                          </span>
+                        )}
+                      </div>
+
+                      {visit.message && (
+                        <p className="text-sm text-[#68625a] italic border-l-2 border-[#b89658]/30 pl-3 leading-relaxed">
+                          "{visit.message}"
+                        </p>
+                      )}
+
+                      <p className="text-[11px] text-[#68625a]/60">
+                        Booked on {formatDate(visit.createdAt)}
+                      </p>
+                    </div>
+
+                    {/* ── Right: controls ── */}
+                    <div className="w-full space-y-3 border-t border-black/5 pt-4 md:border-t-0 md:pt-0 shrink-0">
+                      <div className="grid gap-1">
+                        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Status</label>
+                        <select
+                          value={visit.status}
+                          onChange={e => {
+                            const newStatus = e.target.value as VisitStatus;
+                            if (newStatus === "RESCHEDULED") {
+                              openEditDrawer({ ...visit, status: newStatus });
+                            } else {
+                              handleUpdate(visit.id, newStatus, visit.assignedAgentId);
+                            }
+                          }}
+                          className="focus-ring rounded border border-black/10 px-2.5 py-2 text-sm bg-white"
                         >
-                          {isSaving && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-xl z-10">
-                              <Loader2 className="animate-spin text-[#b89658]" size={22} />
-                            </div>
-                          )}
+                          {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                      </div>
 
-                          {/* ── Left: client details ── */}
-                          <div className="space-y-2.5 w-full min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="flex items-center gap-1.5 font-semibold text-[#171717]">
-                                <User size={15} className="text-[#b89658]" />
-                                {visit.name}
-                              </span>
-                              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${opt.color}`}>
-                                <span className={`h-1.5 w-1.5 rounded-full ${opt.dot}`} />
-                                {opt.label}
-                              </span>
-                              {isClash && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 border border-amber-200 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                                  ⚠️ Time clash
-                                </span>
-                              )}
-                              {visit.property && (
-                                <span className="inline-flex items-center gap-1 rounded bg-[#f7f4ee] px-2 py-0.5 text-xs font-semibold text-[#b89658]">
-                                  <Sparkles size={10} /> {visit.property.title}
-                                </span>
-                              )}
-                            </div>
+                      <div className="grid gap-1">
+                        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a] flex items-center gap-1">
+                          <UserPlus size={11} /> Assigned Sales Person
+                        </label>
+                        <select
+                          value={visit.assignedAgentId || ""}
+                          onChange={e => handleUpdate(visit.id, visit.status, e.target.value || null)}
+                          disabled={currentUser?.role === "SALES_AGENT"}
+                          className="focus-ring rounded border border-black/10 px-2.5 py-2 text-sm bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-[#fcfbfa]"
+                        >
+                          <option value="">— Unassigned —</option>
+                          {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                        </select>
+                      </div>
 
-                            {/* Time block */}
-                            <div className="inline-flex items-center gap-2 rounded-md bg-[#171717]/5 px-3 py-2 text-sm">
-                              <Clock size={14} className="text-[#b89658] shrink-0" />
-                              <span className="font-semibold">{formatDateTime(visit.preferredAt)}</span>
-                            </div>
-
-                            {/* Contact row */}
-                            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-[#68625a] font-medium">
-                              <span className="flex items-center gap-1.5"><Phone size={12} /> {visit.phone}</span>
-                              {visit.email && <span className="flex items-center gap-1.5"><Mail size={12} /> {visit.email}</span>}
-                              {visit.assignedAgent && (
-                                <span className="flex items-center gap-1.5 text-[#b89658] font-semibold">
-                                  <UserPlus size={12} /> Assigned: {visit.assignedAgent.name}
-                                </span>
-                              )}
-                            </div>
-
-                            {visit.message && (
-                              <p className="text-sm text-[#68625a] italic border-l-2 border-[#b89658]/30 pl-3 leading-relaxed">
-                                "{visit.message}"
-                              </p>
-                            )}
-
-                            <p className="text-[11px] text-[#68625a]/60">
-                              Booked on {formatDate(visit.createdAt)}
-                            </p>
-                          </div>
-
-                          {/* ── Right: controls ── */}
-                          <div className="w-full space-y-3 border-t border-black/5 pt-4 md:border-t-0 md:pt-0 shrink-0">
-                            <div className="grid gap-1">
-                              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Status</label>
-                              <select
-                                value={visit.status}
-                                onChange={e => handleUpdate(visit.id, e.target.value as VisitStatus, visit.assignedAgentId)}
-                                className="focus-ring rounded border border-black/10 px-2.5 py-2 text-sm bg-white"
-                              >
-                                {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                              </select>
-                            </div>
-
-                            <div className="grid gap-1">
-                              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a] flex items-center gap-1">
-                                <UserPlus size={11} /> Assigned Sales Person
-                              </label>
-                              <select
-                                value={visit.assignedAgentId || ""}
-                                onChange={e => handleUpdate(visit.id, visit.status, e.target.value || null)}
-                                disabled={currentUser?.role === "SALES_AGENT"}
-                                className="focus-ring rounded border border-black/10 px-2.5 py-2 text-sm bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-[#fcfbfa]"
-                              >
-                                <option value="">— Unassigned —</option>
-                                {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                              </select>
-                            </div>
-
-                            <button
-                              onClick={() => setDeleteId(visit.id)}
-                              className="flex w-full items-center justify-center gap-1.5 rounded border border-red-100 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition"
-                            >
-                              <Trash2 size={12} /> Remove visit
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            ))
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => openEditDrawer(visit)}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded border border-black/10 py-1.5 text-xs font-semibold text-[#171717] hover:bg-black/5 transition"
+                        >
+                          <Pencil size={12} className="text-[#b89658]" /> Edit
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(visit.id)}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded border border-red-100 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition"
+                        >
+                          <Trash2 size={12} /> Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
         )}
       </div>
 
@@ -419,8 +452,12 @@ export default function AdminSiteVisitsPage() {
           {/* Drawer header */}
           <div className="flex items-center justify-between border-b border-black/10 p-5">
             <div>
-              <h2 className="text-xl font-semibold text-[#171717]">Book a Site Visit</h2>
-              <p className="text-xs text-[#68625a] mt-0.5">Fill in client details and preferred visit time.</p>
+              <h2 className="text-xl font-semibold text-[#171717]">
+                {drawerMode === "edit" ? "Edit Site Visit" : "Book a Site Visit"}
+              </h2>
+              <p className="text-xs text-[#68625a] mt-0.5">
+                {drawerMode === "edit" ? "Modify visit details and schedules." : "Fill in client details and preferred visit time."}
+              </p>
             </div>
             <button disabled={submitting} onClick={() => setDrawerOpen(false)} className="p-1 text-[#68625a] hover:bg-black/5 rounded-full transition">
               <X size={20} />
@@ -428,7 +465,7 @@ export default function AdminSiteVisitsPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleCreate} className="flex-1 overflow-y-auto p-6 space-y-5">
+          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
             {/* Client info */}
             <h3 className="text-sm font-semibold uppercase tracking-wider text-[#b89658] border-b border-black/5 pb-1">Client Details</h3>
 
@@ -536,12 +573,12 @@ export default function AdminSiteVisitsPage() {
               Cancel
             </button>
             <button
-              onClick={handleCreate} disabled={submitting}
+              onClick={handleSubmit} disabled={submitting}
               className="flex items-center gap-2 rounded-md bg-[#171717] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2a2a2a] disabled:opacity-50"
             >
               {submitting
-                ? <><Loader2 size={15} className="animate-spin" /><span>Booking...</span></>
-                : <><CheckCircle2 size={15} /><span>Book Visit</span></>}
+                ? <><Loader2 size={15} className="animate-spin" /><span>{drawerMode === "edit" ? "Saving..." : "Booking..."}</span></>
+                : <><CheckCircle2 size={15} /><span>{drawerMode === "edit" ? "Save Changes" : "Book Visit"}</span></>}
             </button>
           </div>
         </div>

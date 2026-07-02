@@ -16,19 +16,79 @@ export class AnalyticsService {
     });
   }
 
-  async dashboard() {
-    const [properties, enquiries, visits, events] = await this.database.$transaction([
-      this.database.property.count(),
-      this.database.enquiry.count(),
-      this.database.siteVisit.count(),
-      this.database.analyticsEvent.groupBy({
-        by: ["name"],
-        _count: { name: true },
-        orderBy: { _count: { name: "desc" } },
-        take: 10
-      })
-    ]);
+  async dashboard(since?: string) {
+    let sinceDate: Date | undefined = undefined;
+    if (since) {
+      const parsed = new Date(since);
+      if (!isNaN(parsed.getTime())) {
+        sinceDate = parsed;
+      }
+    }
 
-    return { properties, enquiries, visits, events };
+    const [properties, enquiries, visits, events, recentEnquiries, recentVisits, newEnquiriesCount, newVisitsCount] =
+      await this.database.$transaction([
+        this.database.property.count(),
+        this.database.enquiry.count({
+          where: sinceDate ? { createdAt: { gt: sinceDate } } : undefined,
+        }),
+        this.database.siteVisit.count({
+          where: { status: { in: ["REQUESTED", "CONFIRMED", "RESCHEDULED"] } },
+        }),
+        this.database.analyticsEvent.groupBy({
+          by: ["name"],
+          _count: { name: true },
+          orderBy: { _count: { name: "desc" } },
+          take: 10,
+        }),
+        // Last 5 enquiries with property name
+        this.database.enquiry.findMany({
+          take: 5,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            status: true,
+            createdAt: true,
+            property: { select: { title: true } },
+          },
+        }),
+        // Last 5 site visits
+        this.database.siteVisit.findMany({
+          take: 5,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            status: true,
+            preferredAt: true,
+            createdAt: true,
+            property: { select: { title: true } },
+          },
+        }),
+        // Count NEW (unseen) enquiries since sinceDate
+        this.database.enquiry.count({
+          where: {
+            status: "NEW",
+            ...(sinceDate ? { createdAt: { gt: sinceDate } } : {}),
+          },
+        }),
+        // Count REQUESTED visits
+        this.database.siteVisit.count({
+          where: { status: "REQUESTED" },
+        }),
+      ]);
+
+    return {
+      properties,
+      enquiries,
+      visits,
+      events,
+      recentEnquiries,
+      recentVisits,
+      newEnquiriesCount,
+      newVisitsCount,
+    };
   }
 }

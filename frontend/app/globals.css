@@ -14,6 +14,49 @@
   box-sizing: border-box;
 }
 
+/* ── Skeleton shimmer ───────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 0.06) 25%,
+    rgb(0 0 0 / 0.12) 50%,
+    rgb(0 0 0 / 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Input micro-interactions ───────────────────────────────── */
+input, textarea, select {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+/* ── Link hover underline slide ─────────────────────────────── */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: #b89658;
+  transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+
 body {
   margin: 0;
   background: var(--background);
@@ -53,24 +96,143 @@ a {
 /* Agents Grid Interactive Hover Animation */
 .agent-card {
   position: relative;
-  transition: opacity 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
-              transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
-              filter 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
-              box-shadow 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
-  will-change: transform, opacity, filter, box-shadow;
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform, box-shadow;
 }
 
 .agent-card:hover {
   transform: scale(1.04) translateY(-6px);
   box-shadow: 0 32px 90px rgb(22 18 14 / 0.22);
   z-index: 10;
-  opacity: 1 !important;
-  filter: none !important;
 }
 
-.agents-grid:hover .agent-card:not(:hover) {
-  opacity: 0.55;
-  filter: blur(0.8px) grayscale(15%);
-  transform: scale(0.96);
+
+/* Properties Grid Interactive Hover Animation */
+.property-card-wrapper {
+  position: relative;
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform, box-shadow;
 }
+
+.property-card-wrapper:hover {
+  transform: scale(1.03) translateY(-6px);
+  box-shadow: 0 32px 90px rgb(22 18 14 / 0.22);
+  z-index: 10;
+}
+
+
+
+/* Smooth Theme Transitions */
+body, 
+aside, 
+main, 
+section, 
+div, 
+span, 
+p, 
+h1, 
+h2, 
+h3, 
+button, 
+input, 
+select, 
+textarea,
+a {
+  transition: background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Mode Overrides for CMS */
+.dark {
+  --background: #121212;
+  --foreground: #f5f5f5;
+  --ink-muted: #a09d98;
+  --charcoal: #f5f5f5;
+  --panel-bg: #1c1c1e;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --content-bg: #121212;
+  --card-bg: #1c1c1e;
+}
+
+.dark .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.dark .bg-\[\#faf9f6\] {
+  background-color: var(--content-bg) !important;
+}
+
+.dark .bg-\[\#fdf9f2\] {
+  background-color: #242220 !important;
+}
+
+.dark .bg-\[\#f7f4ee\] {
+  background-color: #2e2a24 !important;
+}
+
+.dark .text-\[\#171717\] {
+  color: var(--foreground) !important;
+}
+
+.dark .text-\[\#68625a\] {
+  color: var(--ink-muted) !important;
+}
+
+.dark .border-black\/10,
+.dark .border-black\/5 {
+  border-color: var(--border-color) !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #242426 !important;
+  color: var(--foreground) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #68625a !important;
+}
+
+.dark .luxury-shadow {
+  box-shadow: 0 24px 80px rgb(0 0 0 / 0.5) !important;
+}
+
+/* Public Header & Navigation Dark Mode Overrides */
+.dark header {
+  background-color: #121212 !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark header a,
+.dark header span,
+.dark header button {
+  color: var(--foreground) !important;
+}
+
+.dark header a:hover,
+.dark header button:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark #mobile-navigation {
+  background-color: #121212 !important;
+  border-color: var(--border-color) !important;
+  color: var(--foreground) !important;
+}
+
+.dark #mobile-navigation a {
+  color: var(--foreground) !important;
+}
+
+.dark #mobile-navigation a:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
 

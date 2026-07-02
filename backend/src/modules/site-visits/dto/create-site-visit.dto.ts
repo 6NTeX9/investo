@@ -56,3 +56,47 @@ export class UpdateSiteVisitStatusDto {
   @IsString()
   assignedAgentId?: string | null;
 }
+
+export class UpdateSiteVisitDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  name?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  preferredAt?: Date;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  message?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  propertyId?: string;
+
+  @ApiPropertyOptional({ enum: VisitStatus })
+  @IsOptional()
+  @IsEnum(VisitStatus)
+  status?: VisitStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  assignedAgentId?: string | null;
+}

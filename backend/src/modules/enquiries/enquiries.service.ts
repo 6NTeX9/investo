@@ -2,13 +2,28 @@ import { Injectable, BadRequestException, NotFoundException } from "@nestjs/comm
 import { LeadStatus, Role } from "@prisma/client";
 import { DatabaseService } from "../database/database.service";
 import { CreateEnquiryDto } from "./dto/create-enquiry.dto";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class EnquiriesService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
-  create(dto: CreateEnquiryDto) {
-    return this.database.enquiry.create({ data: dto });
+  async create(dto: CreateEnquiryDto) {
+    const enquiry = await this.database.enquiry.create({
+      data: dto,
+      include: { property: true },
+    });
+
+    // Fire-and-forget — a notification failure must never break enquiry creation
+    this.notifications.sendEnquiryAlert(
+      { name: enquiry.name, phone: enquiry.phone, email: enquiry.email, message: enquiry.message },
+      (enquiry as any).property?.title ?? null,
+    );
+
+    return enquiry;
   }
 
   async findAll(userId: string, role: Role, status?: LeadStatus) {
@@ -87,6 +102,34 @@ export class EnquiriesService {
         status,
         agentId: targetAgentId
       }
+    });
+  }
+
+  async updateNotes(
+    userId: string,
+    role: Role,
+    id: string,
+    notes: string
+  ) {
+    const enquiry = await this.database.enquiry.findUnique({
+      where: { id }
+    });
+    if (!enquiry) {
+      throw new NotFoundException("Enquiry not found");
+    }
+
+    if (role === Role.SALES_AGENT) {
+      const agent = await this.database.agent.findUnique({
+        where: { userId }
+      });
+      if (!agent || enquiry.agentId !== agent.id) {
+        throw new BadRequestException("You can only modify enquiries assigned to you.");
+      }
+    }
+
+    return this.database.enquiry.update({
+      where: { id },
+      data: { notes }
     });
   }
 }

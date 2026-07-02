@@ -4,8 +4,8 @@ Base URL: `/api`
 
 ## Auth
 
-- `POST /auth/login` - admin login.
-- `GET /auth/me` - current authenticated user.
+- Admin login is handled by Supabase Auth using `signInWithPassword`.
+- `GET /auth/me` - current authenticated admin/user resolved from the Supabase session token.
 
 ## Properties
 

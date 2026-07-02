@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Role } from "@prisma/client";
 import { Roles } from "../../common/decorators/roles.decorator";
@@ -21,7 +21,7 @@ export class AnalyticsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER)
-  dashboard() {
-    return this.analytics.dashboard();
+  dashboard(@Query("since") since?: string) {
+    return this.analytics.dashboard(since);
   }
 }

@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import axios from "axios";
 import { uploadFiles } from "@/lib/uploadthing";
-import { parseIndianPrice, formatCurrency } from "@/lib/utils";
+import { parseIndianPrice, formatCurrency, convertToMapEmbedUrl } from "@/lib/utils";
 import { 
   Building2, Plus, Search, Edit, Trash2, X, Loader2, 
   UploadCloud, CheckCircle2, AlertTriangle, Sparkles, SlidersHorizontal 
@@ -64,8 +63,6 @@ interface Agent {
 }
 
 export default function AdminPropertiesPage() {
-  const router = useRouter();
-  
   // Lists
   const [properties, setProperties] = useState<Property[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -126,12 +123,6 @@ export default function AdminPropertiesPage() {
 
   // Authenticate & initial fetch
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     const fetchDropdownData = async () => {
       try {
         const [catsRes, agentsRes] = await Promise.all([
@@ -147,7 +138,7 @@ export default function AdminPropertiesPage() {
     };
 
     fetchDropdownData();
-  }, [router]);
+  }, []);
 
   // Fetch properties list
   const fetchProperties = async () => {
@@ -475,7 +466,7 @@ export default function AdminPropertiesPage() {
     <main className="section-shell pt-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Aurum listings</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Investo listings</p>
           <h1 className="mt-2 text-3xl font-semibold">Properties</h1>
         </div>
         <button 
@@ -554,101 +545,185 @@ export default function AdminPropertiesPage() {
             <p className="mt-1 text-sm text-[#68625a]">Try clearing search parameters or add a new property record.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-black/5 bg-[#f7f4ee] font-semibold text-[#68625a]">
-                  <th className="p-4">Property</th>
-                  <th className="p-4">Location</th>
-                  <th className="p-4">Type & Status</th>
-                  <th className="p-4 text-right">Price (₹)</th>
-                  <th className="p-4 text-center">Listing</th>
-                  <th className="p-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {properties.map((property) => (
-                  <tr key={property.id} className="hover:bg-[#fcfbfa] transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-16 overflow-hidden rounded border border-black/5 bg-black/5 flex-shrink-0">
-                          {property.images?.[0] ? (
-                            <img 
-                              src={property.images[0].url} 
-                              alt={property.title} 
-                              className="h-full w-full object-cover"
-                            />
+          <>
+            {/* Desktop Table view */}
+            <div className="overflow-x-auto hidden md:block">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-black/5 bg-[#f7f4ee] font-semibold text-[#68625a]">
+                    <th className="p-4">Property</th>
+                    <th className="p-4">Location</th>
+                    <th className="p-4">Type & Status</th>
+                    <th className="p-4 text-right">Price (₹)</th>
+                    <th className="p-4 text-center">Listing</th>
+                    <th className="p-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-black/5">
+                  {properties.map((property) => (
+                    <tr key={property.id} className="hover:bg-[#fcfbfa] transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-16 overflow-hidden rounded border border-black/5 bg-black/5 flex-shrink-0">
+                            {property.images?.[0] ? (
+                              <img 
+                                src={property.images[0].url} 
+                                alt={property.title} 
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center text-black/20">
+                                <Building2 size={20} />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-base text-[#171717]">{property.title}</p>
+                            <p className="text-xs text-[#68625a] font-mono">{property.slug}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <p className="font-medium text-[#171717]">{property.location}</p>
+                        <p className="text-xs text-[#68625a]">{property.city}</p>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-semibold text-[#171717]">{property.type}</span>
+                          <span className="text-[10px] text-[#68625a] font-medium uppercase bg-black/5 w-max px-1.5 py-0.5 rounded">
+                            {property.status.replaceAll("_", " ")}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right font-semibold text-[#171717]">
+                        {formatCurrency(Number(property.price))}
+                      </td>
+                      <td className="p-4 text-center">
+                        <div className="flex flex-col items-center gap-1.5">
+                          {property.isPublished ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-100">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                              Published
+                            </span>
                           ) : (
-                            <div className="h-full w-full flex items-center justify-center text-black/20">
-                              <Building2 size={20} />
-                            </div>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+                              <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
+                              Draft
+                            </span>
+                          )}
+                          {property.isFeatured && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#b89658]">
+                              <Sparkles size={10} />
+                              Featured
+                            </span>
                           )}
                         </div>
-                        <div>
-                          <p className="font-semibold text-base text-[#171717]">{property.title}</p>
-                          <p className="text-xs text-[#68625a] font-mono">{property.slug}</p>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => handleOpenEdit(property)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
+                            title="Edit"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(property.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded transition"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
                         </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <p className="font-medium text-[#171717]">{property.location}</p>
-                      <p className="text-xs text-[#68625a]">{property.city}</p>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs font-semibold text-[#171717]">{property.type}</span>
-                        <span className="text-[10px] text-[#68625a] font-medium uppercase bg-black/5 w-max px-1.5 py-0.5 rounded">
-                          {property.status.replaceAll("_", " ")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card view */}
+            <div className="block md:hidden divide-y divide-black/5 bg-white">
+              {properties.map((property) => (
+                <div key={property.id} className="p-4 flex flex-col gap-3">
+                  <div className="flex gap-3">
+                    <div className="h-16 w-20 overflow-hidden rounded border border-black/5 bg-black/5 flex-shrink-0">
+                      {property.images?.[0] ? (
+                        <img 
+                          src={property.images[0].url} 
+                          alt={property.title} 
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-black/20">
+                          <Building2 size={24} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-semibold text-sm text-[#171717] leading-tight truncate">{property.title}</h3>
+                        <span className="font-semibold text-[#171717] text-xs shrink-0">
+                          {formatCurrency(Number(property.price))}
                         </span>
                       </div>
-                    </td>
-                    <td className="p-4 text-right font-semibold text-[#171717]">
-                      {formatCurrency(Number(property.price))}
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex flex-col items-center gap-1.5">
-                        {property.isPublished ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-100">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
-                            Published
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
-                            <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
-                            Draft
-                          </span>
-                        )}
-                        {property.isFeatured && (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#b89658]">
-                            <Sparkles size={10} />
-                            Featured
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(property)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
-                          title="Edit"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirmId(property.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded transition"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <p className="text-xs text-[#68625a] mt-1 truncate">
+                        {property.location}, {property.city}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 text-xs border-t border-black/5 pt-2">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-semibold text-[#171717] text-xs">{property.type}</span>
+                      <span className="text-[9px] text-[#68625a] font-medium uppercase bg-black/5 px-1.5 py-0.5 rounded w-max">
+                        {property.status.replaceAll("_", " ")}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1">
+                      {property.isPublished ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-medium text-emerald-700 border border-emerald-100">
+                          <span className="h-1 w-1 rounded-full bg-emerald-600" />
+                          Published
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-medium text-amber-700 border border-amber-100">
+                          <span className="h-1 w-1 rounded-full bg-amber-600" />
+                          Draft
+                        </span>
+                      )}
+                      {property.isFeatured && (
+                        <span className="inline-flex items-center gap-0.5 text-[8px] font-semibold text-[#b89658]">
+                          <Sparkles size={8} />
+                          Featured
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handleOpenEdit(property)}
+                        className="flex items-center gap-1 rounded border border-black/10 px-2.5 py-1 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition"
+                        title="Edit"
+                      >
+                        <Edit size={12} />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(property.id)}
+                        className="p-1 text-red-600 hover:bg-red-50 rounded border border-red-100 transition"
+                        title="Delete"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
@@ -839,38 +914,12 @@ export default function AdminPropertiesPage() {
                 </p>
                 {/* Live Map Preview */}
                 {(mapLink || address) && (() => {
-                  // Inline conversion so we can preview inside the admin form
-                  const getPreviewUrl = (link: string, addr: string) => {
-                    const t = link.trim();
-                    if (!t && addr) return `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&output=embed`;
-                    if (!t) return "";
-                    if (t.includes("output=embed") || t.includes("/maps/embed")) return t;
-                    // Extract src from iframe embed code
-                    if (t.startsWith("<iframe")) {
-                      const m = t.match(/src="([^"]+)"/);
-                      if (m) return m[1];
-                    }
-                    const placeMatch = t.match(/google\.com\/maps\/(?:place|search)\/([^/@?]+)(?:\/@([\d.-]+),([\d.-]+))?/);
-                    if (placeMatch) {
-                      if (placeMatch[2] && placeMatch[3]) return `https://maps.google.com/maps?q=${placeMatch[2]},${placeMatch[3]}&output=embed`;
-                      const q = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
-                      return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
-                    }
-                    const coordMatch = t.match(/@([\d.-]+),([\d.-]+)/);
-                    if (coordMatch) return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
-                    if (t.includes("goo.gl") || t.includes("maps.app")) {
-                      return addr ? `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&output=embed` : "";
-                    }
-                    try { const url = new URL(t); const q = url.searchParams.get("q"); if (q) return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`; } catch {}
-                    return addr ? `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&output=embed` : t;
-                  };
-                  const previewUrl = getPreviewUrl(mapLink, address);
+                  const previewUrl = convertToMapEmbedUrl(mapLink, address);
                   if (!previewUrl) return null;
                   return (
                     <div className="mt-1 overflow-hidden rounded border border-black/10 bg-black/5">
                       <p className="px-2 py-1 text-[10px] font-semibold text-[#68625a] uppercase tracking-wide border-b border-black/5">Map Preview</p>
                       <iframe
-                        key={previewUrl}
                         title="Map preview"
                         src={previewUrl}
                         className="h-52 w-full"
@@ -1051,20 +1100,16 @@ export default function AdminPropertiesPage() {
               </h3>
               
               {/* S3 Image Uploader component */}
-              <div className="rounded-lg border-2 border-dashed border-black/10 p-5 text-center hover:bg-[#fcfbfa] transition-colors relative">
+              <label className="block rounded-lg border-2 border-dashed border-black/10 p-5 text-center hover:bg-[#fcfbfa] transition-colors relative cursor-pointer">
                 <input
                   type="file"
-                  id="imageUpload"
                   accept="image/*"
                   onChange={handleS3Upload}
                   disabled={uploadingImage}
                   ref={fileInputRef}
-                  className="hidden"
+                  className="sr-only"
                 />
-                <label 
-                  htmlFor="imageUpload" 
-                  className="flex flex-col items-center gap-2 cursor-pointer"
-                >
+                <div className="flex flex-col items-center gap-2">
                   {uploadingImage ? (
                     <Loader2 className="animate-spin text-[#b89658]" size={28} />
                   ) : (
@@ -1076,8 +1121,8 @@ export default function AdminPropertiesPage() {
                     </span>
                     <p className="text-xs text-[#68625a] mt-0.5">Supports JPEG, PNG, WEBP</p>
                   </div>
-                </label>
-              </div>
+                </div>
+              </label>
 
               {/* Direct Url Fallback Input */}
               <div className="flex gap-2 items-end">
@@ -1160,24 +1205,23 @@ export default function AdminPropertiesPage() {
                       </a>
                     </div>
                   ) : (
-                    <div className="relative border-2 border-dashed border-black/10 rounded-md p-3 text-center hover:bg-black/5 transition cursor-pointer">
+                    <label className="block relative border-2 border-dashed border-black/10 rounded-md p-3 text-center hover:bg-black/5 transition cursor-pointer">
                       <input
                         type="file"
-                        id="brochureUpload"
                         accept="application/pdf"
                         onChange={(e) => handleDocumentUpload(e, "BROCHURE")}
                         disabled={uploadingDocType !== null}
-                        className="hidden"
+                        className="sr-only"
                       />
-                      <label htmlFor="brochureUpload" className="cursor-pointer flex flex-col items-center gap-1 text-[11px] text-[#68625a]">
+                      <div className="flex flex-col items-center gap-1 text-[11px] text-[#68625a]">
                         {uploadingDocType === "BROCHURE" ? (
                           <Loader2 className="animate-spin text-[#b89658]" size={16} />
                         ) : (
                           <UploadCloud size={16} />
                         )}
                         <span>{uploadingDocType === "BROCHURE" ? "Uploading..." : "Upload Brochure PDF"}</span>
-                      </label>
-                    </div>
+                      </div>
+                    </label>
                   )}
                 </div>
 
@@ -1203,24 +1247,23 @@ export default function AdminPropertiesPage() {
                       </a>
                     </div>
                   ) : (
-                    <div className="relative border-2 border-dashed border-black/10 rounded-md p-3 text-center hover:bg-black/5 transition cursor-pointer">
+                    <label className="block relative border-2 border-dashed border-black/10 rounded-md p-3 text-center hover:bg-black/5 transition cursor-pointer">
                       <input
                         type="file"
-                        id="floorPlanUpload"
                         accept="application/pdf"
                         onChange={(e) => handleDocumentUpload(e, "FLOOR_PLAN")}
                         disabled={uploadingDocType !== null}
-                        className="hidden"
+                        className="sr-only"
                       />
-                      <label htmlFor="floorPlanUpload" className="cursor-pointer flex flex-col items-center gap-1 text-[11px] text-[#68625a]">
+                      <div className="flex flex-col items-center gap-1 text-[11px] text-[#68625a]">
                         {uploadingDocType === "FLOOR_PLAN" ? (
                           <Loader2 className="animate-spin text-[#b89658]" size={16} />
                         ) : (
                           <UploadCloud size={16} />
                         )}
                         <span>{uploadingDocType === "FLOOR_PLAN" ? "Uploading..." : "Upload Floor Plan PDF"}</span>
-                      </label>
-                    </div>
+                      </div>
+                    </label>
                   )}
                 </div>
 
@@ -1246,24 +1289,23 @@ export default function AdminPropertiesPage() {
                       </a>
                     </div>
                   ) : (
-                    <div className="relative border-2 border-dashed border-black/10 rounded-md p-3 text-center hover:bg-black/5 transition cursor-pointer">
+                    <label className="block relative border-2 border-dashed border-black/10 rounded-md p-3 text-center hover:bg-black/5 transition cursor-pointer">
                       <input
                         type="file"
-                        id="masterPlanUpload"
                         accept="application/pdf"
                         onChange={(e) => handleDocumentUpload(e, "MASTER_PLAN")}
                         disabled={uploadingDocType !== null}
-                        className="hidden"
+                        className="sr-only"
                       />
-                      <label htmlFor="masterPlanUpload" className="cursor-pointer flex flex-col items-center gap-1 text-[11px] text-[#68625a]">
+                      <div className="flex flex-col items-center gap-1 text-[11px] text-[#68625a]">
                         {uploadingDocType === "MASTER_PLAN" ? (
                           <Loader2 className="animate-spin text-[#b89658]" size={16} />
                         ) : (
                           <UploadCloud size={16} />
                         )}
                         <span>{uploadingDocType === "MASTER_PLAN" ? "Uploading..." : "Upload Master Plan PDF"}</span>
-                      </label>
-                    </div>
+                      </div>
+                    </label>
                   )}
                 </div>
               </div>

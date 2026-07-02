@@ -274,7 +274,6 @@ function AgentProgressModal({ report, onClose }: { report: AgentReport; onClose:
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function AgentReportsPage() {
-  const router = useRouter();
   const [reports, setReports] = useState<AgentReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [exportingAll, setExportingAll] = useState(false);
@@ -284,14 +283,11 @@ export default function AgentReportsPage() {
   const [loadingProgressId, setLoadingProgressId] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) { router.push("/login"); return; }
-
     api.get("/agents/report/all")
       .then((res) => setReports(res.data))
       .catch(() => toast.error("Failed to load agent reports."))
       .finally(() => setLoading(false));
-  }, [router]);
+  }, []);
 
   // Open progress modal — fetches full stats for that agent
   const handleViewProgress = async (agentId: string) => {

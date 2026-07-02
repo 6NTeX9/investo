@@ -19,7 +19,9 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const q = typeof params.q === "string" ? params.q : "";
   const city = typeof params.city === "string" ? params.city : "";
   const location = typeof params.location === "string" ? params.location : "";
+  const minPrice = typeof params.minPrice === "string" ? Number(params.minPrice) : 0;
   const maxPrice = typeof params.maxPrice === "string" ? Number(params.maxPrice) : 0;
+  const minArea = typeof params.minArea === "string" ? Number(params.minArea) : 0;
   const type = typeof params.type === "string" ? params.type : "";
   const status = typeof params.status === "string" ? params.status : "";
   const bedrooms = typeof params.bedrooms === "string" ? Number(params.bedrooms) : 0;
@@ -41,7 +43,9 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
     if (q) apiParams.q = q;
     if (city) apiParams.city = city;
     if (location) apiParams.location = location;
+    if (minPrice) apiParams.minPrice = minPrice;
     if (maxPrice) apiParams.maxPrice = maxPrice;
+    if (minArea) apiParams.minArea = minArea;
     if (type) apiParams.type = type;
     if (status) apiParams.status = status;
     if (bedrooms) apiParams.bedrooms = bedrooms;
@@ -83,6 +87,8 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             {/* Hidden fields to preserve search and sort */}
             {q && <input type="hidden" name="q" value={q} />}
             {sort && <input type="hidden" name="sort" value={sort} />}
+            {minArea && <input type="hidden" name="minArea" value={minArea} />}
+            {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
 
             <label className="grid gap-2 text-sm font-medium">
               City
@@ -120,6 +126,18 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 <option value="READY_TO_MOVE">Ready to Move</option>
               </select>
             </label>
+            <label className="grid gap-2 text-sm font-medium">
+              Min Carpet Area (sqft)
+              <select name="minArea" defaultValue={minArea || ""} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm bg-white">
+                <option value="">Any Area</option>
+                <option value="500">500+ sqft</option>
+                <option value="900">900+ sqft</option>
+                <option value="1200">1200+ sqft</option>
+                <option value="1500">1500+ sqft</option>
+                <option value="2000">2000+ sqft</option>
+                <option value="3000">3000+ sqft</option>
+              </select>
+            </label>
             <div className="grid gap-2 pt-2">
               <button type="submit" className="rounded-md bg-[#171717] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2a2a2a]">
                 Apply filters
@@ -136,7 +154,9 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             {/* Preserving sidebar filters */}
             {city && <input type="hidden" name="city" value={city} />}
             {location && <input type="hidden" name="location" value={location} />}
+            {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
             {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
+            {minArea && <input type="hidden" name="minArea" value={minArea} />}
             {type && <input type="hidden" name="type" value={type} />}
             {bedrooms && <input type="hidden" name="bedrooms" value={bedrooms} />}
             {status && <input type="hidden" name="status" value={status} />}

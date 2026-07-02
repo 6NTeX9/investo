@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import axios from "axios";
@@ -31,8 +30,6 @@ interface Agent {
 }
 
 export default function AdminAgentsPage() {
-  const router = useRouter();
-
   // State
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,13 +59,8 @@ export default function AdminAgentsPage() {
 
   // Auth & Load
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
     fetchAgents();
-  }, [router]);
+  }, []);
 
   const fetchAgents = async () => {
     setLoading(true);
@@ -220,7 +212,7 @@ export default function AdminAgentsPage() {
     <section className="p-6 md:p-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Aurum representatives</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Investo representatives</p>
           <h1 className="mt-2 text-3xl font-semibold">Sales Agents</h1>
         </div>
         <button 
@@ -390,7 +382,7 @@ export default function AdminAgentsPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                placeholder="sarah.j@aurumestate.com"
+                placeholder="sarah.j@investoproperties.com"
               />
             </div>
 

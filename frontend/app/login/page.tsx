@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 import { api } from "@/services/api";
 import { Loader2, Lock } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,20 +26,19 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await api.post("/auth/login", { email, password });
-      const { accessToken, user } = response.data;
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) throw signInError;
 
-      // Save token to localStorage
-      localStorage.setItem("admin_token", accessToken);
-      localStorage.setItem("admin_user", JSON.stringify(user));
+      const response = await api.get("/auth/me");
+      const user = response.data;
 
       toast.success(`Welcome back, ${user.name}!`);
-      
-      // Redirect to admin dashboard
-      router.push("/admin");
+      router.push(searchParams.get("next") ?? "/admin");
+      router.refresh();
     } catch (err: any) {
       console.error("Login error:", err);
-      const message = err.response?.data?.message ?? "An unexpected error occurred. Please try again.";
+      const message = err.response?.data?.message ?? err.message ?? "An unexpected error occurred. Please try again.";
       const displayMessage = Array.isArray(message) ? message[0] : message;
       setError(displayMessage);
       toast.error(displayMessage);
@@ -55,7 +56,7 @@ export default function LoginPage() {
             <span>Secure admin</span>
           </div>
           <h1 className="mt-2 text-3xl font-semibold text-[#171717]">Sign in</h1>
-          <p className="mt-2 text-sm text-[#68625a]">Enter your credentials to access Aurum CMS.</p>
+          <p className="mt-2 text-sm text-[#68625a]">Enter your credentials to access Investo CMS.</p>
 
           {error && (
             <div className="mt-6 rounded-md bg-red-50 border border-red-200/50 p-4 text-sm text-red-600">
@@ -76,7 +77,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="focus-ring rounded-md border border-black/10 px-4 py-3 text-sm transition-all focus:border-[#b89658]/50 disabled:opacity-60"
-                placeholder="admin@aurumestate.com"
+                placeholder="admin@investoproperties.com"
               />
             </div>
 
@@ -117,3 +118,17 @@ export default function LoginPage() {
   );
 }
 
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main className="section-shell grid min-h-[70svh] place-items-center pt-12">
+        <div className="flex items-center gap-2 text-sm text-[#68625a]">
+          <Loader2 className="animate-spin" size={18} />
+          <span>Loading...</span>
+        </div>
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
+  );
+}

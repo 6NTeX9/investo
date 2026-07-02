@@ -5,6 +5,18 @@ import { CreatePropertyDto } from "./dto/create-property.dto";
 import { QueryPropertiesDto } from "./dto/query-properties.dto";
 import { UpdatePropertyDto } from "./dto/update-property.dto";
 
+function parseAreaSqft(areaStr: string | null | undefined): number {
+  if (!areaStr) return 0;
+  if (areaStr.toLowerCase().includes("acre")) {
+    const val = parseFloat(areaStr);
+    return isNaN(val) ? 0 : val * 43560;
+  }
+  const match = areaStr.match(/\d[\d,\s]*/);
+  if (!match) return 0;
+  const num = parseInt(match[0].replace(/[\s,]/g, ""), 10);
+  return isNaN(num) ? 0 : num;
+}
+
 @Injectable()
 export class PropertiesService {
   constructor(private readonly database: DatabaseService) {}
@@ -33,6 +45,29 @@ export class PropertiesService {
 
     const orderBy: Prisma.PropertyOrderByWithRelationInput =
       query.sort === "price_asc" ? { price: "asc" } : query.sort === "price_desc" ? { price: "desc" } : { createdAt: "desc" };
+
+    if (query.minArea) {
+      const minAreaVal = query.minArea;
+      const allMatches = await this.database.property.findMany({
+        where,
+        include: { images: { orderBy: { sortOrder: "asc" } }, agent: true, category: true },
+        orderBy
+      });
+
+      const filtered = allMatches.filter(item => parseAreaSqft(item.siteArea) >= minAreaVal);
+      const total = filtered.length;
+      const items = filtered.slice((query.page - 1) * query.limit, query.page * query.limit);
+
+      return {
+        items,
+        meta: {
+          total,
+          page: query.page,
+          limit: query.limit,
+          pageCount: Math.ceil(total / query.limit)
+        }
+      };
+    }
 
     const [items, total] = await this.database.$transaction([
       this.database.property.findMany({

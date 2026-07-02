@@ -47,7 +47,7 @@ Here is how to deploy on **Render.com**:
    npx prisma db push --schema prisma/schema.prisma
    npm run seed
    ```
-   *(This creates the database tables and initializes the default admin user: `admin@aurumestate.com` with password `admin123`).*
+   *(This creates the database tables and initializes the default admin user: `admin@investoproperties.com` with password `Admin@12345`).*
 
 ---
 
@@ -76,7 +76,7 @@ The Next.js frontend should be deployed on **Vercel** for optimal performance, e
 
 1. **Test Login**:
    * Go to `https://yourdomain.com/login`.
-   * Log in with `admin@aurumestate.com` and `admin123`.
+   * Log in with `admin@investoproperties.com` and `Admin@12345`.
    * Go to the **Users** tab and immediately change your password or create a new Super Admin account, and disable the seed account for safety.
 2. **Test File Uploads**:
    * In the admin dashboard, upload a property image or brochure.

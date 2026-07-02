@@ -40,4 +40,16 @@ export class EnquiriesController {
   ) {
     return this.enquiries.updateStatus(user.sub, user.role, id, body.status, body.agentId);
   }
+
+  @Patch(":id/notes")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER, Role.SALES_AGENT)
+  updateNotes(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Param("id") id: string,
+    @Body() body: { notes: string }
+  ) {
+    return this.enquiries.updateNotes(user.sub, user.role, id, body.notes);
+  }
 }

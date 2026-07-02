@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import {
@@ -37,8 +36,6 @@ const slugify = (text: string) =>
     .replace(/^-+|-+$/g, "");
 
 export default function AdminBlogsPage() {
-  const router = useRouter();
-
   // Lists
   const [posts, setPosts] = useState<BlogPost[]>([]);
 
@@ -64,13 +61,8 @@ export default function AdminBlogsPage() {
 
   // Auth check & initial fetch
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
     fetchPosts();
-  }, [router]);
+  }, []);
 
   // Fetch blog posts
   const fetchPosts = async () => {
@@ -175,7 +167,7 @@ export default function AdminBlogsPage() {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">
-            Aurum Content
+            Investo Content
           </p>
           <h1 className="mt-2 text-3xl font-semibold">Blog Posts</h1>
         </div>
@@ -215,125 +207,209 @@ export default function AdminBlogsPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-black/5 bg-[#f7f4ee] font-semibold text-[#68625a]">
-                  <th className="p-4">Article</th>
-                  <th className="p-4">Excerpt</th>
-                  <th className="p-4">Tags</th>
-                  <th className="p-4 text-center">Status</th>
-                  <th className="p-4 text-center">Date</th>
-                  <th className="p-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {posts.map((post) => (
-                  <tr
-                    key={post.id}
-                    className="hover:bg-[#fcfbfa] transition-colors"
-                  >
-                    {/* Cover + Title */}
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-16 overflow-hidden rounded border border-black/5 bg-black/5 flex-shrink-0">
-                          {post.coverUrl ? (
-                            <img
-                              src={post.coverUrl}
-                              alt={post.title}
-                              className="h-full w-full object-cover"
-                            />
+          <>
+            {/* Desktop Table View */}
+            <div className="overflow-x-auto hidden md:block">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-black/5 bg-[#f7f4ee] font-semibold text-[#68625a]">
+                    <th className="p-4">Article</th>
+                    <th className="p-4">Excerpt</th>
+                    <th className="p-4">Tags</th>
+                    <th className="p-4 text-center">Status</th>
+                    <th className="p-4 text-center">Date</th>
+                    <th className="p-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-black/5">
+                  {posts.map((post) => (
+                    <tr
+                      key={post.id}
+                      className="hover:bg-[#fcfbfa] transition-colors"
+                    >
+                      {/* Cover + Title */}
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-16 overflow-hidden rounded border border-black/5 bg-black/5 flex-shrink-0">
+                            {post.coverUrl ? (
+                              <img
+                                src={post.coverUrl}
+                                alt={post.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center text-black/20">
+                                <Newspaper size={18} />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-base text-[#171717] max-w-[200px] truncate">
+                              {post.title}
+                            </p>
+                            <p className="text-xs text-[#68625a] font-mono">
+                              {post.slug}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Excerpt snippet */}
+                      <td className="p-4 max-w-[220px]">
+                        <p className="text-sm text-[#68625a] line-clamp-2">
+                          {post.excerpt ?? post.content?.slice(0, 100)}
+                        </p>
+                      </td>
+
+                      {/* Tags */}
+                      <td className="p-4">
+                        <div className="flex flex-wrap gap-1">
+                          {post.tags?.length > 0 ? (
+                            post.tags.slice(0, 3).map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-0.5 rounded-full bg-[#b89658]/10 px-2 py-0.5 text-[10px] font-semibold text-[#b89658]"
+                              >
+                                <Tag size={8} />
+                                {tag}
+                              </span>
+                            ))
                           ) : (
-                            <div className="h-full w-full flex items-center justify-center text-black/20">
-                              <Newspaper size={18} />
-                            </div>
+                            <span className="text-xs text-[#68625a]/50">—</span>
+                          )}
+                          {post.tags?.length > 3 && (
+                            <span className="text-[10px] text-[#68625a]">
+                              +{post.tags.length - 3}
+                            </span>
                           )}
                         </div>
-                        <div>
-                          <p className="font-semibold text-base text-[#171717] max-w-[200px] truncate">
-                            {post.title}
-                          </p>
-                          <p className="text-xs text-[#68625a] font-mono">
-                            {post.slug}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Excerpt snippet */}
-                    <td className="p-4 max-w-[220px]">
-                      <p className="text-sm text-[#68625a] line-clamp-2">
-                        {post.excerpt ?? post.content?.slice(0, 100)}
-                      </p>
-                    </td>
-
-                    {/* Tags */}
-                    <td className="p-4">
-                      <div className="flex flex-wrap gap-1">
-                        {post.tags?.length > 0 ? (
-                          post.tags.slice(0, 3).map((tag) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center gap-0.5 rounded-full bg-[#b89658]/10 px-2 py-0.5 text-[10px] font-semibold text-[#b89658]"
-                            >
-                              <Tag size={8} />
-                              {tag}
-                            </span>
-                          ))
+                      {/* Status */}
+                      <td className="p-4 text-center">
+                        {post.isPublished ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-100">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                            Published
+                          </span>
                         ) : (
-                          <span className="text-xs text-[#68625a]/50">—</span>
-                        )}
-                        {post.tags?.length > 3 && (
-                          <span className="text-[10px] text-[#68625a]">
-                            +{post.tags.length - 3}
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
+                            Draft
                           </span>
                         )}
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Status */}
-                    <td className="p-4 text-center">
+                      {/* Date */}
+                      <td className="p-4 text-center">
+                        <span className="text-xs text-[#68625a]">
+                          {new Date(post.createdAt).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="p-4">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => handleOpenEdit(post)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
+                            title="Edit post"
+                          >
+                            <Edit size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="block md:hidden divide-y divide-black/5 bg-white">
+              {posts.map((post) => (
+                <div key={post.id} className="p-4 flex flex-col gap-3">
+                  <div className="flex gap-3">
+                    <div className="h-16 w-20 overflow-hidden rounded border border-black/5 bg-black/5 flex-shrink-0">
+                      {post.coverUrl ? (
+                        <img
+                          src={post.coverUrl}
+                          alt={post.title}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-black/20">
+                          <Newspaper size={20} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm text-[#171717] leading-tight truncate">
+                        {post.title}
+                      </h3>
+                      <p className="text-[10px] text-[#68625a] font-mono mt-0.5 truncate">
+                        {post.slug}
+                      </p>
+                      <p className="text-xs text-[#68625a] line-clamp-2 mt-1">
+                        {post.excerpt ?? post.content?.slice(0, 100)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 border-t border-black/5 pt-2 text-xs">
+                    <div className="flex flex-wrap gap-1 max-w-[50%]">
+                      {post.tags?.slice(0, 2).map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-0.5 rounded-full bg-[#b89658]/10 px-1.5 py-0.5 text-[9px] font-semibold text-[#b89658] truncate max-w-[70px]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {post.tags?.length > 2 && (
+                        <span className="text-[9px] text-[#68625a] self-center">
+                          +{post.tags.length - 2}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
                       {post.isPublished ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-100">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-medium text-emerald-700 border border-emerald-100">
+                          <span className="h-1 w-1 rounded-full bg-emerald-600" />
                           Published
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
-                          <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-medium text-amber-700 border border-amber-100">
+                          <span className="h-1 w-1 rounded-full bg-amber-600" />
                           Draft
                         </span>
                       )}
-                    </td>
-
-                    {/* Date */}
-                    <td className="p-4 text-center">
-                      <span className="text-xs text-[#68625a]">
+                      <span className="text-[10px] text-[#68625a]">
                         {new Date(post.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "short",
-                          year: "numeric",
                         })}
                       </span>
-                    </td>
+                    </div>
 
-                    {/* Actions */}
-                    <td className="p-4">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(post)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
-                          title="Edit post"
-                        >
-                          <Edit size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    <button
+                      onClick={() => handleOpenEdit(post)}
+                      className="flex items-center gap-1 rounded border border-black/10 px-2.5 py-1 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition"
+                      title="Edit post"
+                    >
+                      <Edit size={12} />
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

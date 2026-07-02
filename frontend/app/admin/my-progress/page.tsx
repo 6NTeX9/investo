@@ -108,19 +108,15 @@ function ProgressBar({ value, max, color }: { value: number; max: number; color:
 }
 
 export default function MyProgressPage() {
-  const router = useRouter();
   const [stats, setStats] = useState<AgentStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) { router.push("/login"); return; }
-
     api.get("/agents/report/me")
       .then((res) => setStats(res.data))
       .catch(() => toast.error("Failed to load your progress data."))
       .finally(() => setLoading(false));
-  }, [router]);
+  }, []);
 
   if (loading) {
     return (

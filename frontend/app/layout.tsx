@@ -3,17 +3,18 @@ import { Toaster } from "sonner";
 import { Analytics } from "@/lib/analytics";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: {
-    default: "Aurum Estate | Luxury Properties",
-    template: "%s | Aurum Estate"
+    default: "Investo Properties | Luxury Properties",
+    template: "%s | Investo Properties"
   },
   description: "Discover premium residences, investment projects, and commercial real estate in fast-growing city corridors.",
   openGraph: {
-    title: "Aurum Estate",
+    title: "Investo Properties",
     description: "Premium real estate discovery and advisory platform.",
     type: "website"
   }
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <Analytics />
         <Navbar />
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <Footer />
         <Toaster richColors position="top-right" />
       </body>

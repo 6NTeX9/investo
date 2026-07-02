@@ -16,41 +16,42 @@ export function convertToMapEmbedUrl(link: string | null | undefined, fallbackAd
 
   const trimmed = link.trim();
 
-  // Already an embed URL — return as-is
+  // 1. If it's an iframe embed code, extract the src URL
+  const iframeMatch = trimmed.match(/src="([^"]+)"/);
+  if (iframeMatch) {
+    return iframeMatch[1];
+  }
+
+  // 2. Already an embed URL — return as-is
   if (trimmed.includes("output=embed") || trimmed.includes("/maps/embed")) {
     return trimmed;
   }
 
-  // Handle /maps/place/... or /maps/search/... URLs — extract coords or query
-  // e.g. https://www.google.com/maps/place/Eiffel+Tower/@48.8584,2.2945,...
+  // 3. Handle /maps/place/... or /maps/search/... URLs — extract coords or query
   const placeMatch = trimmed.match(/google\.com\/maps\/(?:place|search)\/([^/@?]+)(?:\/@([\d.-]+),([\d.-]+))?/);
   if (placeMatch) {
     if (placeMatch[2] && placeMatch[3]) {
-      // Has lat/lng — use coordinates for best accuracy
       return `https://maps.google.com/maps?q=${placeMatch[2]},${placeMatch[3]}&output=embed`;
     }
-    // Use the place name as query
     const query = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
     return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
   }
 
-  // Handle @lat,lng in URL (e.g. /maps/@28.6139,77.2090,15z)
+  // 4. Handle @lat,lng in URL (e.g. /maps/@28.6139,77.2090,15z)
   const coordMatch = trimmed.match(/@([\d.-]+),([\d.-]+)/);
   if (coordMatch) {
     return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
   }
 
-  // Handle short URLs like maps.app.goo.gl or goo.gl — cannot resolve without HTTP redirect,
-  // but we can pass the URL as query (won't work for iframes but this is a fallback)
+  // 5. Handle short URLs like maps.app.goo.gl or goo.gl
   if (trimmed.includes("goo.gl") || trimmed.includes("maps.app")) {
-    // Pass address as fallback since short URLs can't be embedded
     if (fallbackAddress) {
       return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress)}&output=embed`;
     }
     return "";
   }
 
-  // Handle q= parameter in URL
+  // 6. Handle q= parameter in URL
   try {
     const url = new URL(trimmed);
     const q = url.searchParams.get("q");
@@ -59,7 +60,12 @@ export function convertToMapEmbedUrl(link: string | null | undefined, fallbackAd
     }
   } catch {}
 
-  // Last resort: use the link as-is (might be a custom embed)
+  // 7. If it's just plain text (not starting with http), treat it as a direct address search query!
+  if (!trimmed.startsWith("http")) {
+    return `https://maps.google.com/maps?q=${encodeURIComponent(trimmed)}&output=embed`;
+  }
+
+  // 8. Last resort: use the link as-is (might be a custom embed URL)
   if (fallbackAddress) {
     return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress)}&output=embed`;
   }
@@ -121,12 +127,12 @@ export function normalizeProperty(property: any) {
     amenities: property.amenities || [],
     description: property.description || "",
     siteArea: property.siteArea || "N/A",
-    builder: property.builderName || "Aurum Developments",
+    builder: property.builderName || "Investo Developments",
     nearby: property.nearbyLandmarks || property.nearby || [],
     agent: {
-      name: property.agent?.name || "Aurum Advisory",
+      name: property.agent?.name || "Investo Advisory",
       phone: property.agent?.phone || "+971 4 000 0000",
-      email: property.agent?.email || "info@aurumestate.com",
+      email: property.agent?.email || "info@investoproperties.com",
       avatar: property.agent?.avatarUrl || property.agent?.avatar || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=320&q=85"
     }
   };

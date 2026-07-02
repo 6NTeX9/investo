@@ -7,22 +7,22 @@ async function main() {
   const passwordHash = await hash("Admin@12345", 12);
 
   const admin = await prisma.user.upsert({
-    where: { email: "admin@aurumestate.com" },
+    where: { email: "admin@investoproperties.com" },
     update: {},
     create: {
       name: "Super Admin",
-      email: "admin@aurumestate.com",
+      email: "admin@investoproperties.com",
       passwordHash,
       role: Role.SUPER_ADMIN
     }
   });
 
   const agent = await prisma.agent.upsert({
-    where: { email: "maya@aurumestate.com" },
+    where: { email: "maya@investoproperties.com" },
     update: {},
     create: {
       name: "Maya Kapoor",
-      email: "maya@aurumestate.com",
+      email: "maya@investoproperties.com",
       phone: "+919876543210",
       whatsapp: "+919876543210",
       bio: "Luxury residential advisor focused on central Mumbai inventory.",
@@ -31,11 +31,11 @@ async function main() {
   });
 
   await prisma.agent.upsert({
-    where: { email: "sarah.j@aurumestate.com" },
+    where: { email: "sarah.j@investoproperties.com" },
     update: {},
     create: {
       name: "Sarah Jenkins",
-      email: "sarah.j@aurumestate.com",
+      email: "sarah.j@investoproperties.com",
       phone: "+919876543211",
       whatsapp: "+919876543211",
       bio: "Expert in high-end villa communities in South Mumbai and Lutyens Delhi, with over 8 years of luxury advisory experience.",
@@ -44,11 +44,11 @@ async function main() {
   });
 
   await prisma.agent.upsert({
-    where: { email: "alexander.w@aurumestate.com" },
+    where: { email: "alexander.w@investoproperties.com" },
     update: {},
     create: {
       name: "Alexander Wright",
-      email: "alexander.w@aurumestate.com",
+      email: "alexander.w@investoproperties.com",
       phone: "+919876543212",
       whatsapp: "+919876543212",
       bio: "Specialized in off-plan investment properties and branded penthouses in Worli and Bandra Kurla Complex.",
@@ -57,11 +57,11 @@ async function main() {
   });
 
   await prisma.agent.upsert({
-    where: { email: "elena.r@aurumestate.com" },
+    where: { email: "elena.r@investoproperties.com" },
     update: {},
     create: {
       name: "Elena Rossi",
-      email: "elena.r@aurumestate.com",
+      email: "elena.r@investoproperties.com",
       phone: "+919876543213",
       whatsapp: "+919876543213",
       bio: "Advising international investors on premium commercial office assets and prime residential developments in Bangalore and Gurgaon.",
@@ -94,7 +94,7 @@ async function main() {
       bedrooms: 3,
       bathrooms: 4,
       siteArea: "4.8 acres",
-      builderName: "Aurum Developments",
+      builderName: "Investo Developments",
       constructionStatus: "60% complete",
       status: ProjectStatus.ONGOING,
       amenities: ["Infinity pool", "Concierge", "Gym", "Valet parking"],

@@ -5,8 +5,8 @@ import { LinkButton } from "@/components/ui/button";
 import { api } from "@/services/api";
 
 export const metadata: Metadata = {
-  title: "Our Agents | Aurum Estate",
-  description: "Meet the Aurum Estate advisory team — experienced real estate professionals dedicated to finding your perfect property."
+  title: "Our Agents | Investo Properties",
+  description: "Meet the Investo Properties advisory team — experienced real estate professionals dedicated to finding your perfect property."
 };
 
 export const dynamic = "force-dynamic";

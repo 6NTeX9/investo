@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import { Inbox, Phone, Mail, Calendar, User, UserPlus, Loader2, Sparkles, Download } from "lucide-react";
@@ -32,6 +31,7 @@ interface Enquiry {
   agentId: string | null;
   agent: Agent | null;
   createdAt: string;
+  notes: string | null;
 }
 
 const statusOptions: { label: string; value: LeadStatus; color: string }[] = [
@@ -43,44 +43,32 @@ const statusOptions: { label: string; value: LeadStatus; color: string }[] = [
 ];
 
 export default function AdminEnquiriesPage() {
-  const router = useRouter();
-  
   // State
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("NEW");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Auth & Load
+  // Load metadata on mount
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    const loadData = async () => {
+    const loadMetadata = async () => {
       try {
-        const [enqRes, agentsRes, meRes] = await Promise.all([
-          api.get("/enquiries"),
+        const [agentsRes, meRes] = await Promise.all([
           api.get("/agents"),
           api.get("/auth/me")
         ]);
-        setEnquiries(enqRes.data);
         setAgents(agentsRes.data);
         setCurrentUser(meRes.data);
       } catch (err) {
-        console.error("Failed to load enquiries/agents data:", err);
-        toast.error("Failed to load enquiries or agents database.");
-      } finally {
-        setLoading(false);
+        console.error("Failed to load metadata:", err);
+        toast.error("Failed to load agents database.");
       }
     };
 
-    loadData();
-  }, [router]);
+    loadMetadata();
+  }, []);
 
   // Fetch updated list on filter change
   const fetchEnquiries = async () => {
@@ -280,11 +268,32 @@ export default function AdminEnquiriesPage() {
                     </p>
                   )}
 
-                  <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-[#68625a] font-medium pt-1">
-                    <span className="flex items-center gap-1.5">
-                      <Phone size={13} />
-                      {enq.phone}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#68625a] font-medium pt-1">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center gap-1.5">
+                        <Phone size={13} />
+                        {enq.phone}
+                      </span>
+                      {/* Actions for Call & WhatsApp */}
+                      <a 
+                        href={`tel:${enq.phone}`}
+                        className="inline-flex items-center justify-center p-1 rounded bg-[#f7f4ee] hover:bg-[#b89658]/10 text-[#b89658] border border-[#b89658]/20 transition"
+                        title="Call Client"
+                      >
+                        <Phone size={11} />
+                      </a>
+                      <a 
+                        href={`https://wa.me/${enq.phone.replace(/[^0-9]/g, "").length === 10 ? `91${enq.phone.replace(/[^0-9]/g, "")}` : enq.phone.replace(/[^0-9]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center p-1 rounded bg-[#ecfdf5] hover:bg-emerald-100 text-emerald-600 border border-emerald-200 transition"
+                        title="WhatsApp Client"
+                      >
+                        <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.233-1.371a9.936 9.936 0 0 0 4.777 1.217h.005c5.505 0 9.99-4.478 9.99-9.986 0-2.67-1.037-5.18-2.92-7.061A9.925 9.925 0 0 0 12.012 2zm5.72 14.12c-.244.688-1.22 1.259-1.68 1.32-.46.06-1.065.11-3.04-.7-2.525-1.035-4.155-3.605-4.28-3.77-.125-.165-1.11-1.475-1.11-2.81 0-1.335.7-1.99.95-2.25.25-.26.545-.33.725-.33h.52c.15 0 .35.05.51.435.17.41.58 1.41.63 1.51.05.1.08.22.01.36-.07.14-.11.23-.22.36-.11.13-.23.29-.33.39-.115.115-.235.24-.1.45.135.21.6 1.01.87 1.25.35.31.62.4.87.525.25.125.4.1.55-.075.15-.175.65-.75.82-.99.17-.25.35-.2.58-.11.235.09 1.485.7 1.74.825.255.125.425.19.49.3.06.11.06.63-.18 1.32z"/>
+                        </svg>
+                      </a>
+                    </div>
                     {enq.email && (
                       <span className="flex items-center gap-1.5">
                         <Mail size={13} />
@@ -295,6 +304,43 @@ export default function AdminEnquiriesPage() {
                       <Calendar size={13} />
                       Received {new Date(enq.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
                     </span>
+                  </div>
+
+                  {/* Notes / Comments Section */}
+                  <div className="border-t border-black/5 pt-3.5 mt-3 space-y-2">
+                    <label className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a] block">
+                      Agent Notes / Comments
+                    </label>
+                    <div className="flex gap-2">
+                      <textarea
+                        defaultValue={enq.notes || ""}
+                        id={`notes-${enq.id}`}
+                        rows={1}
+                        placeholder="Add a comment or follow-up note..."
+                        className="flex-1 focus-ring rounded border border-black/10 px-3 py-1.5 text-xs focus:border-[#b89658]/50 resize-y min-h-[32px] bg-white text-black"
+                      />
+                      <button
+                        onClick={async () => {
+                          const textareaElement = document.getElementById(`notes-${enq.id}`) as HTMLTextAreaElement;
+                          const notesVal = textareaElement?.value || "";
+                          try {
+                            setSavingId(enq.id);
+                            await api.patch(`/enquiries/${enq.id}/notes`, { notes: notesVal });
+                            toast.success("Enquiry notes updated successfully!");
+                            // Update local state
+                            setEnquiries(prev => prev.map(item => item.id === enq.id ? { ...item, notes: notesVal } : item));
+                          } catch (err: any) {
+                            console.error("Failed to save note:", err);
+                            toast.error("Failed to save enquiry note.");
+                          } finally {
+                            setSavingId(null);
+                          }
+                        }}
+                        className="rounded bg-[#171717] hover:bg-[#2a2a2a] px-3.5 py-1.5 text-xs font-semibold text-white transition h-max shrink-0 self-end"
+                      >
+                        Save Note
+                      </button>
+                    </div>
                   </div>
                 </div>
 

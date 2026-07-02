@@ -105,12 +105,9 @@ export default function AdminUsersPage() {
   const [showPass,  setShowPass]  = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) { router.push("/login"); return; }
-
     Promise.all([fetchUsers(), api.get("/auth/me").then((r) => setCurrentUser(r.data))])
       .catch(() => {});
-  }, [router]);
+  }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -206,7 +203,7 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Aurum Admin</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Investo Admin</p>
           <h1 className="mt-2 text-3xl font-semibold">Users</h1>
         </div>
         {canCreate && (
@@ -242,83 +239,136 @@ export default function AdminUsersPage() {
             <p className="mt-1 text-sm text-[#68625a]">Add your first admin user to get started.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm min-w-[700px]">
-              <thead>
-                <tr className="border-b border-black/5 bg-[#f7f4ee] font-semibold text-[#68625a] text-xs uppercase tracking-wider">
-                  <th className="px-4 py-3 w-44">Name</th>
-                  <th className="px-4 py-3">Email</th>
-                  <th className="px-4 py-3 w-36">Phone</th>
-                  <th className="px-4 py-3 w-32">Role</th>
-                  <th className="px-4 py-3 w-28 text-center">Status</th>
-                  <th className="px-4 py-3 w-20 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {users.map((user) => {
-                  return (
-                    <tr key={user.id} className="hover:bg-[#fcfbfa] transition-colors">
+          <>
+            {/* Desktop Table view */}
+            <div className="overflow-x-auto hidden md:block">
+              <table className="w-full text-left border-collapse text-sm min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-black/5 bg-[#f7f4ee] font-semibold text-[#68625a] text-xs uppercase tracking-wider">
+                    <th className="px-4 py-3 w-44">Name</th>
+                    <th className="px-4 py-3">Email</th>
+                    <th className="px-4 py-3 w-36">Phone</th>
+                    <th className="px-4 py-3 w-32">Role</th>
+                    <th className="px-4 py-3 w-28 text-center">Status</th>
+                    <th className="px-4 py-3 w-20 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-black/5">
+                  {users.map((user) => {
+                    return (
+                      <tr key={user.id} className="hover:bg-[#fcfbfa] transition-colors">
 
-                      {/* Name */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-full bg-[#b89658]/15 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-[#b89658]">{user.name?.charAt(0).toUpperCase() ?? "?"}</span>
+                        {/* Name */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-8 w-8 rounded-full bg-[#b89658]/15 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xs font-bold text-[#b89658]">{user.name?.charAt(0).toUpperCase() ?? "?"}</span>
+                            </div>
+                            <p className="font-semibold text-[#171717] text-sm truncate max-w-[120px]">{user.name}</p>
                           </div>
-                          <p className="font-semibold text-[#171717] text-sm truncate max-w-[120px]">{user.name}</p>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Email */}
-                      <td className="px-4 py-3 max-w-[200px]">
-                        <div className="flex items-center gap-1.5 text-[#68625a] min-w-0">
-                          <Mail size={12} className="flex-shrink-0" />
-                          <span className="text-xs truncate">{user.email}</span>
-                        </div>
-                      </td>
-
-                      {/* Phone */}
-                      <td className="px-4 py-3">
-                        {user.phone ? (
-                          <div className="flex items-center gap-1.5 text-[#68625a]">
-                            <Phone size={12} className="flex-shrink-0" />
-                            <span className="text-xs">{user.phone}</span>
+                        {/* Email */}
+                        <td className="px-4 py-3 max-w-[200px]">
+                          <div className="flex items-center gap-1.5 text-[#68625a] min-w-0">
+                            <Mail size={12} className="flex-shrink-0" />
+                            <span className="text-xs truncate">{user.email}</span>
                           </div>
-                        ) : (
-                          <span className="text-xs text-[#68625a]/40">—</span>
-                        )}
-                      </td>
+                        </td>
 
-                      {/* Role */}
-                      <td className="px-4 py-3">
-                        <RoleBadge role={user.role} />
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-4 py-3 text-center">
-                        <StatusBadge status={user.status ?? (user.isActive ? "ACTIVE" : "INACTIVE")} />
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center">
-                          {canEdit && (
-                            <button
-                              onClick={() => openEdit(user)}
-                              className="flex items-center gap-1 rounded px-2.5 py-1.5 text-xs font-semibold text-[#68625a] border border-black/10 hover:bg-[#f7f4ee] hover:text-[#171717] transition"
-                              title="Edit user"
-                            >
-                              <Pencil size={11} /> Edit
-                            </button>
+                        {/* Phone */}
+                        <td className="px-4 py-3">
+                          {user.phone ? (
+                            <div className="flex items-center gap-1.5 text-[#68625a]">
+                              <Phone size={12} className="flex-shrink-0" />
+                              <span className="text-xs">{user.phone}</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#68625a]/40">—</span>
                           )}
+                        </td>
+
+                        {/* Role */}
+                        <td className="px-4 py-3">
+                          <RoleBadge role={user.role} />
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-4 py-3 text-center">
+                          <StatusBadge status={user.status ?? (user.isActive ? "ACTIVE" : "INACTIVE")} />
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-center">
+                            {canEdit && (
+                              <button
+                                onClick={() => openEdit(user)}
+                                className="flex items-center gap-1 rounded px-2.5 py-1.5 text-xs font-semibold text-[#68625a] border border-black/10 hover:bg-[#f7f4ee] hover:text-[#171717] transition"
+                                title="Edit user"
+                              >
+                                <Pencil size={11} /> Edit
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card view */}
+            <div className="block md:hidden divide-y divide-black/5 bg-white">
+              {users.map((user) => (
+                <div key={user.id} className="p-4 flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-[#b89658]/15 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-bold text-[#b89658]">
+                        {user.name?.charAt(0).toUpperCase() ?? "?"}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm text-[#171717] truncate">{user.name}</h3>
+                      <div className="flex items-center gap-1 text-[#68625a] mt-0.5 text-xs truncate">
+                        <Mail size={10} className="flex-shrink-0" />
+                        <span className="truncate">{user.email}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 border-t border-black/5 pt-2 text-xs">
+                    <div className="flex flex-col gap-1">
+                      {user.phone ? (
+                        <div className="flex items-center gap-1 text-[#68625a]">
+                          <Phone size={10} className="flex-shrink-0" />
+                          <span>{user.phone}</span>
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      ) : (
+                        <span className="text-[#68625a]/40">—</span>
+                      )}
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <RoleBadge role={user.role} />
+                        <StatusBadge status={user.status ?? (user.isActive ? "ACTIVE" : "INACTIVE")} />
+                      </div>
+                    </div>
+
+                    {canEdit && (
+                      <button
+                        onClick={() => openEdit(user)}
+                        className="flex items-center gap-1 rounded border border-black/10 px-2.5 py-1 text-xs font-semibold text-[#68625a] hover:bg-[#f7f4ee] hover:text-[#171717] transition"
+                        title="Edit user"
+                      >
+                        <Pencil size={11} />
+                        <span>Edit</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
@@ -365,7 +415,7 @@ export default function AdminUsersPage() {
                 <div className="relative">
                   <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#68625a]" />
                   <input type="email" required value={fEmail} onChange={(e) => setFEmail(e.target.value)}
-                    className="focus-ring w-full rounded border border-black/10 pl-9 pr-3 py-2 text-sm" placeholder="ravi@aurumestate.com" />
+                    className="focus-ring w-full rounded border border-black/10 pl-9 pr-3 py-2 text-sm" placeholder="ravi@investoproperties.com" />
                 </div>
               </div>
 

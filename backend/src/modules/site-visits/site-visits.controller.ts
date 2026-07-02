@@ -5,7 +5,7 @@ import { Roles } from "../../common/decorators/roles.decorator";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../../common/guards/roles.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
-import { AdminCreateSiteVisitDto, CreateSiteVisitDto, UpdateSiteVisitStatusDto } from "./dto/create-site-visit.dto";
+import { AdminCreateSiteVisitDto, CreateSiteVisitDto, UpdateSiteVisitStatusDto, UpdateSiteVisitDto } from "./dto/create-site-visit.dto";
 import { SiteVisitsService } from "./site-visits.service";
 
 @ApiTags("Site visits")
@@ -50,6 +50,18 @@ export class SiteVisitsController {
     @Body() body: UpdateSiteVisitStatusDto
   ) {
     return this.visits.updateStatus(user.sub, user.role, id, body.status, body.assignedAgentId);
+  }
+
+  @Patch(":id")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER, Role.SALES_AGENT)
+  update(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Param("id") id: string,
+    @Body() dto: UpdateSiteVisitDto
+  ) {
+    return this.visits.update(user.sub, user.role, id, dto);
   }
 
   @Delete(":id")
