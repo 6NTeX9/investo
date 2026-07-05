@@ -237,4 +237,13 @@ a {
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
+/* Mobile Navigation slide-out specific override */
+#mobile-navigation {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.backdrop-overlay {
+  transition: opacity 0.3s ease-out !important;
+}
+
+
 

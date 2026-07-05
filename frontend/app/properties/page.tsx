@@ -96,11 +96,11 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             {/* Preserving sidebar filters */}
             {city && <input type="hidden" name="city" value={city} />}
             {location && <input type="hidden" name="location" value={location} />}
-            {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
-            {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
-            {minArea && <input type="hidden" name="minArea" value={minArea} />}
+            {minPrice > 0 && <input type="hidden" name="minPrice" value={minPrice} />}
+            {maxPrice > 0 && <input type="hidden" name="maxPrice" value={maxPrice} />}
+            {minArea > 0 && <input type="hidden" name="minArea" value={minArea} />}
             {type && <input type="hidden" name="type" value={type} />}
-            {bedrooms && <input type="hidden" name="bedrooms" value={bedrooms} />}
+            {bedrooms > 0 && <input type="hidden" name="bedrooms" value={bedrooms} />}
             {status && <input type="hidden" name="status" value={status} />}
 
             <div className="flex flex-1 items-center gap-2">

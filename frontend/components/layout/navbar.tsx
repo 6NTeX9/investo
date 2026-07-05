@@ -132,7 +132,7 @@ export function Navbar() {
 
       {/* Dismiss backdrop overlay */}
       <div
-        className={`absolute inset-x-0 top-full z-40 h-[calc(100dvh-5rem)] bg-black/30 backdrop-blur-[2px] lg:hidden transition-opacity duration-300 ${
+        className={`backdrop-overlay absolute inset-x-0 top-full z-40 h-[calc(100dvh-5rem)] bg-black/30 backdrop-blur-[2px] lg:hidden transition-opacity duration-300 ${
           isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={closeMenu}
