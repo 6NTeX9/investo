@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PropertyCard } from "@/components/property/property-card";
 import { SortSelect } from "@/components/property/sort-select";
 import { getLiveProperties } from "@/lib/live-properties";
+import { FilterSidebar } from "@/components/property/filter-sidebar";
 
 export const dynamic = "force-dynamic";
 
@@ -67,90 +68,31 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
   return (
     <main className="section-shell pt-12">
-      <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-        <div>
+      <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end text-center md:text-left">
+        <div className="w-full md:w-auto">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Property search</p>
-          <h1 className="mt-2 font-[var(--font-display)] text-5xl">Available properties</h1>
+          <h1 className="mt-2 font-[var(--font-display)] text-4xl md:text-5xl">Available properties</h1>
         </div>
-        <div className="text-right">
+        <div className="w-full md:w-auto text-center md:text-right">
           <p className="text-sm text-[#68625a]">{totalCount} curated listings</p>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[280px_1fr]">
-        <aside className="h-fit rounded-lg bg-white p-5 luxury-shadow">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-lg">Filters</h2>
-            <SlidersHorizontal size={18} />
-          </div>
-          <form method="GET" action="/properties" className="mt-5 grid gap-4">
-            {/* Hidden fields to preserve search and sort */}
-            {q && <input type="hidden" name="q" value={q} />}
-            {sort && <input type="hidden" name="sort" value={sort} />}
-            {minArea && <input type="hidden" name="minArea" value={minArea} />}
-            {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
-
-            <label className="grid gap-2 text-sm font-medium">
-              City
-              <input name="city" defaultValue={city} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. Mumbai" />
-            </label>
-            <label className="grid gap-2 text-sm font-medium">
-              Location / Community
-              <input name="location" defaultValue={location} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. Worli" />
-            </label>
-            <label className="grid gap-2 text-sm font-medium">
-              Max Price (₹)
-              <input type="number" name="maxPrice" defaultValue={maxPrice || ""} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. 50000000" />
-            </label>
-            <label className="grid gap-2 text-sm font-medium">
-              Property Type
-              <select name="type" defaultValue={type} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm bg-white">
-                <option value="">Any Type</option>
-                <option value="APARTMENT">Apartment</option>
-                <option value="VILLA">Villa</option>
-                <option value="PENTHOUSE">Penthouse</option>
-                <option value="COMMERCIAL">Commercial</option>
-                <option value="PLOT">Plot</option>
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm font-medium">
-              Min Bedrooms
-              <input type="number" name="bedrooms" defaultValue={bedrooms || ""} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm" placeholder="e.g. 3" />
-            </label>
-            <label className="grid gap-2 text-sm font-medium">
-              Project Status
-              <select name="status" defaultValue={status} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm bg-white">
-                <option value="">Any Status</option>
-                <option value="UPCOMING">Upcoming</option>
-                <option value="ONGOING">Ongoing</option>
-                <option value="READY_TO_MOVE">Ready to Move</option>
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm font-medium">
-              Min Carpet Area (sqft)
-              <select name="minArea" defaultValue={minArea || ""} className="focus-ring rounded-md border border-black/10 px-3 py-2 text-sm bg-white">
-                <option value="">Any Area</option>
-                <option value="500">500+ sqft</option>
-                <option value="900">900+ sqft</option>
-                <option value="1200">1200+ sqft</option>
-                <option value="1500">1500+ sqft</option>
-                <option value="2000">2000+ sqft</option>
-                <option value="3000">3000+ sqft</option>
-              </select>
-            </label>
-            <div className="grid gap-2 pt-2">
-              <button type="submit" className="rounded-md bg-[#171717] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2a2a2a]">
-                Apply filters
-              </button>
-              <Link href="/properties" className="rounded-md border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-center text-black hover:bg-black/5 transition">
-                Clear Filters
-              </Link>
-            </div>
-          </form>
-        </aside>
-        <section>
+      <div className="mt-8 grid gap-8 lg:grid-cols-[280px_1fr] justify-center justify-items-center lg:justify-stretch lg:justify-items-stretch">
+        <FilterSidebar
+          city={city}
+          location={location}
+          maxPrice={maxPrice}
+          type={type}
+          bedrooms={bedrooms}
+          status={status}
+          minArea={minArea}
+          q={q}
+          sort={sort}
+        />
+        <section className="w-full">
           {/* Search and Sort controls */}
-          <form method="GET" action="/properties" className="mb-5 flex flex-col justify-between gap-3 rounded-lg bg-white p-4 md:flex-row md:items-center luxury-shadow border border-black/5">
+          <form method="GET" action="/properties" className="mb-5 flex flex-col justify-between gap-3 rounded-lg bg-white p-4 md:flex-row md:items-center luxury-shadow border border-black/5 w-full max-w-md mx-auto lg:max-w-none">
             {/* Preserving sidebar filters */}
             {city && <input type="hidden" name="city" value={city} />}
             {location && <input type="hidden" name="location" value={location} />}
@@ -189,7 +131,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               <p className="mt-1 text-sm text-[#68625a]">Try widening your filters or search keywords.</p>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 justify-center justify-items-center">
               {propertiesList.map((property) => (
                 <PropertyCard key={property.id} property={property} />
               ))}
@@ -198,7 +140,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-between border-t border-black/5 pt-6">
+            <div className="mt-8 flex flex-col gap-4 items-center justify-between border-t border-black/5 pt-6 md:flex-row w-full max-w-md mx-auto lg:max-w-none">
               <p className="text-sm text-[#68625a]">
                 Showing page <span className="font-semibold text-[#171717]">{page}</span> of <span className="font-semibold text-[#171717]">{totalPages}</span>
               </p>

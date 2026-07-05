@@ -12,7 +12,7 @@ export function PropertyCard({ property }: { property: any }) {
   const statusLabel = typeof property.status === "string" ? property.status : "ONGOING";
 
   return (
-    <Link href={`/properties/${property.slug}`} className="group overflow-hidden rounded-lg bg-white border border-black/5 luxury-shadow flex flex-col h-full transition duration-300">
+    <Link href={`/properties/${property.slug}`} className="group overflow-hidden rounded-lg bg-white border border-black/5 luxury-shadow flex flex-col h-full w-full max-w-md mx-auto transition duration-300">
       <div className="relative aspect-[16/10] overflow-hidden">
         <Image src={heroImage} alt={property.title} fill className="object-cover transition duration-700 group-hover:scale-105" sizes="(min-width: 1024px) 33vw, 100vw" />
         <span className="absolute left-3 top-3 rounded bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-[#171717] tracking-wider uppercase shadow-sm">
