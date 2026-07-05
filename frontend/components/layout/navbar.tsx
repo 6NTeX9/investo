@@ -111,10 +111,10 @@ export function Navbar() {
         <div className="flex items-center gap-2 lg:hidden">
           <a
             href="tel:+971552107788"
-            className="flex items-center gap-2 rounded-md border border-black/10 bg-white/70 px-3 py-2 text-sm font-semibold text-[#171717] transition hover:bg-white"
+            className="flex items-center gap-1.5 rounded-md border border-black/10 bg-white/70 px-2 py-1.5 text-xs font-semibold text-[#171717] transition hover:bg-white"
             aria-label="Call sales"
           >
-            <Phone size={15} />
+            <Phone size={13} />
             <span>Call sales</span>
           </a>
           <button
@@ -130,74 +130,63 @@ export function Navbar() {
         </div>
       </nav>
 
-      <AnimatePresence>
-        {isMenuOpen ? (
-          <>
-            <motion.button
-              type="button"
-              aria-label="Dismiss menu"
-              className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-5rem)] bg-black/30 backdrop-blur-[2px] lg:hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={closeMenu}
-            />
-            <motion.div
-              id="mobile-navigation"
-              className="absolute right-0 top-full z-50 h-[calc(100dvh-5rem)] w-[min(86vw,22rem)] overflow-y-auto border-l border-black/10 bg-[#f7f4ee] px-6 py-6 shadow-2xl lg:hidden"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 330, damping: 34 }}
-            >
-              <div className="grid gap-2">
-                {nav.map((item, index) => (
-                  <motion.div
-                    key={item.href}
-                    initial={{ opacity: 0, x: 18 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 + index * 0.04 }}
-                  >
-                    <Link
-                      href={item.href}
-                      className="block rounded-md px-3 py-3 text-base font-semibold text-[#292520] transition hover:bg-black/5"
-                      onClick={closeMenu}
-                    >
-                      {item.label}
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="mt-5 grid gap-3 border-t border-black/10 pt-5">
-                <LinkButton href="/admin" className="justify-center" onClick={closeMenu}>
-                  Admin
-                </LinkButton>
-                <a
-                  href={INSTAGRAM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Follow us on Instagram"
-                  className="flex items-center justify-center gap-2 rounded-md border border-black/10 bg-white/70 px-4 py-3 text-sm font-semibold text-[#4f4942]"
-                  onClick={closeMenu}
-                >
-                  <InstagramIcon size={18} />
-                  Instagram
-                </a>
-                {/* Dark mode toggle in mobile drawer */}
-                <button
-                  type="button"
-                  onClick={() => { toggleDark(); closeMenu(); }}
-                  className="flex items-center justify-center gap-2 rounded-md border border-black/10 bg-white/70 px-4 py-3 text-sm font-semibold text-[#4f4942] transition hover:bg-black/5"
-                >
-                  {isDark ? <Sun size={16} /> : <Moon size={16} />}
-                  {isDark ? "Light mode" : "Dark mode"}
-                </button>
-              </div>
-            </motion.div>
-          </>
-        ) : null}
-      </AnimatePresence>
+      {/* Dismiss backdrop overlay */}
+      <div
+        className={`absolute inset-x-0 top-full z-40 h-[calc(100dvh-5rem)] bg-black/30 backdrop-blur-[2px] lg:hidden transition-opacity duration-300 ${
+          isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={closeMenu}
+      />
+
+      {/* Slide-out mobile menu */}
+      <div
+        id="mobile-navigation"
+        className={`absolute right-0 top-full z-50 h-[calc(100dvh-5rem)] w-[min(86vw,22rem)] overflow-y-auto border-l border-black/10 bg-[#f7f4ee] px-6 py-6 shadow-2xl lg:hidden transition-transform duration-300 ease-out ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="grid gap-2">
+          {nav.map((item) => (
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                className="block rounded-md px-3 py-3 text-base font-semibold text-[#292520] transition hover:bg-black/5"
+                onClick={closeMenu}
+              >
+                {item.label}
+              </Link>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-3 border-t border-black/10 pt-5">
+          <LinkButton href="/admin" className="justify-center" onClick={closeMenu}>
+            Admin
+          </LinkButton>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Follow us on Instagram"
+            className="flex items-center justify-center gap-2 rounded-md border border-black/10 bg-white/70 px-4 py-3 text-sm font-semibold text-[#4f4942]"
+            onClick={closeMenu}
+          >
+            <InstagramIcon size={18} />
+            Instagram
+          </a>
+          {/* Dark mode toggle in mobile drawer */}
+          <button
+            type="button"
+            onClick={() => {
+              toggleDark();
+              closeMenu();
+            }}
+            className="flex items-center justify-center gap-2 rounded-md border border-black/10 bg-white/70 px-4 py-3 text-sm font-semibold text-[#4f4942] transition hover:bg-black/5"
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            {isDark ? "Light mode" : "Dark mode"}
+          </button>
+        </div>
+      </div>
     </header>
   );
 }

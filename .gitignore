@@ -11,3 +11,5 @@ coverage
 /backend/uploads/
 
 /generated/prisma
+.vercel
+.env*
