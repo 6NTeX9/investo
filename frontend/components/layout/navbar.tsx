@@ -142,7 +142,7 @@ export function Navbar() {
       <div
         id="mobile-navigation"
         className={`absolute right-0 top-full z-50 h-[calc(100dvh-5rem)] w-[min(86vw,22rem)] overflow-y-auto border-l border-black/10 bg-[#f7f4ee] px-6 py-6 shadow-2xl lg:hidden transition-transform duration-300 ease-out ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
+          isMenuOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
         }`}
       >
         <div className="grid gap-2">
