@@ -31,33 +31,11 @@ export default function AdminShell({ children }: AdminShellProps) {
   const [verified, setVerified] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("crm_theme") as "light" | "dark";
-    const currentTheme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    setTheme(currentTheme);
-    if (currentTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    return () => {
-      document.documentElement.classList.remove("dark");
-    };
+    // Enforce light theme
+    document.documentElement.classList.remove("dark");
   }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    localStorage.setItem("crm_theme", nextTheme);
-    if (nextTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -114,28 +92,21 @@ export default function AdminShell({ children }: AdminShellProps) {
   });
 
   return (
-    <main className="section-shell pt-8">
-      <div className="grid min-h-[72svh] overflow-hidden rounded-lg bg-white luxury-shadow lg:grid-cols-[260px_1fr]">
+    <main className="w-full max-w-7xl mx-auto px-2 sm:px-6 pt-4 sm:pt-8 pb-12">
+      <div className="grid min-h-[72svh] overflow-hidden rounded-xl bg-white luxury-shadow lg:grid-cols-[260px_1fr] border border-black/5">
         
         {/* Mobile Header */}
-        <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 lg:hidden bg-white">
-          <p className="font-semibold text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-[#68625a] hover:bg-black/5 rounded-md transition"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun size={18} className="text-[#b89658]" /> : <Moon size={18} />}
-            </button>
-            <button
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 text-[#68625a] hover:bg-black/5 rounded-md transition"
-              aria-label="Open menu"
-            >
-              <Menu size={20} />
-            </button>
+        <div className="flex items-center justify-between border-b border-black/10 px-4 py-3.5 lg:hidden bg-white">
+          <div>
+            <p className="font-semibold text-base sm:text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
           </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 text-[#68625a] hover:bg-black/5 rounded-md transition"
+            aria-label="Open menu"
+          >
+            <Menu size={22} />
+          </button>
         </div>
 
         {/* Desktop Sidebar (Hidden on mobile) */}
@@ -143,13 +114,6 @@ export default function AdminShell({ children }: AdminShellProps) {
           <div>
             <div className="flex items-center justify-between">
               <p className="font-semibold text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-[#68625a] hover:bg-black/5 rounded-md transition"
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? <Sun size={18} className="text-[#b89658]" /> : <Moon size={18} />}
-              </button>
             </div>
             <nav className="mt-6 grid gap-1">
               {allowedNavItems.map((item) => {
@@ -218,22 +182,13 @@ export default function AdminShell({ children }: AdminShellProps) {
                 <div>
                   <div className="flex items-center justify-between">
                     <p className="font-semibold text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={toggleTheme}
-                        className="p-1.5 text-[#68625a] hover:bg-black/5 rounded-full transition"
-                        aria-label="Toggle theme"
-                      >
-                        {theme === "dark" ? <Sun size={18} className="text-[#b89658]" /> : <Moon size={18} />}
-                      </button>
-                      <button
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="p-1.5 text-[#68625a] hover:bg-black/5 rounded-full transition"
-                        aria-label="Close menu"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="p-1.5 text-[#68625a] hover:bg-black/5 rounded-full transition"
+                      aria-label="Close menu"
+                    >
+                      <X size={18} />
+                    </button>
                   </div>
                   
                   <nav className="mt-6 grid gap-1">

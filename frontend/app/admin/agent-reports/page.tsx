@@ -493,24 +493,24 @@ export default function AgentReportsPage() {
                 <div key={agent.id} className="rounded-xl border border-black/5 bg-white luxury-shadow overflow-hidden transition hover:border-[#b89658]/20">
 
                   {/* Card header */}
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 sm:p-5">
+                  <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-4 p-4 sm:p-5">
 
                     {/* Avatar + info */}
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
                       {agent.avatarUrl ? (
-                        <img src={agent.avatarUrl} alt={agent.name} className="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover border border-black/10 shrink-0" />
+                        <img src={agent.avatarUrl} alt={agent.name} className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border border-black/10 shrink-0" />
                       ) : (
-                        <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-[#b89658]/10 flex items-center justify-center shrink-0 font-bold text-[#b89658] text-base sm:text-lg">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#b89658]/10 flex items-center justify-center shrink-0 font-bold text-[#b89658] text-sm sm:text-lg">
                           {getInitials(agent.name)}
                         </div>
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-[#171717] text-base">{agent.name}</p>
-                        <p className="text-xs text-[#68625a] truncate">{agent.email} · {agent.phone}</p>
+                        <p className="font-semibold text-[#171717] text-base leading-snug">{agent.name}</p>
+                        <p className="text-xs text-[#68625a] break-all sm:break-normal sm:truncate">{agent.email} · {agent.phone}</p>
                         <div className="mt-1 flex items-center gap-2 flex-wrap">
                           <ConversionBadge rate={conversionRate} />
                           {lastActivityAt && (
-                            <span className="text-[11px] text-[#68625a]">
+                            <span className="text-[10px] sm:text-[11px] text-[#68625a]">
                               Last active: {new Date(lastActivityAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                             </span>
                           )}
@@ -518,53 +518,53 @@ export default function AgentReportsPage() {
                       </div>
                     </div>
 
-                    {/* Quick stats */}
-                    <div className="flex items-center justify-around md:justify-start gap-4 sm:gap-6 w-full md:w-auto py-2.5 md:py-0 border-y md:border-y-0 border-black/5 shrink-0">
+                    {/* Quick stats grid (3-cols on mobile) */}
+                    <div className="grid grid-cols-3 gap-2 bg-[#f7f4ee]/60 p-2.5 rounded-lg text-center w-full md:w-auto md:bg-transparent md:p-0 md:flex md:items-center md:gap-6 shrink-0 border border-black/5 md:border-none">
                       <div className="text-center">
-                        <p className="text-xl sm:text-2xl font-bold text-[#171717]">{enquiryStats.total}</p>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Leads</p>
+                        <p className="text-lg sm:text-2xl font-bold text-[#171717]">{enquiryStats.total}</p>
+                        <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Leads</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xl sm:text-2xl font-bold text-teal-600">{enquiryStats.CLOSED}</p>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Closed</p>
+                        <p className="text-lg sm:text-2xl font-bold text-teal-600">{enquiryStats.CLOSED}</p>
+                        <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Closed</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xl sm:text-2xl font-bold text-[#171717]">{visitStats.total}</p>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Visits</p>
+                        <p className="text-lg sm:text-2xl font-bold text-[#171717]">{visitStats.total}</p>
+                        <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Visits</p>
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end w-full md:w-auto pt-1 md:pt-0">
+                    {/* Actions (3-cols on mobile) */}
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full md:w-auto md:flex md:items-center shrink-0 pt-1 md:pt-0">
                       {/* View Progress button */}
                       <button
                         id={`view-progress-${agent.id}`}
                         onClick={() => handleViewProgress(agent.id)}
                         disabled={isLoadingProgress}
-                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg bg-[#171717] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2a2a2a] transition disabled:opacity-50"
+                        className="flex items-center justify-center gap-1 rounded-lg bg-[#171717] px-2 py-2 text-[11px] sm:text-xs font-semibold text-white hover:bg-[#2a2a2a] transition disabled:opacity-50"
                       >
                         {isLoadingProgress
-                          ? <Loader2 size={12} className="animate-spin" />
-                          : <Eye size={12} />}
-                        View Progress
+                          ? <Loader2 size={11} className="animate-spin" />
+                          : <Eye size={11} />}
+                        <span>View Progress</span>
                       </button>
                       {/* Export CSV */}
                       <button
                         id={`export-agent-${agent.id}`}
                         onClick={() => handleExportAgent(agent.id, agent.name)}
                         disabled={isExporting}
-                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg border border-[#b89658]/30 px-3 py-2 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition disabled:opacity-50"
+                        className="flex items-center justify-center gap-1 rounded-lg border border-[#b89658]/30 px-2 py-2 text-[11px] sm:text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition disabled:opacity-50 bg-white"
                       >
-                        {isExporting ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
-                        Export CSV
+                        {isExporting ? <Loader2 size={11} className="animate-spin" /> : <FileText size={11} />}
+                        <span>Export CSV</span>
                       </button>
                       {/* Expand details */}
                       <button
                         onClick={() => setExpandedId(isExpanded ? null : agent.id)}
-                        className="flex items-center justify-center gap-1 rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold text-[#68625a] hover:bg-black/5 transition"
+                        className="flex items-center justify-center gap-1 rounded-lg border border-black/10 px-2 py-2 text-[11px] sm:text-xs font-semibold text-[#68625a] hover:bg-black/5 transition bg-white"
                       >
-                        {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                        {isExpanded ? "Hide" : "Stats"}
+                        {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                        <span>{isExpanded ? "Hide" : "Stats"}</span>
                       </button>
                     </div>
                   </div>

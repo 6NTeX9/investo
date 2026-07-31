@@ -646,57 +646,61 @@ export default function AdminPropertiesPage() {
             {/* Mobile Card view */}
             <div className="block md:hidden divide-y divide-black/5 bg-white">
               {properties.map((property) => (
-                <div key={property.id} className="p-4 flex flex-col gap-3">
-                  <div className="flex gap-3">
-                    <div className="h-16 w-20 overflow-hidden rounded border border-black/5 bg-black/5 flex-shrink-0">
-                      {property.images?.[0] ? (
+                <div key={property.id} className="p-3.5 flex flex-col gap-2.5">
+                  {/* Top: Image + Title + Price */}
+                  <div className="flex gap-3 items-start">
+                    <div className="h-16 w-20 overflow-hidden rounded-md border border-black/10 bg-[#f7f4ee] flex-shrink-0 relative">
+                      {property.images?.[0]?.url ? (
                         <img 
                           src={property.images[0].url} 
                           alt={property.title} 
                           className="h-full w-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
                         />
                       ) : (
-                        <div className="h-full w-full flex items-center justify-center text-black/20">
-                          <Building2 size={24} />
+                        <div className="h-full w-full flex items-center justify-center text-[#b89658]">
+                          <Building2 size={20} />
                         </div>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold text-sm text-[#171717] leading-tight truncate">{property.title}</h3>
-                        <span className="font-semibold text-[#171717] text-xs shrink-0">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <h3 className="font-semibold text-sm text-[#171717] leading-snug line-clamp-1">{property.title}</h3>
+                        <span className="font-bold text-[#b89658] text-xs shrink-0">
                           {formatCurrency(Number(property.price))}
                         </span>
                       </div>
-                      <p className="text-xs text-[#68625a] mt-1 truncate">
+                      <p className="text-xs text-[#68625a] mt-0.5 line-clamp-1">
                         {property.location}, {property.city}
                       </p>
+                      <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-semibold text-[#171717]">{property.type}</span>
+                        <span className="text-[9px] text-[#68625a] font-medium uppercase bg-black/5 px-1.5 py-0.5 rounded">
+                          {property.status.replaceAll("_", " ")}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 text-xs border-t border-black/5 pt-2">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-semibold text-[#171717] text-xs">{property.type}</span>
-                      <span className="text-[9px] text-[#68625a] font-medium uppercase bg-black/5 px-1.5 py-0.5 rounded w-max">
-                        {property.status.replaceAll("_", " ")}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-1">
+                  {/* Bottom: Status Badges on left + Action buttons on right */}
+                  <div className="flex items-center justify-between gap-2 border-t border-black/5 pt-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {property.isPublished ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-medium text-emerald-700 border border-emerald-100">
-                          <span className="h-1 w-1 rounded-full bg-emerald-600" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 border border-emerald-100">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
                           Published
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-medium text-amber-700 border border-amber-100">
-                          <span className="h-1 w-1 rounded-full bg-amber-600" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 border border-amber-100">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
                           Draft
                         </span>
                       )}
                       {property.isFeatured && (
-                        <span className="inline-flex items-center gap-0.5 text-[8px] font-semibold text-[#b89658]">
-                          <Sparkles size={8} />
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-[#b89658]">
+                          <Sparkles size={9} />
                           Featured
                         </span>
                       )}
@@ -705,7 +709,7 @@ export default function AdminPropertiesPage() {
                     <div className="flex gap-1.5 shrink-0">
                       <button
                         onClick={() => handleOpenEdit(property)}
-                        className="flex items-center gap-1 rounded border border-black/10 px-2.5 py-1 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition"
+                        className="flex items-center gap-1 rounded border border-[#b89658]/30 px-2.5 py-1 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition"
                         title="Edit"
                       >
                         <Edit size={12} />
@@ -713,10 +717,10 @@ export default function AdminPropertiesPage() {
                       </button>
                       <button
                         onClick={() => setDeleteConfirmId(property.id)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded border border-red-100 transition"
+                        className="p-1 text-red-600 hover:bg-red-50 rounded border border-red-200 transition"
                         title="Delete"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
