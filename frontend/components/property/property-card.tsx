@@ -111,6 +111,8 @@ export function PropertyCard({ property }: { property: any }) {
                   className="object-cover" 
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   priority={idx === 0}
+                  fetchPriority={idx === 0 ? "high" : "low"}
+                  quality={70}
                 />
               </div>
             ))}

@@ -83,8 +83,10 @@ export function ImageCarousel({ gallery, title }: ImageCarouselProps) {
               alt={`${title} view ${idx + 1}`}
               fill
               priority={idx === 0}
+              fetchPriority={idx === 0 ? "high" : "low"}
+              quality={75}
               className="object-contain"
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, 85vw"
             />
           </div>
         ))}
