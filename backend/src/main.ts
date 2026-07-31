@@ -25,7 +25,7 @@ async function bootstrap() {
   );
 
   const documentConfig = new DocumentBuilder()
-    .setTitle("Investo Properties API")
+    .setTitle("BricksNBeyond API")
     .setDescription("REST API for properties, CMS, leads, site visits, media, and analytics.")
     .setVersion("1.0")
     .addBearerAuth()

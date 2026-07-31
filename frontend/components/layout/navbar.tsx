@@ -66,7 +66,7 @@ export function Navbar() {
           <span className="grid size-10 place-items-center rounded-md bg-[#171717] text-white">
             <Building2 size={20} />
           </span>
-          <span>Investo Properties</span>
+          <span>BricksNBeyond</span>
         </Link>
 
         <div className="hidden items-center gap-7 text-sm text-[#4f4942] lg:flex">

@@ -212,7 +212,7 @@ export default function AdminAgentsPage() {
     <section className="p-6 md:p-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Investo representatives</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">BricksNBeyond representatives</p>
           <h1 className="mt-2 text-3xl font-semibold">Sales Agents</h1>
         </div>
         <button 
@@ -382,7 +382,7 @@ export default function AdminAgentsPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                placeholder="sarah.j@investoproperties.com"
+                placeholder="sarah.j@bricksnbeyond.com"
               />
             </div>
 

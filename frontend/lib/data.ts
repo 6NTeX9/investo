@@ -23,12 +23,12 @@ export const properties: Property[] = [
     amenities: ["Infinity pool", "Concierge", "Private lounge", "Gym", "Valet parking"],
     description: "A collection of high-floor residences with panoramic city views, refined material palettes, and a private residents' club.",
     siteArea: "4.8 acres",
-    builder: "Investo Developments",
+    builder: "BricksNBeyond Developments",
     nearby: ["Palladium Mall - 5 min", "Bandra-Worli Sea Link - 12 min", "Chhatrapati Shivaji Airport - 25 min"],
     agent: {
       name: "Maya Kapoor",
       phone: "+91 98765 43210",
-      email: "maya@investoproperties.com",
+      email: "maya@bricksnbeyond.com",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=320&q=85"
     }
   },
@@ -59,7 +59,7 @@ export const properties: Property[] = [
     agent: {
       name: "Omar Siddiqui",
       phone: "+91 98765 43214",
-      email: "omar@investoproperties.com",
+      email: "omar@bricksnbeyond.com",
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=320&q=85"
     }
   },
@@ -90,7 +90,7 @@ export const properties: Property[] = [
     agent: {
       name: "Elena Rossi",
       phone: "+91 98765 43213",
-      email: "elena@investoproperties.com",
+      email: "elena@bricksnbeyond.com",
       avatar: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=320&q=85"
     }
   }
@@ -99,5 +99,5 @@ export const properties: Property[] = [
 export const testimonials = [
   "The team shortlisted homes that matched our budget and investment horizon with unusual precision.",
   "Site visits, paperwork, and builder negotiations were handled with a level of calm we did not expect.",
-  "Investo helped us compare yield, location fundamentals, and exit scenarios before we committed."
+  "BricksNBeyond helped us compare yield, location fundamentals, and exit scenarios before we committed."
 ];

@@ -444,27 +444,27 @@ export default function AgentReportsPage() {
 
         {/* ── Summary strip ── */}
         {!loading && (
-          <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-xl border border-black/5 bg-white p-5 luxury-shadow">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div className="rounded-xl border border-black/5 bg-white p-4 sm:p-5 luxury-shadow">
               <div className="flex items-center gap-2 mb-1">
                 <Users size={15} className="text-[#b89658]" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#68625a]">Total Agents</span>
               </div>
-              <p className="text-3xl font-bold text-[#171717]">{reports.length}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[#171717]">{reports.length}</p>
             </div>
-            <div className="rounded-xl border border-black/5 bg-white p-5 luxury-shadow">
+            <div className="rounded-xl border border-black/5 bg-white p-4 sm:p-5 luxury-shadow">
               <div className="flex items-center gap-2 mb-1">
                 <Inbox size={15} className="text-[#b89658]" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#68625a]">Total Leads</span>
               </div>
-              <p className="text-3xl font-bold text-[#171717]">{reports.reduce((s, r) => s + r.enquiryStats.total, 0)}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[#171717]">{reports.reduce((s, r) => s + r.enquiryStats.total, 0)}</p>
             </div>
-            <div className="rounded-xl border border-black/5 bg-white p-5 luxury-shadow">
+            <div className="rounded-xl border border-black/5 bg-white p-4 sm:p-5 luxury-shadow">
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle2 size={15} className="text-[#b89658]" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#68625a]">Total Closed</span>
               </div>
-              <p className="text-3xl font-bold text-[#171717]">{reports.reduce((s, r) => s + r.enquiryStats.CLOSED, 0)}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[#171717]">{reports.reduce((s, r) => s + r.enquiryStats.CLOSED, 0)}</p>
             </div>
           </div>
         )}
@@ -493,18 +493,18 @@ export default function AgentReportsPage() {
                 <div key={agent.id} className="rounded-xl border border-black/5 bg-white luxury-shadow overflow-hidden transition hover:border-[#b89658]/20">
 
                   {/* Card header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-5">
+                  <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 sm:p-5">
 
                     {/* Avatar + info */}
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                       {agent.avatarUrl ? (
-                        <img src={agent.avatarUrl} alt={agent.name} className="h-12 w-12 rounded-full object-cover border border-black/10 shrink-0" />
+                        <img src={agent.avatarUrl} alt={agent.name} className="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover border border-black/10 shrink-0" />
                       ) : (
-                        <div className="h-12 w-12 rounded-full bg-[#b89658]/10 flex items-center justify-center shrink-0 font-bold text-[#b89658] text-lg">
+                        <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-[#b89658]/10 flex items-center justify-center shrink-0 font-bold text-[#b89658] text-base sm:text-lg">
                           {getInitials(agent.name)}
                         </div>
                       )}
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-semibold text-[#171717] text-base">{agent.name}</p>
                         <p className="text-xs text-[#68625a] truncate">{agent.email} · {agent.phone}</p>
                         <div className="mt-1 flex items-center gap-2 flex-wrap">
@@ -519,29 +519,29 @@ export default function AgentReportsPage() {
                     </div>
 
                     {/* Quick stats */}
-                    <div className="flex items-center gap-5 shrink-0">
+                    <div className="flex items-center justify-around md:justify-start gap-4 sm:gap-6 w-full md:w-auto py-2.5 md:py-0 border-y md:border-y-0 border-black/5 shrink-0">
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-[#171717]">{enquiryStats.total}</p>
+                        <p className="text-xl sm:text-2xl font-bold text-[#171717]">{enquiryStats.total}</p>
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Leads</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-teal-600">{enquiryStats.CLOSED}</p>
+                        <p className="text-xl sm:text-2xl font-bold text-teal-600">{enquiryStats.CLOSED}</p>
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Closed</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-[#171717]">{visitStats.total}</p>
+                        <p className="text-xl sm:text-2xl font-bold text-[#171717]">{visitStats.total}</p>
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Visits</p>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end w-full md:w-auto pt-1 md:pt-0">
                       {/* View Progress button */}
                       <button
                         id={`view-progress-${agent.id}`}
                         onClick={() => handleViewProgress(agent.id)}
                         disabled={isLoadingProgress}
-                        className="flex items-center gap-1.5 rounded-lg bg-[#171717] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2a2a2a] transition disabled:opacity-50"
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg bg-[#171717] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2a2a2a] transition disabled:opacity-50"
                       >
                         {isLoadingProgress
                           ? <Loader2 size={12} className="animate-spin" />
@@ -553,7 +553,7 @@ export default function AgentReportsPage() {
                         id={`export-agent-${agent.id}`}
                         onClick={() => handleExportAgent(agent.id, agent.name)}
                         disabled={isExporting}
-                        className="flex items-center gap-1.5 rounded-lg border border-[#b89658]/30 px-3 py-2 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition disabled:opacity-50"
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg border border-[#b89658]/30 px-3 py-2 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition disabled:opacity-50"
                       >
                         {isExporting ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
                         Export CSV
@@ -561,7 +561,7 @@ export default function AgentReportsPage() {
                       {/* Expand details */}
                       <button
                         onClick={() => setExpandedId(isExpanded ? null : agent.id)}
-                        className="flex items-center gap-1 rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold text-[#68625a] hover:bg-black/5 transition"
+                        className="flex items-center justify-center gap-1 rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold text-[#68625a] hover:bg-black/5 transition"
                       >
                         {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                         {isExpanded ? "Hide" : "Stats"}
@@ -571,8 +571,8 @@ export default function AgentReportsPage() {
 
                   {/* Expandable stat panel */}
                   {isExpanded && (
-                    <div className="border-t border-black/5 px-5 pb-5 pt-4 bg-[#faf9f6]">
-                      <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="border-t border-black/5 p-4 sm:p-5 bg-[#faf9f6]">
+                      <div className="grid gap-5 grid-cols-1 sm:grid-cols-2">
 
                         {/* Lead pipeline */}
                         <div>
@@ -584,8 +584,8 @@ export default function AgentReportsPage() {
                               const val = enquiryStats[s];
                               const pct = enquiryStats.total > 0 ? Math.round((val / enquiryStats.total) * 100) : 0;
                               return (
-                                <div key={s} className="flex items-center gap-3">
-                                  <span className="text-xs text-[#68625a] w-20 font-medium">{LEAD_STATUS_CONFIG[s].label}</span>
+                                <div key={s} className="flex items-center gap-2 sm:gap-3">
+                                  <span className="text-xs text-[#68625a] w-16 sm:w-20 font-medium truncate">{LEAD_STATUS_CONFIG[s].label}</span>
                                   <div className="flex-1 rounded-full bg-black/5 h-1.5 overflow-hidden">
                                     <div className={`h-full rounded-full ${LEAD_STATUS_CONFIG[s].bar}`} style={{ width: `${pct}%` }} />
                                   </div>
@@ -601,11 +601,11 @@ export default function AgentReportsPage() {
                           <p className="text-xs font-semibold uppercase tracking-wider text-[#68625a] mb-3 flex items-center gap-1.5">
                             <Calendar size={13} className="text-[#b89658]" /> Visit Breakdown
                           </p>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             {(["CONFIRMED","COMPLETED","CANCELLED","REQUESTED","RESCHEDULED"] as VisitStatus[]).map((s) => (
                               <div key={s} className="flex flex-col items-center rounded-lg border border-black/5 bg-white p-2 gap-1">
                                 <span className={`h-2 w-2 rounded-full ${VISIT_STATUS_CONFIG[s].dot}`} />
-                                <p className="text-xl font-bold text-[#171717]">{visitStats[s]}</p>
+                                <p className="text-lg sm:text-xl font-bold text-[#171717]">{visitStats[s]}</p>
                                 <p className="text-[10px] text-[#68625a] text-center font-medium leading-tight">{VISIT_STATUS_CONFIG[s].label}</p>
                               </div>
                             ))}

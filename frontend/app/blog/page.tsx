@@ -5,8 +5,8 @@ import { CalendarDays, Tag, ArrowRight } from "lucide-react";
 import { api } from "@/services/api";
 
 export const metadata: Metadata = {
-  title: "Insights & Market Reports | Investo Properties",
-  description: "Stay informed with the latest real estate market insights, investment guides, and property trends from Investo Properties' expert advisory team."
+  title: "Insights & Market Reports | BricksNBeyond",
+  description: "Stay informed with the latest real estate market insights, investment guides, and property trends from BricksNBeyond's expert advisory team."
 };
 
 export const dynamic = "force-dynamic";

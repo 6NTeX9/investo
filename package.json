@@ -17,9 +17,18 @@
     "seed": "npm run seed --workspace backend"
   },
   "overrides": {
-    "next@16.2.6": {
-      "postcss": "8.5.15"
-    },
+    "next": "16.2.12",
+    "postcss": "8.5.24",
+    "sharp": "0.35.3",
+    "@nestjs/common": "11.1.28",
+    "@nestjs/core": "11.1.28",
+    "@nestjs/platform-express": "11.1.28",
+    "multer": "2.2.0",
+    "js-yaml": "4.3.0",
+    "brace-expansion": "5.0.8",
+    "fast-uri": "4.1.1",
+    "form-data": "4.0.6",
+    "body-parser": "2.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
@@ -32,11 +41,11 @@
     "react-dom": "18.3.1"
   },
   "optionalDependencies": {
-    "lightningcss-linux-x64-gnu": "1.32.0",
-    "lightningcss-linux-x64-musl": "1.32.0",
-    "lightningcss-darwin-arm64": "1.32.0",
+    "@tailwindcss/oxide-darwin-arm64": "4.3.0",
     "@tailwindcss/oxide-linux-x64-gnu": "4.3.0",
     "@tailwindcss/oxide-linux-x64-musl": "4.3.0",
-    "@tailwindcss/oxide-darwin-arm64": "4.3.0"
+    "lightningcss-darwin-arm64": "1.32.0",
+    "lightningcss-linux-x64-gnu": "1.32.0",
+    "lightningcss-linux-x64-musl": "1.32.0"
   }
 }

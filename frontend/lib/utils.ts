@@ -127,12 +127,12 @@ export function normalizeProperty(property: any) {
     amenities: property.amenities || [],
     description: property.description || "",
     siteArea: property.siteArea || "N/A",
-    builder: property.builderName || "Investo Developments",
+    builder: property.builderName || "BricksNBeyond Developments",
     nearby: property.nearbyLandmarks || property.nearby || [],
     agent: {
-      name: property.agent?.name || "Investo Advisory",
+      name: property.agent?.name || "BricksNBeyond Advisory",
       phone: property.agent?.phone || "+971 4 000 0000",
-      email: property.agent?.email || "info@investoproperties.com",
+      email: property.agent?.email || "info@bricksnbeyond.com",
       avatar: property.agent?.avatarUrl || property.agent?.avatar || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=320&q=85"
     }
   };

@@ -167,7 +167,7 @@ export default function AdminBlogsPage() {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">
-            Investo Content
+            BricksNBeyond Content
           </p>
           <h1 className="mt-2 text-3xl font-semibold">Blog Posts</h1>
         </div>

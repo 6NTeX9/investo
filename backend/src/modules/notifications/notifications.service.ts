@@ -228,7 +228,7 @@ export class NotificationsService {
   ): string {
     const label = type === "enquiry" ? "🏠 New Enquiry" : "📅 New Site Visit Request";
     const lines = [
-      `${label} — Investo Properties`,
+      `${label} — BricksNBeyond`,
       ``,
       `👤 Name: ${data.name}`,
       `📞 Phone: ${data.phone}`,

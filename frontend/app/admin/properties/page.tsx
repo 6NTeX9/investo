@@ -466,7 +466,7 @@ export default function AdminPropertiesPage() {
     <main className="section-shell pt-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Investo listings</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">BricksNBeyond listings</p>
           <h1 className="mt-2 text-3xl font-semibold">Properties</h1>
         </div>
         <button 

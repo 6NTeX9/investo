@@ -5,8 +5,8 @@ import { Building2, Award, Users, MapPin, ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "About Us | Investo Properties",
-  description: "Investo Properties is a premium real estate advisory firm helping clients find luxury residential and commercial properties across India's top cities."
+  title: "About Us | BricksNBeyond",
+  description: "BricksNBeyond is a premium real estate advisory firm helping clients find luxury residential and commercial properties across India's top cities."
 };
 
 const stats = [
@@ -20,7 +20,7 @@ const values = [
   {
     icon: Award,
     title: "Curated Excellence",
-    body: "Every listing on Investo Properties is hand-picked and verified. We work only with trusted builders and offer only properties that meet our quality benchmark."
+    body: "Every listing on BricksNBeyond is hand-picked and verified. We work only with trusted builders and offer only properties that meet our quality benchmark."
   },
   {
     icon: Users,
@@ -50,7 +50,7 @@ export default function AboutPage() {
             India&apos;s premium real estate advisory
           </h1>
           <p className="mt-6 text-lg text-[#4f4942] leading-8 max-w-lg">
-            Investo Properties was founded with a single mission — to make luxury real estate accessible, transparent, and stress-free for every Indian family and investor.
+            BricksNBeyond was founded with a single mission — to make luxury real estate accessible, transparent, and stress-free for every Indian family and investor.
           </p>
           <div className="mt-8 flex gap-3 flex-wrap">
             <LinkButton href="/properties" className="gap-2">
@@ -66,7 +66,7 @@ export default function AboutPage() {
         <div className="relative h-80 lg:h-[460px] overflow-hidden rounded-2xl">
           <Image
             src="https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=1200&q=85"
-            alt="Investo Properties office"
+            alt="BricksNBeyond office"
             fill
             priority
             className="object-cover"

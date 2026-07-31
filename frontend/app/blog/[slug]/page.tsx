@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const post = await getPost(slug);
   if (!post) return {};
   return {
-    title: `${post.title} | Investo Properties Insights`,
+    title: `${post.title} | BricksNBeyond Insights`,
     description: post.excerpt || post.content?.slice(0, 160),
     openGraph: {
       title: post.title,

@@ -203,7 +203,7 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Investo Admin</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">BricksNBeyond Admin</p>
           <h1 className="mt-2 text-3xl font-semibold">Users</h1>
         </div>
         {canCreate && (
@@ -415,7 +415,7 @@ export default function AdminUsersPage() {
                 <div className="relative">
                   <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#68625a]" />
                   <input type="email" required value={fEmail} onChange={(e) => setFEmail(e.target.value)}
-                    className="focus-ring w-full rounded border border-black/10 pl-9 pr-3 py-2 text-sm" placeholder="ravi@investoproperties.com" />
+                    className="focus-ring w-full rounded border border-black/10 pl-9 pr-3 py-2 text-sm" placeholder="ravi@bricksnbeyond.com" />
                 </div>
               </div>
 

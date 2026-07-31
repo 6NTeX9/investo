@@ -5,13 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { api } from "@/services/api";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2, Lock, Eye, EyeOff } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +57,7 @@ function LoginForm() {
             <span>Secure admin</span>
           </div>
           <h1 className="mt-2 text-3xl font-semibold text-[#171717]">Sign in</h1>
-          <p className="mt-2 text-sm text-[#68625a]">Enter your credentials to access Investo CMS.</p>
+          <p className="mt-2 text-sm text-[#68625a]">Enter your credentials to access BricksNBeyond CMS.</p>
 
           {error && (
             <div className="mt-6 rounded-md bg-red-50 border border-red-200/50 p-4 text-sm text-red-600">
@@ -77,7 +78,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="focus-ring rounded-md border border-black/10 px-4 py-3 text-sm transition-all focus:border-[#b89658]/50 disabled:opacity-60"
-                placeholder="admin@investoproperties.com"
+                placeholder="admin@bricksnbeyond.com"
               />
             </div>
 
@@ -85,16 +86,26 @@ function LoginForm() {
               <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-[#68625a]">
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                required
-                disabled={loading}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="focus-ring rounded-md border border-black/10 px-4 py-3 text-sm transition-all focus:border-[#b89658]/50 disabled:opacity-60"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  disabled={loading}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="focus-ring w-full rounded-md border border-black/10 pl-4 pr-11 py-3 text-sm transition-all focus:border-[#b89658]/50 disabled:opacity-60"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#68625a] hover:text-[#171717] p-1.5 transition rounded-md"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             <button

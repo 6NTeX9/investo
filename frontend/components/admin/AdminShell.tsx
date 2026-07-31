@@ -119,7 +119,7 @@ export default function AdminShell({ children }: AdminShellProps) {
         
         {/* Mobile Header */}
         <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 lg:hidden bg-white">
-          <p className="font-semibold text-lg tracking-wide text-[#171717]">Investo CMS</p>
+          <p className="font-semibold text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
           <div className="flex items-center gap-1">
             <button
               onClick={toggleTheme}
@@ -142,7 +142,7 @@ export default function AdminShell({ children }: AdminShellProps) {
         <aside className="hidden lg:flex lg:flex-col lg:justify-between border-r border-black/10 p-5 bg-white">
           <div>
             <div className="flex items-center justify-between">
-              <p className="font-semibold text-lg tracking-wide text-[#171717]">Investo CMS</p>
+              <p className="font-semibold text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
               <button
                 onClick={toggleTheme}
                 className="p-2 text-[#68625a] hover:bg-black/5 rounded-md transition"
@@ -217,7 +217,7 @@ export default function AdminShell({ children }: AdminShellProps) {
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <p className="font-semibold text-lg tracking-wide text-[#171717]">Investo CMS</p>
+                    <p className="font-semibold text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={toggleTheme}

@@ -9,12 +9,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: {
-    default: "Investo Properties | Luxury Properties",
-    template: "%s | Investo Properties"
+    default: "BricksNBeyond | Luxury Properties",
+    template: "%s | BricksNBeyond"
   },
   description: "Discover premium residences, investment projects, and commercial real estate in fast-growing city corridors.",
   openGraph: {
-    title: "Investo Properties",
+    title: "BricksNBeyond",
     description: "Premium real estate discovery and advisory platform.",
     type: "website"
   }
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="light" style={{ colorScheme: "light" }}>
+      <body className="bg-[#f7f4ee] text-[#151515]">
         <Analytics />
         <Navbar />
         <Providers>
