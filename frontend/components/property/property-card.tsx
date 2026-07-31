@@ -3,39 +3,34 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BedDouble, MapPin, Timer, Maximize, ChevronLeft, ChevronRight } from "lucide-react";
+import { BedDouble, MapPin, Timer, Maximize, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export function PropertyCard({ property }: { property: any }) {
-  // Extract all available images or build a multi-image carousel
-  const rawImages: string[] = [];
+  // Extract ONLY real images associated with this property
+  const realImages: string[] = [];
 
-  if (property.heroImage) rawImages.push(property.heroImage);
+  if (property.heroImage) {
+    realImages.push(property.heroImage);
+  }
+  
   if (Array.isArray(property.images)) {
     property.images.forEach((img: any) => {
       const url = typeof img === "string" ? img : img?.url;
-      if (url && !rawImages.includes(url)) rawImages.push(url);
+      if (url && !realImages.includes(url)) {
+        realImages.push(url);
+      }
     });
   }
 
-  // Fallback demo images if property only has 1 image so sliding is always interactive
-  const defaultFallback = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85";
-  const extraFallbacks = [
-    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=85",
-    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=85"
-  ];
+  // Fallback placeholder ONLY if no images exist in database at all
+  const imagesList = realImages.length > 0 
+    ? realImages 
+    : ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85"];
 
-  if (rawImages.length === 0) rawImages.push(defaultFallback);
-  if (rawImages.length === 1) {
-    extraFallbacks.forEach((fb) => {
-      if (!rawImages.includes(fb)) rawImages.push(fb);
-    });
-  }
-
-  const imagesList = rawImages.slice(0, 5);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Touch gesture support for mobile swiping
+  // Touch swipe handling
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
@@ -68,8 +63,8 @@ export function PropertyCard({ property }: { property: any }) {
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchStartX.current || !touchEndX.current) return;
     const distance = touchStartX.current - touchEndX.current;
-    const isLeftSwipe = distance > 40;
-    const isRightSwipe = distance < -40;
+    const isLeftSwipe = distance > 35;
+    const isRightSwipe = distance < -35;
 
     if (isLeftSwipe) {
       setCurrentIndex((prev) => (prev === imagesList.length - 1 ? 0 : prev + 1));
@@ -82,31 +77,44 @@ export function PropertyCard({ property }: { property: any }) {
     touchEndX.current = null;
   };
 
-  const categoryName = typeof property.category === "string" ? property.category : property.category?.name || "Premium Property";
+  const categoryName = typeof property.category === "string" 
+    ? property.category 
+    : property.category?.name || "Premium Property";
+
   const priceLabel = property.priceLabel || formatCurrency(property.price);
   const bedrooms = property.bedrooms || 0;
   const typeLabel = typeof property.type === "string" ? property.type : "Apartment";
   const statusLabel = typeof property.status === "string" ? property.status : "ONGOING";
 
   return (
-    <div className="group overflow-hidden rounded-lg bg-white border border-black/5 luxury-shadow flex flex-col h-full w-full max-w-md mx-auto transition duration-300">
+    <div className="group overflow-hidden rounded-xl bg-white border border-black/5 luxury-shadow flex flex-col h-full w-full max-w-md mx-auto transition duration-300">
       
-      {/* Interactive Image Container with Slide + Buttons + Touch Swipe */}
+      {/* Interactive Carousel Box with Animated Horizontal Sliding */}
       <div 
         className="relative aspect-[16/10] overflow-hidden bg-neutral-900 group/image select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <Link href={`/properties/${property.slug}`} className="block h-full w-full relative">
-          <Image 
-            src={imagesList[currentIndex]} 
-            alt={`${property.title} - Image ${currentIndex + 1}`} 
-            fill 
-            className="object-cover transition-transform duration-500 group-hover:scale-105" 
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            priority={currentIndex === 0}
-          />
+        <Link href={`/properties/${property.slug}`} className="block h-full w-full relative overflow-hidden">
+          {/* Animated Slider Track */}
+          <div 
+            className="flex h-full w-full transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {imagesList.map((imgUrl, idx) => (
+              <div key={idx} className="relative h-full w-full flex-shrink-0">
+                <Image 
+                  src={imgUrl} 
+                  alt={`${property.title} - Image ${idx + 1}`} 
+                  fill 
+                  className="object-cover" 
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  priority={idx === 0}
+                />
+              </div>
+            ))}
+          </div>
         </Link>
 
         {/* Category Badge */}
@@ -114,9 +122,9 @@ export function PropertyCard({ property }: { property: any }) {
           {categoryName}
         </span>
 
-        {/* Image Counter Badge */}
+        {/* Image Counter Badge (Only shown if multiple real images exist) */}
         {imagesList.length > 1 && (
-          <span className="absolute right-3 top-3 pointer-events-none rounded bg-black/60 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white shadow-sm z-10">
+          <span className="absolute right-3 top-3 pointer-events-none rounded bg-black/65 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white shadow-sm z-10">
             {currentIndex + 1}/{imagesList.length}
           </span>
         )}
@@ -126,7 +134,7 @@ export function PropertyCard({ property }: { property: any }) {
           <button
             type="button"
             onClick={handlePrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-md flex items-center justify-center opacity-90 sm:opacity-0 sm:group-hover/image:opacity-100 transition-opacity hover:bg-black/75 active:scale-95"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-md flex items-center justify-center opacity-95 sm:opacity-0 sm:group-hover/image:opacity-100 transition-opacity hover:bg-black/75 active:scale-95"
             aria-label="Previous Image"
           >
             <ChevronLeft size={18} />
@@ -138,7 +146,7 @@ export function PropertyCard({ property }: { property: any }) {
           <button
             type="button"
             onClick={handleNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-md flex items-center justify-center opacity-90 sm:opacity-0 sm:group-hover/image:opacity-100 transition-opacity hover:bg-black/75 active:scale-95"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-md flex items-center justify-center opacity-95 sm:opacity-0 sm:group-hover/image:opacity-100 transition-opacity hover:bg-black/75 active:scale-95"
             aria-label="Next Image"
           >
             <ChevronRight size={18} />
@@ -155,7 +163,7 @@ export function PropertyCard({ property }: { property: any }) {
                 onClick={(e) => handleDotClick(e, idx)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   currentIndex === idx 
-                    ? "w-5 bg-white" 
+                    ? "w-5 bg-white shadow-sm" 
                     : "w-1.5 bg-white/50 hover:bg-white/80"
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
