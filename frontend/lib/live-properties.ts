@@ -6,8 +6,9 @@ function getApiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api").replace(/\/$/, "");
 }
 
-async function apiFetch<T>(path: string, query?: PropertyQuery): Promise<T> {
-  const url = new URL(`${getApiBaseUrl()}${path}`);
+async function apiFetch<T>(path: string, query?: PropertyQuery, retries = 3): Promise<T> {
+  const baseUrl = getApiBaseUrl();
+  const url = new URL(`${baseUrl}${path}`);
 
   Object.entries(query ?? {}).forEach(([key, value]) => {
     if (value !== undefined && value !== "") {
@@ -15,16 +16,24 @@ async function apiFetch<T>(path: string, query?: PropertyQuery): Promise<T> {
     }
   });
 
-  const response = await fetch(url, {
-    cache: "no-store",
-    next: { revalidate: 0 }
-  });
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url.toString(), {
+        cache: "no-store",
+        next: { revalidate: 0 }
+      });
 
-  if (!response.ok) {
-    throw new Error(`Backend request failed: ${response.status} ${response.statusText}`);
+      if (response.ok) {
+        return (await response.json()) as T;
+      }
+    } catch (err) {
+      if (attempt === retries) throw err;
+    }
+    // Delay before retry to allow Render server to wake up from cold-start
+    await new Promise((res) => setTimeout(res, 1500));
   }
 
-  return response.json() as Promise<T>;
+  throw new Error(`Failed to fetch ${path} after ${retries} attempts.`);
 }
 
 export async function getLiveProperties(query?: PropertyQuery) {

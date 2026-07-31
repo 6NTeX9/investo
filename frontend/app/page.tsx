@@ -3,6 +3,7 @@ import { BadgeCheck, Building, CalendarDays, MessageSquareText } from "lucide-re
 import { LinkButton } from "@/components/ui/button";
 import { SearchPanel } from "@/components/home/search-panel";
 import { PropertyCard } from "@/components/property/property-card";
+import { ClientPropertyLoader } from "@/components/home/client-property-loader";
 import { testimonials } from "@/lib/data";
 import { getLiveProperties } from "@/lib/live-properties";
 import { FadeUp, StaggerContainer, StaggerItem, Parallax, Float } from "@/components/ui/scroll-animation";
@@ -92,9 +93,7 @@ export default async function HomePage() {
           </div>
         </FadeUp>
         {loadError ? (
-          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs sm:text-sm text-amber-800">
-            Live properties could not be loaded. Please check that the backend API is running.
-          </div>
+          <ClientPropertyLoader />
         ) : allList.length === 0 ? (
           <div className="mt-6 rounded-lg border border-black/10 bg-white p-4 text-xs sm:text-sm text-[#68625a]">
             No published properties are available yet. Add and publish a property from the admin panel to show it here.
