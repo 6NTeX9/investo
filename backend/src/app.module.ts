@@ -12,6 +12,8 @@ import { SiteVisitsModule } from "./modules/site-visits/site-visits.module";
 import { UploadsModule } from "./modules/uploads/uploads.module";
 import { UsersModule } from "./modules/users/users.module";
 
+import { AppController } from "./app.controller";
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env", "../.env"] }),
@@ -26,6 +28,7 @@ import { UsersModule } from "./modules/users/users.module";
     BlogModule,
     UploadsModule,
     AnalyticsModule
-  ]
+  ],
+  controllers: [AppController]
 })
 export class AppModule {}
