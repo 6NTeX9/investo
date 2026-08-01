@@ -91,13 +91,15 @@ export default function AdminPropertiesPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState("Mumbai");
   const [location, setLocation] = useState("");
   const [type, setType] = useState<PropertyType>("APARTMENT");
   const [status, setStatus] = useState<ProjectStatus>("ONGOING");
   const [bedrooms, setBedrooms] = useState("");
+  const [bedroomsText, setBedroomsText] = useState("");
   const [bathrooms, setBathrooms] = useState("");
   const [siteArea, setSiteArea] = useState("");
+  const [unitSizes, setUnitSizes] = useState("");
   const [constructionStatus, setConstructionStatus] = useState("");
   const [builderName, setBuilderName] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -203,8 +205,10 @@ export default function AdminPropertiesPage() {
     setType("APARTMENT");
     setStatus("ONGOING");
     setBedrooms("");
+    setBedroomsText("");
     setBathrooms("");
     setSiteArea("");
+    setUnitSizes("");
     setConstructionStatus("");
     setBuilderName("");
     setCategoryId(categories[0]?.id || "");
@@ -227,15 +231,17 @@ export default function AdminPropertiesPage() {
     setTitle(property.title);
     setSlug(property.slug);
     setDescription(property.description);
-    setPrice(property.price.toString());
+    setPrice((property as any).priceDisplay || (property.price ? property.price.toString() : ""));
     setAddress(property.address);
-    setCity(property.city);
+    setCity(property.city || "Mumbai");
     setLocation(property.location);
     setType(property.type);
     setStatus(property.status);
     setBedrooms(property.bedrooms?.toString() || "");
+    setBedroomsText((property as any).bedroomsText || property.bedrooms?.toString() || "");
     setBathrooms(property.bathrooms?.toString() || "");
     setSiteArea(property.siteArea || "");
+    setUnitSizes((property as any).unitSizes || "");
     setConstructionStatus(property.constructionStatus || "");
     setBuilderName(property.builderName || "");
     setCategoryId(property.categoryId || "");
@@ -366,8 +372,8 @@ export default function AdminPropertiesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title || !slug || !price || !description || !address || !city || !location) {
-      toast.error("Please fill in all required fields.");
+    if (!title || !slug || !price || !description || !location) {
+      toast.error("Please fill in required fields (Title, Slug, Price, Description, Location).");
       return;
     }
 
@@ -390,20 +396,26 @@ export default function AdminPropertiesPage() {
       }
     }
 
+    const numericPrice = parseIndianPrice(price);
+    const finalAddress = address.trim() || `${location}, ${city || "Mumbai"}`;
+
     const payload = {
       title,
       slug,
       description,
-      price: parseIndianPrice(price),
-      address,
-      city,
+      price: isNaN(numericPrice) ? 0 : numericPrice,
+      priceDisplay: price,
+      address: finalAddress,
+      city: city.trim() || "Mumbai",
       location,
       mapLink: cleanedMapLink || null,
       type,
       status,
-      bedrooms: bedrooms ? parseInt(bedrooms) : null,
+      bedrooms: bedrooms ? parseInt(bedrooms) : (bedroomsText ? parseInt(bedroomsText) || null : null),
+      bedroomsText: bedroomsText || bedrooms || null,
       bathrooms: bathrooms ? parseInt(bathrooms) : null,
       siteArea: siteArea || null,
+      unitSizes: unitSizes || null,
       constructionStatus: constructionStatus || null,
       builderName: builderName || null,
       categoryId: categoryId || null,
@@ -877,7 +889,7 @@ export default function AdminPropertiesPage() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="e.g. Downtown Dubai"
+                    placeholder="e.g. Bandra West, Worli, Whitefield..."
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -888,18 +900,17 @@ export default function AdminPropertiesPage() {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="e.g. Dubai"
+                    placeholder="e.g. Mumbai"
                   />
                 </div>
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-[#68625a]">Full Street Address *</label>
+                  <label className="text-xs font-semibold text-[#68625a]">Full Street Address (Recommended)</label>
                   <input
                     type="text"
-                    required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="e.g. Sheikh Mohammed Bin Rashid Blvd"
+                    placeholder="e.g. Enter your location / street address"
                   />
                 </div>
               </div>
@@ -918,7 +929,7 @@ export default function AdminPropertiesPage() {
                 </p>
                 {/* Live Map Preview */}
                 {(mapLink || address) && (() => {
-                  const previewUrl = convertToMapEmbedUrl(mapLink, address);
+                  const previewUrl = convertToMapEmbedUrl(mapLink, address || location);
                   if (!previewUrl) return null;
                   return (
                     <div className="mt-1 overflow-hidden rounded border border-black/10 bg-black/5">
@@ -935,16 +946,15 @@ export default function AdminPropertiesPage() {
                 })()}
               </div>
 
-              <div className="grid gap-4 md:grid-cols-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-[#68625a]">Bedrooms</label>
+                  <label className="text-xs font-semibold text-[#68625a]">Bedrooms / Configuration</label>
                   <input
-                    type="number"
-                    min="0"
-                    value={bedrooms}
-                    onChange={(e) => setBedrooms(e.target.value)}
+                    type="text"
+                    value={bedroomsText}
+                    onChange={(e) => setBedroomsText(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="3"
+                    placeholder="e.g. 3 & 4 BHK or Studio"
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -959,13 +969,23 @@ export default function AdminPropertiesPage() {
                   />
                 </div>
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-[#68625a]">Site Area (e.g. sqft)</label>
+                  <label className="text-xs font-semibold text-[#68625a]">Unit Sizes (e.g. sqft)</label>
+                  <input
+                    type="text"
+                    value={unitSizes}
+                    onChange={(e) => setUnitSizes(e.target.value)}
+                    className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
+                    placeholder="e.g. 1,200 - 2,400 sq ft"
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <label className="text-xs font-semibold text-[#68625a]">Site Area (acres/sqft)</label>
                   <input
                     type="text"
                     value={siteArea}
                     onChange={(e) => setSiteArea(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="2,400 sq ft"
+                    placeholder="e.g. 4.8 Acres"
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -975,7 +995,7 @@ export default function AdminPropertiesPage() {
                     value={constructionStatus}
                     onChange={(e) => setConstructionStatus(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="60% complete"
+                    placeholder="e.g. 60% complete"
                   />
                 </div>
               </div>

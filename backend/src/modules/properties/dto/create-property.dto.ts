@@ -78,6 +78,11 @@ export class CreatePropertyDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
+  bedroomsText?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
   bathrooms?: number;
 
@@ -89,7 +94,17 @@ export class CreatePropertyDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  unitSizes?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   constructionStatus?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  priceDisplay?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

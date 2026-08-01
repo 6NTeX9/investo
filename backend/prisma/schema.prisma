@@ -121,9 +121,12 @@ model Property {
   mapLink            String?
   type               PropertyType
   bedrooms           Int?
+  bedroomsText       String?
   bathrooms          Int?
   siteArea           String?
+  unitSizes          String?
   constructionStatus String?
+  priceDisplay       String?
   builderName        String?
   status             ProjectStatus
   amenities          String[]

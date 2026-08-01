@@ -99,10 +99,15 @@ export function normalizeProperty(property: any) {
     : [heroImage];
   
   const price = Number(property.price || 0);
-  const priceLabel = property.priceLabel || formatCurrency(price);
+  const rawPriceDisplay = property.priceDisplay?.trim();
+  const priceLabel = property.priceLabel || (rawPriceDisplay 
+    ? (rawPriceDisplay.startsWith("₹") ? rawPriceDisplay : `₹ ${rawPriceDisplay}`)
+    : formatCurrency(price));
 
   const typeStr = property.type || "APARTMENT";
   const typeLabel = typeStr.charAt(0).toUpperCase() + typeStr.slice(1).toLowerCase();
+
+  const bedroomsValue = property.bedroomsText || (property.bedrooms ? `${property.bedrooms} BHK` : "");
 
   return {
     id: property.id,
@@ -117,6 +122,9 @@ export function normalizeProperty(property: any) {
     price,
     type: typeLabel,
     bedrooms: property.bedrooms || 0,
+    bedroomsText: bedroomsValue,
+    unitSizes: property.unitSizes || null,
+    constructionStatus: property.constructionStatus || null,
     status: property.status || "ONGOING",
     category: property.category?.name || "Premium Property",
     heroImage,
@@ -126,7 +134,7 @@ export function normalizeProperty(property: any) {
     masterPlanUrl: masterPlanFile?.url || null,
     amenities: property.amenities || [],
     description: property.description || "",
-    siteArea: property.siteArea || "N/A",
+    siteArea: property.siteArea || null,
     builder: property.builderName || "BricksNBeyond Developments",
     nearby: property.nearbyLandmarks || property.nearby || [],
     agent: {

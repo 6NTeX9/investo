@@ -98,8 +98,8 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
             {property.description}
           </p>
 
-          {/* 5. 3 Spec Cards Grid (STATUS, SITE AREA, UNITS) */}
-          <div className="mt-6 grid grid-cols-3 gap-2.5 sm:gap-4">
+          {/* 5. Spec Cards Grid (STATUS, SITE AREA, UNIT SIZES, CONSTRUCTION PROGRESS, UNITS) */}
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
             <div className="rounded-xl bg-white p-3.5 sm:p-4 border border-black/5 luxury-shadow">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
                 STATUS
@@ -109,23 +109,49 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
               </p>
             </div>
 
-            <div className="rounded-xl bg-white p-3.5 sm:p-4 border border-black/5 luxury-shadow">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
-                SITE AREA
-              </p>
-              <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
-                {property.siteArea || "4.8 Acres"}
-              </p>
-            </div>
+            {property.siteArea && (
+              <div className="rounded-xl bg-white p-3.5 sm:p-4 border border-black/5 luxury-shadow">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
+                  SITE AREA
+                </p>
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                  {property.siteArea}
+                </p>
+              </div>
+            )}
 
-            <div className="rounded-xl bg-white p-3.5 sm:p-4 border border-black/5 luxury-shadow">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
-                UNITS
-              </p>
-              <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
-                {unitsText}
-              </p>
-            </div>
+            {property.unitSizes && (
+              <div className="rounded-xl bg-white p-3.5 sm:p-4 border border-black/5 luxury-shadow">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
+                  UNIT SIZES
+                </p>
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                  {property.unitSizes}
+                </p>
+              </div>
+            )}
+
+            {property.constructionStatus && (
+              <div className="rounded-xl bg-white p-3.5 sm:p-4 border border-black/5 luxury-shadow">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
+                  CONSTRUCTION PROGRESS
+                </p>
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                  {property.constructionStatus}
+                </p>
+              </div>
+            )}
+
+            {unitsText && (
+              <div className="rounded-xl bg-white p-3.5 sm:p-4 border border-black/5 luxury-shadow">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
+                  UNITS / CONFIG
+                </p>
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                  {unitsText}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 6. Amenities */}
