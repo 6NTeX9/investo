@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { Analytics } from "@/lib/analytics";
 import { Footer } from "@/components/layout/footer";
@@ -24,6 +25,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className="light" style={{ colorScheme: "light" }}>
       <body className="bg-[#f7f4ee] text-[#151515]">
+        <NextTopLoader
+          color="#b89658"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #b89658,0 0 5px #b89658"
+          zIndex={99999}
+        />
         <Analytics />
         <Navbar />
         <Providers>
