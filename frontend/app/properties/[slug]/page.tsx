@@ -6,6 +6,7 @@ import { LinkButton } from "@/components/ui/button";
 import { PropertyCard } from "@/components/property/property-card";
 import { EnquiryForm } from "@/components/property/enquiry-form";
 import { ImageCarousel } from "@/components/property/ImageCarousel";
+import { SimilarPropertiesSlider } from "@/components/property/similar-properties-slider";
 import { getLiveProperties, getLivePropertyBySlug } from "@/lib/live-properties";
 
 export const dynamic = "force-dynamic";
@@ -245,19 +246,8 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
         </aside>
       </section>
 
-      {/* Similar Properties Section */}
-      {similar.length > 0 && (
-        <section className="section-shell mt-16">
-          <h2 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold tracking-tight text-[#171717]">
-            Similar properties
-          </h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {similar.map((item: any) => (
-              <PropertyCard key={item.id} property={item} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Amazon-style Horizontal Similar Properties Slider */}
+      <SimilarPropertiesSlider properties={similar} />
     </main>
   );
 }
