@@ -4,8 +4,7 @@ import { getLiveProperties } from "@/lib/live-properties";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const base = (envUrl && !envUrl.includes("localhost")) ? envUrl.replace(/\/$/, "") : "https://www.bricksnbeyond.in";
+  const base = "https://www.bricksnbeyond.in";
   let properties: any[] = [];
 
   try {
