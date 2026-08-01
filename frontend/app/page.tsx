@@ -33,12 +33,12 @@ export default async function HomePage() {
         <div className="absolute inset-0 overflow-hidden">
           <Parallax speed={0.25} className="absolute inset-0 h-[120%] -top-[10%]">
             <Image
-              src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2000&q=88"
-              alt="Luxury skyline residences"
+              src="/images/hero-bg.webp"
+              alt="Luxury Bangalore skyline residences"
               fill
               priority
               fetchPriority="high"
-              quality={90}
+              quality={95}
               sizes="100vw"
               className="object-cover"
             />
