@@ -31,9 +31,26 @@ export default async function HomePage() {
       <section className="relative min-h-[calc(100svh-80px)]">
         {/* Parallax hero image — moves slower than scroll for depth */}
         <div className="absolute inset-0 overflow-hidden">
-          <Parallax speed={0.25} className="absolute inset-0 h-[120%] -top-[10%]">
+          {/* Desktop Parallax Hero Image */}
+          <div className="hidden sm:block absolute inset-0">
+            <Parallax speed={0.25} className="absolute inset-0 h-[120%] -top-[10%]">
+              <Image
+                src="/images/hero-bg.webp"
+                alt="Luxury Bangalore villa community"
+                fill
+                priority
+                unoptimized
+                fetchPriority="high"
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </Parallax>
+          </div>
+
+          {/* Mobile Crisp Hero Image (Portrait 1080x1440, no Parallax stretch) */}
+          <div className="block sm:hidden absolute inset-0">
             <Image
-              src="/images/hero-bg.webp"
+              src="/images/hero-bg-mobile.webp"
               alt="Luxury Bangalore villa community"
               fill
               priority
@@ -42,8 +59,9 @@ export default async function HomePage() {
               sizes="100vw"
               className="object-cover object-center"
             />
-          </Parallax>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/10" />
+          </div>
+
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/30 sm:bg-gradient-to-r sm:from-black/75 sm:via-black/35 sm:to-black/10" />
         </div>
         <div className="section-shell relative flex min-h-[calc(100svh-80px)] flex-col justify-end pb-10 pt-20 text-white">
           <StaggerContainer delayChildren={0.15} staggerChildren={0.12}>
