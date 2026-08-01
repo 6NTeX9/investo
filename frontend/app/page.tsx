@@ -34,16 +34,16 @@ export default async function HomePage() {
           <Parallax speed={0.25} className="absolute inset-0 h-[120%] -top-[10%]">
             <Image
               src="/images/hero-bg.webp"
-              alt="Luxury Bangalore skyline residences"
+              alt="Luxury Bangalore villa community"
               fill
               priority
+              unoptimized
               fetchPriority="high"
-              quality={95}
               sizes="100vw"
-              className="object-cover"
+              className="object-cover object-center"
             />
           </Parallax>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/10" />
         </div>
         <div className="section-shell relative flex min-h-[calc(100svh-80px)] flex-col justify-end pb-10 pt-20 text-white">
           <StaggerContainer delayChildren={0.15} staggerChildren={0.12}>
