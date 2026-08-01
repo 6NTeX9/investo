@@ -57,9 +57,9 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
 
   const similar = await getSimilarProperties(property.id);
 
-  const unitsText = property.bedrooms 
+  const unitsText = property.bedroomsText || (property.bedrooms 
     ? `${property.bedrooms} BHK` 
-    : property.type === "COMMERCIAL" ? "Office" : "Plot";
+    : property.type === "COMMERCIAL" ? "Office" : "Plot");
 
   return (
     <main className="bg-[#faf9f6] min-h-screen pb-16">
@@ -104,7 +104,7 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
               <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
                 STATUS
               </p>
-              <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] capitalize truncate">
+              <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] capitalize break-words">
                 {property.status.replaceAll("_", " ").toLowerCase()}
               </p>
             </div>
@@ -114,7 +114,7 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
                   SITE AREA
                 </p>
-                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] break-words">
                   {property.siteArea}
                 </p>
               </div>
@@ -125,7 +125,7 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
                   UNIT SIZES
                 </p>
-                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] break-words">
                   {property.unitSizes}
                 </p>
               </div>
@@ -136,7 +136,7 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
                   CONSTRUCTION PROGRESS
                 </p>
-                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] break-words">
                   {property.constructionStatus}
                 </p>
               </div>
@@ -147,7 +147,7 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">
                   UNITS / CONFIG
                 </p>
-                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] truncate">
+                <p className="mt-1 font-bold text-xs sm:text-sm text-[#171717] break-words">
                   {unitsText}
                 </p>
               </div>
