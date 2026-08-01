@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Header, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Role } from "@prisma/client";
 import { Roles } from "../../common/decorators/roles.decorator";
@@ -15,21 +15,25 @@ export class PropertiesController {
   constructor(private readonly properties: PropertiesService) {}
 
   @Get()
+  @Header("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300")
   findAll(@Query() query: QueryPropertiesDto) {
     return this.properties.findAll(query, query.includeUnpublished);
   }
 
   @Get("categories")
+  @Header("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=600")
   findAllCategories() {
     return this.properties.findAllCategories();
   }
 
   @Get("featured")
+  @Header("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300")
   featured() {
     return this.properties.featured();
   }
 
   @Get(":slug")
+  @Header("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300")
   findBySlug(@Param("slug") slug: string) {
     return this.properties.findBySlug(slug);
   }
