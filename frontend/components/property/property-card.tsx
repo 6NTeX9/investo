@@ -83,6 +83,7 @@ export function PropertyCard({ property }: { property: any }) {
 
   const priceLabel = property.priceLabel || formatCurrency(property.price);
   const bedrooms = property.bedrooms || 0;
+  const bedroomsText = property.bedroomsText || (bedrooms ? `${bedrooms} BHK` : "");
   const typeLabel = typeof property.type === "string" ? property.type : "Apartment";
   const statusLabel = typeof property.status === "string" ? property.status : "ONGOING";
 
@@ -193,7 +194,7 @@ export function PropertyCard({ property }: { property: any }) {
         <div className="mt-4 grid grid-cols-3 gap-2 border-t border-black/10 pt-3 text-[11px] text-[#68625a]">
           <span className="flex items-center gap-1.5">
             <BedDouble size={13} className="text-[#b89658] shrink-0" />
-            <span>{bedrooms ? `${bedrooms} BHK` : typeLabel === "COMMERCIAL" ? "Office" : "Plot"}</span>
+            <span>{bedroomsText || (typeLabel === "COMMERCIAL" ? "Office" : "Plot")}</span>
           </span>
           <span className="flex items-center gap-1.5">
             <Maximize size={13} className="text-[#b89658] shrink-0" />
