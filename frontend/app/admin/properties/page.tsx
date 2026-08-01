@@ -91,7 +91,7 @@ export default function AdminPropertiesPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("Mumbai");
+  const [city, setCity] = useState("Bangalore");
   const [location, setLocation] = useState("");
   const [type, setType] = useState<PropertyType>("APARTMENT");
   const [status, setStatus] = useState<ProjectStatus>("ONGOING");
@@ -200,7 +200,7 @@ export default function AdminPropertiesPage() {
     setDescription("");
     setPrice("");
     setAddress("");
-    setCity("Mumbai");
+    setCity("Bangalore");
     setLocation("");
     setType("APARTMENT");
     setStatus("ONGOING");
@@ -233,7 +233,7 @@ export default function AdminPropertiesPage() {
     setDescription(property.description);
     setPrice((property as any).priceDisplay || (property.price ? property.price.toString() : ""));
     setAddress(property.address);
-    setCity(property.city || "Mumbai");
+    setCity(property.city || "Bangalore");
     setLocation(property.location);
     setType(property.type);
     setStatus(property.status);
@@ -397,7 +397,7 @@ export default function AdminPropertiesPage() {
     }
 
     const numericPrice = parseIndianPrice(price);
-    const finalAddress = address.trim() || `${location}, ${city || "Mumbai"}`;
+    const finalAddress = address.trim() || `${location}, ${city || "Bangalore"}`;
 
     const payload = {
       title,
@@ -406,7 +406,7 @@ export default function AdminPropertiesPage() {
       price: isNaN(numericPrice) ? 0 : numericPrice,
       priceDisplay: price,
       address: finalAddress,
-      city: city.trim() || "Mumbai",
+      city: city.trim() || "Bangalore",
       location,
       mapLink: cleanedMapLink || null,
       type,
@@ -889,7 +889,7 @@ export default function AdminPropertiesPage() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="e.g. Bandra West, Worli, Whitefield..."
+                    placeholder="e.g. Whitefield, Indiranagar, Koramangala..."
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -900,7 +900,7 @@ export default function AdminPropertiesPage() {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="e.g. Mumbai"
+                    placeholder="e.g. Bangalore"
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -910,7 +910,7 @@ export default function AdminPropertiesPage() {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="e.g. Enter your location / street address"
+                    placeholder="e.g. ITPL Main Road, Whitefield"
                   />
                 </div>
               </div>
@@ -946,7 +946,8 @@ export default function AdminPropertiesPage() {
                 })()}
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+              {/* Physical Info Specs Grid: Clean 2 to 3 column responsive layout */}
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                 <div className="grid gap-1.5">
                   <label className="text-xs font-semibold text-[#68625a]">Bedrooms / Configuration</label>
                   <input
@@ -1015,7 +1016,7 @@ export default function AdminPropertiesPage() {
                     value={builderName}
                     onChange={(e) => setBuilderName(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="e.g. Emaar"
+                    placeholder="e.g. Prestige Group, Brigade, Sobha"
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -1025,7 +1026,15 @@ export default function AdminPropertiesPage() {
                     onChange={(e) => setCategoryId(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm bg-white focus:border-[#b89658]/50"
                   >
-                    <option value="">No Category</option>
+                    <option value="">Select Category</option>
+                    <option value="Luxury properties">Luxury properties</option>
+                    <option value="Residential">Residential</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Villas">Villas</option>
+                    <option value="Plots / Land">Plots / Land</option>
+                    <option value="Penthouses">Penthouses</option>
+                    <option value="Apartments">Apartments</option>
+                    <option value="Upcoming Projects">Upcoming Projects</option>
                     {categories.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
@@ -1101,7 +1110,7 @@ export default function AdminPropertiesPage() {
                     value={amenitiesText}
                     onChange={(e) => setAmenitiesText(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="Infinity pool, Concierge, Gym, Valet"
+                    placeholder="Swimming pool, Clubhouse, Gym, Badminton Court"
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -1111,7 +1120,7 @@ export default function AdminPropertiesPage() {
                     value={landmarksText}
                     onChange={(e) => setLandmarksText(e.target.value)}
                     className="focus-ring rounded border border-black/10 px-3 py-2 text-sm focus:border-[#b89658]/50"
-                    placeholder="Dubai Mall - 5 min, DXB Airport - 15 min"
+                    placeholder="Whitefield Metro - 5 min, Kempegowda Airport - 45 min"
                   />
                 </div>
               </div>
