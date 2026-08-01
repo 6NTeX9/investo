@@ -15,7 +15,7 @@ async function bootstrap() {
     origin: config.get<string>("CORS_ORIGIN")?.split(",") ?? ["http://localhost:3000"],
     credentials: true
   });
-  app.setGlobalPrefix("api");
+  app.setGlobalPrefix("api", { exclude: ["/"] });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
