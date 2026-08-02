@@ -6,7 +6,7 @@ function getApiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api").replace(/\/$/, "");
 }
 
-async function apiFetch<T>(path: string, query?: PropertyQuery, retries = 3): Promise<T> {
+async function apiFetch<T>(path: string, query?: PropertyQuery, retries = 2): Promise<T> {
   const baseUrl = getApiBaseUrl();
   const url = new URL(`${baseUrl}${path}`);
 
@@ -18,10 +18,15 @@ async function apiFetch<T>(path: string, query?: PropertyQuery, retries = 3): Pr
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
       const response = await fetch(url.toString(), {
-        cache: "no-store",
-        next: { revalidate: 0 }
+        next: { revalidate: 60 },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         return (await response.json()) as T;
@@ -29,8 +34,7 @@ async function apiFetch<T>(path: string, query?: PropertyQuery, retries = 3): Pr
     } catch (err) {
       if (attempt === retries) throw err;
     }
-    // Delay before retry to allow Render server to wake up from cold-start
-    await new Promise((res) => setTimeout(res, 1500));
+    await new Promise((res) => setTimeout(res, 500));
   }
 
   throw new Error(`Failed to fetch ${path} after ${retries} attempts.`);
