@@ -85,6 +85,34 @@ export function formatCurrency(value: number) {
   }).format(value);
 }
 
+export function sanitizeImageUrl(url: string | null | undefined): string {
+  const fallback = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85";
+  if (!url || typeof url !== "string") {
+    return fallback;
+  }
+
+  const trimmed = url.trim();
+
+  // 1. Extract direct imgurl parameter from Google Images search links
+  if (trimmed.includes("google.com/imgres") || trimmed.includes("google.co.in/imgres")) {
+    try {
+      const parsedUrl = new URL(trimmed);
+      const targetImgUrl = parsedUrl.searchParams.get("imgurl");
+      if (targetImgUrl) {
+        return decodeURIComponent(targetImgUrl);
+      }
+    } catch {}
+    return fallback;
+  }
+
+  // 2. Return valid HTTP/HTTPS or relative URL
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("/")) {
+    return trimmed;
+  }
+
+  return fallback;
+}
+
 export function normalizeProperty(property: any) {
   if (!property) return null;
   const dbImages = property.images || [];
@@ -93,9 +121,9 @@ export function normalizeProperty(property: any) {
   const floorPlanFile = dbImages.find((img: any) => img.type === "FLOOR_PLAN");
   const masterPlanFile = dbImages.find((img: any) => img.type === "MASTER_PLAN");
 
-  const heroImage = imageFiles[0]?.url || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85";
+  const heroImage = sanitizeImageUrl(imageFiles[0]?.url);
   const gallery = imageFiles.length > 0
-    ? imageFiles.map((img: any) => img.url)
+    ? imageFiles.map((img: any) => sanitizeImageUrl(img.url))
     : [heroImage];
   
   const price = Number(property.price || 0);

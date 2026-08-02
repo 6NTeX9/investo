@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { PropertyCard } from "@/components/property/property-card";
@@ -9,9 +10,12 @@ export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Properties",
-  description: "Search luxury residential and commercial properties by city, budget, type, status, and amenities."
+  description: "Search luxury residential and commercial properties by city, budget, type, status, and amenities.",
+  alternates: {
+    canonical: "https://www.bricksnbeyond.in/properties"
+  }
 };
 
 export default async function PropertiesPage({ searchParams }: { searchParams: SearchParams }) {

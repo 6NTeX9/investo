@@ -2,20 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.bricksnbeyond.in</loc>
-    <lastmod>2026-08-01T23:43:16.170Z</lastmod>
+    <lastmod>2026-08-03T00:00:00.000Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.bricksnbeyond.in/properties</loc>
-    <lastmod>2026-08-01T23:43:16.170Z</lastmod>
+    <lastmod>2026-08-03T00:00:00.000Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.bricksnbeyond.in/contact</loc>
-    <lastmod>2026-08-01T23:43:16.170Z</lastmod>
+    <lastmod>2026-08-03T00:00:00.000Z</lastmod>
     <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.bricksnbeyond.in/about</loc>
+    <lastmod>2026-08-03T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.bricksnbeyond.in/agents</loc>
+    <lastmod>2026-08-03T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.bricksnbeyond.in/blog</loc>
+    <lastmod>2026-08-03T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
@@ -27,12 +45,6 @@
   <url>
     <loc>https://www.bricksnbeyond.in/properties/brigade-granada</loc>
     <lastmod>2026-08-01T20:48:14.061Z</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.bricksnbeyond.in/properties/eeee</loc>
-    <lastmod>2026-06-09T22:53:54.612Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>

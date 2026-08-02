@@ -6,7 +6,10 @@ import { api } from "@/services/api";
 
 export const metadata: Metadata = {
   title: "Our Agents | BricksNBeyond",
-  description: "Meet the BricksNBeyond advisory team — experienced real estate professionals dedicated to finding your perfect property."
+  description: "Meet the BricksNBeyond advisory team — experienced real estate professionals dedicated to finding your perfect property.",
+  alternates: {
+    canonical: "https://www.bricksnbeyond.in/agents"
+  }
 };
 
 export const dynamic = "force-dynamic";

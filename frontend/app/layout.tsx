@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   description: "Explore luxury properties in Bangalore with BricksNBeyond. Browse premium apartments, villas, and commercial real estate with expert investment advisory.",
   alternates: {
-    canonical: "https://www.bricksnbeyond.in"
+    canonical: "./"
   },
   icons: {
     icon: [

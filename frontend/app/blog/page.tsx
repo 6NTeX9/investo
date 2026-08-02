@@ -3,10 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, Tag, ArrowRight } from "lucide-react";
 import { api } from "@/services/api";
+import { sanitizeImageUrl } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Insights & Market Reports | BricksNBeyond",
-  description: "Stay informed with the latest real estate market insights, investment guides, and property trends from BricksNBeyond's expert advisory team."
+  description: "Stay informed with the latest real estate market insights, investment guides, and property trends from BricksNBeyond's expert advisory team.",
+  alternates: {
+    canonical: "https://www.bricksnbeyond.in/blog"
+  }
 };
 
 export const dynamic = "force-dynamic";
@@ -29,7 +33,11 @@ function formatDate(dateStr: string) {
 }
 
 export default async function BlogListPage() {
-  const posts = await getPosts();
+  const rawPosts = await getPosts();
+  const posts = rawPosts.map((post: any) => ({
+    ...post,
+    coverUrl: post.coverUrl ? sanitizeImageUrl(post.coverUrl) : null
+  }));
 
   return (
     <main>

@@ -6,7 +6,10 @@ import { LinkButton } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "About Us | BricksNBeyond",
-  description: "BricksNBeyond is a premium real estate advisory firm helping clients find luxury residential and commercial properties across India's top cities."
+  description: "BricksNBeyond is a premium real estate advisory firm helping clients find luxury residential and commercial properties across India's top cities.",
+  alternates: {
+    canonical: "https://www.bricksnbeyond.in/about"
+  }
 };
 
 const stats = [

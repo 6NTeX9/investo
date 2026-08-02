@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, Tag, ArrowLeft, ArrowRight } from "lucide-react";
 import { api } from "@/services/api";
+import { sanitizeImageUrl } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,9 @@ type Params = Promise<{ slug: string }>;
 async function getPost(slug: string) {
   try {
     const res = await api.get(`/blog/${slug}`);
+    if (res.data && res.data.coverUrl) {
+      res.data.coverUrl = sanitizeImageUrl(res.data.coverUrl);
+    }
     return res.data;
   } catch {
     return null;
@@ -21,7 +25,13 @@ async function getPost(slug: string) {
 async function getRelatedPosts(currentSlug: string) {
   try {
     const res = await api.get("/blog");
-    return (res.data || []).filter((p: any) => p.slug !== currentSlug).slice(0, 3);
+    return (res.data || [])
+      .filter((p: any) => p.slug !== currentSlug)
+      .slice(0, 3)
+      .map((p: any) => ({
+        ...p,
+        coverUrl: p.coverUrl ? sanitizeImageUrl(p.coverUrl) : null
+      }));
   } catch {
     return [];
   }
@@ -38,13 +48,17 @@ function formatDate(dateStr: string) {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  if (!post) return {};
+  const canonicalUrl = `https://www.bricksnbeyond.in/blog/${slug}`;
   return {
     title: `${post.title} | BricksNBeyond Insights`,
     description: post.excerpt || post.content?.slice(0, 160),
+    alternates: {
+      canonical: canonicalUrl
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt || "",
+      url: canonicalUrl,
       images: post.coverUrl ? [post.coverUrl] : []
     }
   };

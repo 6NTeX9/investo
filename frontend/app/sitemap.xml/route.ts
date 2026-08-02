@@ -14,7 +14,7 @@ export async function GET() {
     console.error("Sitemap properties fetch error:", error);
   }
 
-  const staticPaths = ["", "/properties", "/contact"];
+  const staticPaths = ["", "/properties", "/contact", "/about", "/agents", "/blog"];
   const now = new Date().toISOString();
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
