@@ -24,10 +24,10 @@ const displayFont = Cormorant_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.bricksnbeyond.in"),
   title: {
-    default: "BricksNBeyond | Luxury Properties in Bangalore",
+    default: "BricksNBeyond | Premium Real Estate Advisory in Bangalore",
     template: "%s | BricksNBeyond"
   },
-  description: "Discover premium luxury residences, villas, apartments, and investment real estate in Bangalore.",
+  description: "Explore luxury properties in Bangalore with BricksNBeyond. Browse premium apartments, villas, and commercial real estate with expert investment advisory.",
   alternates: {
     canonical: "./"
   },
@@ -41,8 +41,8 @@ export const metadata: Metadata = {
     ]
   },
   openGraph: {
-    title: "BricksNBeyond | Luxury Properties in Bangalore",
-    description: "Discover premium luxury residences, villas, apartments, and investment real estate in Bangalore.",
+    title: "BricksNBeyond | Premium Real Estate Advisory in Bangalore",
+    description: "Explore luxury properties in Bangalore with BricksNBeyond. Browse premium apartments, villas, and commercial real estate with expert investment advisory.",
     url: "https://www.bricksnbeyond.in",
     siteName: "BricksNBeyond",
     locale: "en_IN",
@@ -50,14 +50,18 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BricksNBeyond | Luxury Properties in Bangalore",
-    description: "Discover premium luxury residences, villas, apartments, and investment real estate in Bangalore."
+    title: "BricksNBeyond | Premium Real Estate Advisory in Bangalore",
+    description: "Explore luxury properties in Bangalore with BricksNBeyond. Browse premium apartments, villas, and commercial real estate with expert investment advisory."
   }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${sansFont.variable} ${displayFont.variable} light`} style={{ colorScheme: "light" }}>
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://nv3jinq3tz.ufs.sh" crossOrigin="anonymous" />
+      </head>
       <body className="bg-[#f7f4ee] text-[#151515] font-sans">
         <NextTopLoader
           color="#b89658"

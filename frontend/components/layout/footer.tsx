@@ -16,8 +16,11 @@ export function Footer() {
           <Link href="/contact">Book a consultation</Link>
         </div>
         <div className="text-sm text-white/70">
-          <p>Bangalore, India</p>
-          <p className="mt-2">hello@bricksnbeyond.com</p>
+          <p className="mt-2">
+            <a href="mailto:hello&#64;bricksnbeyond&#46;in" className="hover:text-white transition">
+              hello&#64;bricksnbeyond&#46;in
+            </a>
+          </p>
           <p className="mt-2">Instagram · LinkedIn · YouTube</p>
         </div>
       </div>

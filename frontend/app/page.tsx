@@ -33,13 +33,13 @@ export default async function HomePage() {
         <div className="absolute inset-0 overflow-hidden">
           <Parallax speed={0.25} className="absolute inset-0 h-[120%] -top-[10%]">
             <Image
-              src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2000&q=90"
+              src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&q=80"
               alt="Luxury skyline residences"
               fill
               priority
               fetchPriority="high"
-              quality={90}
-              sizes="100vw"
+              quality={75}
+              sizes="(max-width: 768px) 100vw, 100vw"
               className="object-cover object-center"
             />
           </Parallax>
@@ -159,6 +159,54 @@ export default async function HomePage() {
             <p className="mt-3 text-xs sm:text-sm md:text-base leading-relaxed text-[#4f4942]">
               Our advisory team partners with India’s top tier-1 grade developers—including Prestige Group, Brigade Enterprises, Sobha Developers, and Godrej Properties—to evaluate project legalities, construction timelines, RERA certifications, and long-term capital appreciation potential before presenting tailored shortlists to our clients.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Frequently Asked Questions (FAQ) Section */}
+      <section className="section-shell mt-12 sm:mt-16">
+        <div className="rounded-2xl bg-white p-6 sm:p-8 md:p-10 border border-black/5 luxury-shadow">
+          <div className="max-w-4xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">
+              Frequently Asked Questions
+            </span>
+            <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[#171717]">
+              Real Estate Investment &amp; Buying Guide in Bangalore
+            </h2>
+            <div className="mt-6 space-y-6 text-xs sm:text-sm md:text-base leading-relaxed text-[#4f4942]">
+              <div>
+                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
+                  What makes BricksNBeyond different from traditional real estate brokers in Bangalore?
+                </h3>
+                <p className="mt-1 text-[#68625a]">
+                  BricksNBeyond operates as an exclusive property discovery and investment advisory firm. Rather than pushing single developer inventories, we perform independent legal diligence, check RERA timelines, analyze micro-market rental yields, and present unbiased property shortlists tailored to your financial goals.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
+                  Which areas in Bangalore offer the highest capital appreciation for luxury apartments?
+                </h3>
+                <p className="mt-1 text-[#68625a]">
+                  Key growth hubs with strong capital appreciation include North Bangalore (around Yelahanka and Airport Corridor due to aerospace and tech parks), East Bangalore (Whitefield and ITPL for high rental yields), and South Bangalore (Sarjapur Road and Koramangala for premium lifestyle residences).
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
+                  How do I book a site visit with BricksNBeyond?
+                </h3>
+                <p className="mt-1 text-[#68625a]">
+                  You can request a direct site visit by browsing our curated property listings, clicking &ldquo;Book Site Visit&rdquo;, or contacting our sales team. We arrange private luxury transport, direct developer walkthroughs, and assist with pricing negotiations at zero advisory fee.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
+                  Are all listed projects RERA registered and legally verified?
+                </h3>
+                <p className="mt-1 text-[#68625a]">
+                  Yes, every residential apartment, luxury villa project, and commercial development hosted on BricksNBeyond is verified against Karnataka RERA regulations, builder title deeds, and bank approval status before publication.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
