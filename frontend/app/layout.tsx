@@ -10,10 +10,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.bricksnbeyond.in"),
   title: {
-    default: "BricksNBeyond | Luxury Properties",
+    default: "BricksNBeyond | Luxury Properties in Bangalore",
     template: "%s | BricksNBeyond"
   },
-  description: "Discover premium residences, investment projects, and commercial real estate in fast-growing city corridors.",
+  description: "Discover premium luxury residences, villas, apartments, and investment real estate in Bangalore.",
+  alternates: {
+    canonical: "./"
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -24,9 +27,17 @@ export const metadata: Metadata = {
     ]
   },
   openGraph: {
-    title: "BricksNBeyond",
-    description: "Premium real estate discovery and advisory platform.",
+    title: "BricksNBeyond | Luxury Properties in Bangalore",
+    description: "Discover premium luxury residences, villas, apartments, and investment real estate in Bangalore.",
+    url: "https://www.bricksnbeyond.in",
+    siteName: "BricksNBeyond",
+    locale: "en_IN",
     type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BricksNBeyond | Luxury Properties in Bangalore",
+    description: "Discover premium luxury residences, villas, apartments, and investment real estate in Bangalore."
   }
 };
 

@@ -39,12 +39,17 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { slug } = await params;
   const property = await getPropertyBySlug(slug);
   if (!property) return {};
+  const canonicalUrl = `https://www.bricksnbeyond.in/properties/${slug}`;
   return {
     title: property.title,
     description: property.description,
+    alternates: {
+      canonical: canonicalUrl
+    },
     openGraph: {
       title: property.title,
       description: property.description,
+      url: canonicalUrl,
       images: [property.heroImage]
     }
   };
@@ -61,8 +66,26 @@ export default async function PropertyDetailsPage({ params }: { params: Params }
     ? `${property.bedrooms} BHK` 
     : property.type === "COMMERCIAL" ? "Office" : "Plot");
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": property.title,
+    "description": property.description,
+    "url": `https://www.bricksnbeyond.in/properties/${slug}`,
+    "image": property.heroImage,
+    "offers": {
+      "@type": "Offer",
+      "price": property.price,
+      "priceCurrency": "INR"
+    }
+  };
+
   return (
     <main className="bg-[#faf9f6] min-h-screen pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Gallery Section */}
       <section className="section-shell pt-4 sm:pt-8">
         <ImageCarousel gallery={property.gallery} title={property.title} />
