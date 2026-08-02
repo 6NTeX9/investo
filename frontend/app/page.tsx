@@ -8,7 +8,7 @@ import { testimonials } from "@/lib/data";
 import { getLiveProperties } from "@/lib/live-properties";
 import { FadeUp, StaggerContainer, StaggerItem, Parallax, Float } from "@/components/ui/scroll-animation";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function HomePage() {
   let allList: any[] = [];
