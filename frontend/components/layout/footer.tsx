@@ -16,10 +16,12 @@ export function Footer() {
             Premium real estate advisory for residential, commercial, and investment-led property decisions.
           </p>
         </div>
-        <div className="grid gap-3 text-sm text-white/70">
-          <Link href="/properties">Properties</Link>
-          <Link href="/projects/READY_TO_MOVE">Ready to move</Link>
-          <Link href="/contact">Book a consultation</Link>
+        <div className="grid gap-2.5 text-sm text-white/70">
+          <Link href="/properties" className="hover:text-white transition">Properties</Link>
+          <Link href="/locations" className="hover:text-white transition">Bangalore Corridors</Link>
+          <Link href="/locations/whitefield" className="hover:text-white transition text-xs text-white/50">Whitefield Properties</Link>
+          <Link href="/locations/sarjapur-road" className="hover:text-white transition text-xs text-white/50">Sarjapur Road Villas</Link>
+          <Link href="/locations/indiranagar" className="hover:text-white transition text-xs text-white/50">Indiranagar Luxury</Link>
         </div>
         <div className="text-sm text-white/70">
           <p className="mt-2">

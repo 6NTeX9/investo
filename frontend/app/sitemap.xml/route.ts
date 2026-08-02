@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getLiveProperties } from "@/lib/live-properties";
+import { LOCATIONS } from "@/lib/locations";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,17 @@ export async function GET() {
     console.error("Sitemap properties fetch error:", error);
   }
 
-  const staticPaths = ["", "/properties", "/contact", "/about", "/agents", "/blog"];
+  const locationPaths = LOCATIONS.map((loc) => `/locations/${loc.slug}`);
+  const staticPaths = [
+    "", 
+    "/properties", 
+    "/locations", 
+    ...locationPaths, 
+    "/contact", 
+    "/about", 
+    "/agents", 
+    "/blog"
+  ];
   const now = new Date().toISOString();
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
