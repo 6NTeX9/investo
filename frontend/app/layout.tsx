@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, Cormorant_Garamond } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { Analytics } from "@/lib/analytics";
@@ -6,6 +7,19 @@ import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { Providers } from "@/components/providers";
 import "./globals.css";
+
+const sansFont = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap"
+});
+
+const displayFont = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
+  display: "swap"
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.bricksnbeyond.in"),
@@ -43,8 +57,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="light" style={{ colorScheme: "light" }}>
-      <body className="bg-[#f7f4ee] text-[#151515]">
+    <html lang="en" className={`${sansFont.variable} ${displayFont.variable} light`} style={{ colorScheme: "light" }}>
+      <body className="bg-[#f7f4ee] text-[#151515] font-sans">
         <NextTopLoader
           color="#b89658"
           initialPosition={0.08}

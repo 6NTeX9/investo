@@ -48,16 +48,19 @@ export default async function HomePage() {
         <div className="section-shell relative flex min-h-[calc(100svh-80px)] flex-col justify-end pb-10 pt-20 text-white">
           <StaggerContainer delayChildren={0.15} staggerChildren={0.12}>
             <StaggerItem>
-              <p className="mb-3 text-xs sm:text-sm font-semibold uppercase tracking-wider text-[#d6bd82]">Prime city real estate advisory</p>
+              <p className="mb-2 sm:mb-3 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-[#d6bd82] drop-shadow-sm">
+                Premium Real Estate Advisory in Bangalore
+              </p>
             </StaggerItem>
             <StaggerItem>
-              <h1 className="max-w-4xl font-[var(--font-display)] text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-snug">
-                BricksNBeyond — Premium Real Estate Advisory in Bangalore
+              <h1 className="max-w-4xl font-[var(--font-display)] text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] text-white drop-shadow-md">
+                Bricks<span className="text-[#d6bd82] italic font-serif font-light">N</span>Beyond
+                <span className="sr-only"> — Premium Real Estate Advisory in Bangalore</span>
               </h1>
             </StaggerItem>
             <StaggerItem>
-              <p className="mt-4 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-white/90">
-                Browse curated residences, commercial assets, and investment projects with a sales team built for serious property decisions.
+              <p className="mt-4 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-white/95 font-light tracking-wide drop-shadow">
+                Discover curated luxury residences, private villas, and high-yield commercial assets across Bangalore&apos;s prime growth corridors.
               </p>
             </StaggerItem>
             <StaggerItem className="mt-6 max-w-5xl">
