@@ -8,12 +8,21 @@ import { Providers } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL("https://www.bricksnbeyond.in"),
   title: {
     default: "BricksNBeyond | Luxury Properties",
     template: "%s | BricksNBeyond"
   },
   description: "Discover premium residences, investment projects, and commercial real estate in fast-growing city corridors.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", type: "image/png" }
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ]
+  },
   openGraph: {
     title: "BricksNBeyond",
     description: "Premium real estate discovery and advisory platform.",
