@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**" },
       { protocol: "http", hostname: "**" }
     ]
+  },
+  async headers() {
+    return [
+      {
+        source: "/((?!api|_next/static|_next/image|favicon.ico|admin).*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
+          }
+        ]
+      }
+    ];
   }
 };
 
