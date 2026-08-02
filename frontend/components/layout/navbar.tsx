@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Building2, Menu, Phone, X } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
 import { useState } from "react";
 import { LinkButton } from "@/components/ui/button";
 
@@ -44,12 +45,19 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f4ee]/90 backdrop-blur-xl">
       <nav className="section-shell flex h-16 sm:h-20 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-wide" onClick={closeMenu}>
-          <span className="grid size-9 sm:size-10 place-items-center rounded-md bg-[#171717] text-white">
-            <Building2 size={18} className="sm:hidden" />
-            <Building2 size={20} className="hidden sm:block" />
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group" onClick={closeMenu}>
+          <div className="relative size-9 sm:size-10 overflow-hidden rounded-full border border-black/10 shadow-sm transition-transform duration-300 group-hover:scale-105">
+            <Image
+              src="/favicon.png"
+              alt="BricksNBeyond Logo"
+              width={40}
+              height={40}
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <span className="font-[var(--font-display)] text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-[#171717]">
+            Bricks<span className="text-[#b89658] italic font-serif">N</span>Beyond
           </span>
-          <span className="text-base sm:text-lg">BricksNBeyond</span>
         </Link>
 
         <div className="hidden items-center gap-7 text-sm text-[#4f4942] lg:flex">

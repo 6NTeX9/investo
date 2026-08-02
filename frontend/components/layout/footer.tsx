@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function Footer() {
@@ -5,7 +6,12 @@ export function Footer() {
     <footer className="mt-24 bg-[#171717] py-14 text-white">
       <div className="section-shell grid gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <div>
-          <p className="text-xl font-semibold">BricksNBeyond</p>
+          <div className="flex items-center gap-3">
+            <Image src="/favicon.png" alt="BricksNBeyond Logo" width={36} height={36} className="rounded-full shadow-sm" />
+            <p className="font-[var(--font-display)] text-2xl font-bold tracking-tight text-white">
+              Bricks<span className="text-[#d6bd82] italic font-serif">N</span>Beyond
+            </p>
+          </div>
           <p className="mt-4 max-w-md text-sm leading-6 text-white/65">
             Premium real estate advisory for residential, commercial, and investment-led property decisions.
           </p>
