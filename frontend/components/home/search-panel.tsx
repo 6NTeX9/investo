@@ -46,11 +46,11 @@ function CustomDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full grid gap-0.5 rounded-xl border border-black/10 bg-white/95 px-3 py-2.5 sm:px-4 sm:py-3 text-left cursor-pointer hover:bg-neutral-50 hover:border-[#b89658]/50 transition-all duration-200 select-none shadow-xs"
+        className="w-full grid gap-0.5 rounded-lg border border-black/10 bg-white/95 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-left cursor-pointer hover:bg-neutral-50 hover:border-[#b89658]/50 transition-all duration-200 select-none shadow-xs"
       >
-        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#b89658] flex justify-between items-center w-full">
+        <span className="text-[9px] sm:text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[#b89658] flex justify-between items-center w-full">
           {label}
-          <ChevronDown size={13} className={`text-[#b89658] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+          <ChevronDown size={12} className={`text-[#b89658] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
         </span>
         <span className="text-xs sm:text-sm font-medium text-[#171717] truncate block mt-0.5">
           {selectedOption ? selectedOption.label : placeholder}
@@ -60,11 +60,11 @@ function CustomDropdown({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.98 }}
-            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-            className={`absolute z-[500] mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-black/10 bg-white p-1.5 shadow-2xl luxury-shadow min-w-[160px] sm:min-w-[200px] w-max max-w-[90vw] ${
+            exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className={`absolute z-[500] mt-1 max-h-52 overflow-y-auto rounded-xl border border-black/10 bg-white p-1 shadow-2xl luxury-shadow min-w-[150px] sm:min-w-[180px] w-max max-w-[calc(100vw-2.5rem)] ${
               alignRight ? "right-0" : "left-0"
             }`}
           >
@@ -76,14 +76,14 @@ function CustomDropdown({
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex items-center justify-between gap-3 ${
+                className={`w-full cursor-pointer rounded-lg px-3 py-2 text-left text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex items-center justify-between gap-2.5 ${
                   value === opt.value
                     ? "bg-[#b89658]/12 text-[#b89658] font-semibold"
                     : "text-[#171717] hover:bg-neutral-100/80"
                 }`}
               >
-                <span>{opt.label}</span>
-                {value === opt.value && <span className="size-1.5 rounded-full bg-[#b89658]" />}
+                <span className="truncate">{opt.label}</span>
+                {value === opt.value && <span className="size-1.5 rounded-full bg-[#b89658] shrink-0" />}
               </button>
             ))}
           </motion.div>
@@ -160,7 +160,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
   }
 
   return (
-    <form action="/properties" className="glass grid grid-cols-1 gap-3 rounded-2xl p-3 sm:p-4 shadow-2xl md:grid-cols-[1fr_1fr_1fr_1fr_auto] md:gap-3 transition-all duration-300">
+    <form action="/properties" className="glass grid grid-cols-1 gap-2.5 rounded-xl p-2.5 sm:p-3 shadow-2xl md:grid-cols-[1fr_1fr_1fr_1fr_auto] md:gap-3 transition-all duration-300">
       {/* Hidden inputs to bind custom dropdown values to native form submission */}
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="location" value={location} />
@@ -168,7 +168,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
       <input type="hidden" name="minPrice" value={minPrice} />
       <input type="hidden" name="maxPrice" value={maxPrice} />
 
-      <div className="grid grid-cols-2 gap-2.5 w-full md:grid-cols-4 md:contents">
+      <div className="grid grid-cols-2 gap-2 w-full md:grid-cols-4 md:contents">
         <CustomDropdown
           label="Type"
           value={type}
@@ -183,6 +183,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
           onChange={setLocation}
           options={locationOptions}
           placeholder="All locations"
+          alignRight={true}
         />
 
         <CustomDropdown
@@ -203,16 +204,16 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
         />
       </div>
 
-      <div className="flex gap-2 w-full md:contents mt-1 md:mt-0">
+      <div className="flex gap-2 w-full md:contents mt-0.5 md:mt-0">
         <Link 
           href="/properties" 
-          className="flex items-center justify-center gap-1.5 rounded-xl border border-[#b89658]/40 px-4 py-2.5 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/10 transition flex-1 h-11 min-h-11 md:hidden"
+          className="flex items-center justify-center gap-1.5 rounded-lg border border-[#b89658]/40 px-3.5 py-2 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/10 transition flex-1 h-9 min-h-9 md:hidden"
         >
-          <SlidersHorizontal size={14} />
+          <SlidersHorizontal size={13} />
           More Filters
         </Link>
-        <Button type="submit" variant="gold" className="gap-2 flex-1 md:flex-initial h-11 min-h-11 md:h-auto text-xs sm:text-sm font-semibold transition-transform active:scale-95 duration-200 rounded-xl">
-          <Search size={16} />
+        <Button type="submit" variant="gold" className="gap-2 flex-1 md:flex-initial h-9 min-h-9 md:h-auto text-xs sm:text-sm font-semibold transition-transform active:scale-95 duration-200 rounded-lg py-2">
+          <Search size={15} />
           Search
         </Button>
       </div>
