@@ -52,7 +52,7 @@ export default async function HomePage() {
             </StaggerItem>
             <StaggerItem>
               <h1 className="max-w-4xl font-[var(--font-display)] text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-snug">
-                BricksNBeyond
+                BricksNBeyond — Premium Real Estate Advisory in Bangalore
               </h1>
             </StaggerItem>
             <StaggerItem>
@@ -140,6 +140,26 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Bangalore Real Estate Advisory SEO Overview Section */}
+      <section className="section-shell mt-12 sm:mt-16">
+        <div className="rounded-2xl bg-white p-6 sm:p-8 md:p-10 border border-black/5 luxury-shadow">
+          <div className="max-w-4xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">
+              Bangalore Real Estate Advisory
+            </span>
+            <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[#171717]">
+              Premium Residential &amp; Commercial Property Advisory in Bangalore
+            </h2>
+            <p className="mt-3 text-xs sm:text-sm md:text-base leading-relaxed text-[#4f4942]">
+              BricksNBeyond is Bangalore’s premier real estate discovery and advisory firm, providing investors, homebuyers, and commercial enterprises with uncompromised access to high-yield residential apartments, luxury villas, and prime plots across key growth corridors including Whitefield, Indiranagar, Koramangala, Sarjapur Road, and Yelahanka.
+            </p>
+            <p className="mt-3 text-xs sm:text-sm md:text-base leading-relaxed text-[#4f4942]">
+              Our advisory team partners with India’s top tier-1 grade developers—including Prestige Group, Brigade Enterprises, Sobha Developers, and Godrej Properties—to evaluate project legalities, construction timelines, RERA certifications, and long-term capital appreciation potential before presenting tailored shortlists to our clients.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="section-shell mt-12 sm:mt-16 grid gap-6 grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] pb-16">
         <FadeUp className="h-full">
           <div className="rounded-lg bg-[#171717] p-6 text-white sm:p-8 md:p-10 h-full flex flex-col justify-between">
@@ -150,7 +170,7 @@ export default async function HomePage() {
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <LinkButton href="/contact" variant="gold" className="transition-transform active:scale-95 duration-200 text-xs sm:text-sm">Request callback</LinkButton>
-              <LinkButton href="/contact?tab=visit" variant="ghost" className="transition-transform active:scale-95 duration-200 !border-white/25 !text-white !bg-white/10 hover:!bg-white/20 text-xs sm:text-sm">Book site visit</LinkButton>
+              <LinkButton href="/contact?tab=visit" rel="nofollow" variant="ghost" className="transition-transform active:scale-95 duration-200 !border-white/25 !text-white !bg-white/10 hover:!bg-white/20 text-xs sm:text-sm">Book site visit</LinkButton>
             </div>
           </div>
         </FadeUp>
