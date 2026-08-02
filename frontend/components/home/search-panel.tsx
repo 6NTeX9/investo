@@ -17,12 +17,14 @@ function CustomDropdown({
   onChange,
   options,
   placeholder,
+  alignRight = false,
 }: {
   label: string;
   value: string;
   onChange: (val: string) => void;
   options: { label: string; value: string }[];
   placeholder: string;
+  alignRight?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -41,43 +43,48 @@ function CustomDropdown({
 
   return (
     <div ref={dropdownRef} className="relative w-full">
-      <div
+      <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="grid gap-0.5 md:gap-1 rounded-md border border-black/5 bg-white px-2.5 py-1.5 md:px-4 md:py-3 text-[8px] sm:text-[9px] md:text-xs font-semibold text-[#b89658] uppercase tracking-wider cursor-pointer hover:bg-neutral-50/50 hover:shadow-sm transition-all duration-300 select-none"
+        className="w-full grid gap-0.5 rounded-xl border border-black/10 bg-white/95 px-3 py-2.5 sm:px-4 sm:py-3 text-left cursor-pointer hover:bg-neutral-50 hover:border-[#b89658]/50 transition-all duration-200 select-none shadow-xs"
       >
-        <span className="text-[#68625a] lowercase first-letter:uppercase md:uppercase md:text-[#b89658] flex justify-between items-center w-full">
+        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#b89658] flex justify-between items-center w-full">
           {label}
-          <ChevronDown size={10} className={`text-[#b89658] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+          <ChevronDown size={13} className={`text-[#b89658] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
         </span>
-        <span className="text-[10px] md:text-sm font-medium text-[#171717] truncate block mt-0.5 normal-case">
+        <span className="text-xs sm:text-sm font-medium text-[#171717] truncate block mt-0.5">
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-      </div>
+      </button>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.96 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute left-0 right-0 z-[200] mt-1 max-h-60 overflow-y-auto rounded-lg border border-black/5 bg-white p-1 shadow-xl luxury-shadow"
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className={`absolute z-[500] mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-black/10 bg-white p-1.5 shadow-2xl luxury-shadow min-w-[160px] sm:min-w-[200px] w-max max-w-[90vw] ${
+              alignRight ? "right-0" : "left-0"
+            }`}
           >
             {options.map((opt) => (
-              <div
+              <button
                 key={opt.value}
+                type="button"
                 onClick={() => {
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`cursor-pointer rounded-md px-3 py-2 text-left text-xs md:text-sm transition-colors ${
+                className={`w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex items-center justify-between gap-3 ${
                   value === opt.value
-                    ? "bg-[#b89658]/10 text-[#b89658] font-semibold"
-                    : "text-[#171717] hover:bg-neutral-50"
+                    ? "bg-[#b89658]/12 text-[#b89658] font-semibold"
+                    : "text-[#171717] hover:bg-neutral-100/80"
                 }`}
               >
-                {opt.label}
-              </div>
+                <span>{opt.label}</span>
+                {value === opt.value && <span className="size-1.5 rounded-full bg-[#b89658]" />}
+              </button>
             ))}
           </motion.div>
         )}
@@ -98,7 +105,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
   const [budgetRange, setBudgetRange] = useState("");
 
   const typeOptions = [
-    { label: "Any type", value: "" },
+    { label: "All types", value: "" },
     { label: "Apartment", value: "APARTMENT" },
     { label: "Villa", value: "VILLA" },
     { label: "Penthouse", value: "PENTHOUSE" },
@@ -107,12 +114,12 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
   ];
 
   const locationOptions = useMemo(() => [
-    { label: "Any district", value: "" },
+    { label: "All locations", value: "" },
     ...locations.map((loc) => ({ label: loc, value: loc })),
   ], [locations]);
 
   const areaOptions = [
-    { label: "Any size", value: "" },
+    { label: "All sizes", value: "" },
     { label: "500+ sqft", value: "500" },
     { label: "900+ sqft", value: "900" },
     { label: "1200+ sqft", value: "1200" },
@@ -122,7 +129,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
   ];
 
   const budgetOptions = [
-    { label: "Any budget", value: "" },
+    { label: "All budgets", value: "" },
     { label: "Under ₹ 1 Cr", value: "under_1cr" },
     { label: "₹ 1 Cr - 2 Cr", value: "1cr_2cr" },
     { label: "₹ 2 Cr - 3 Cr", value: "2cr_3cr" },
@@ -153,7 +160,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
   }
 
   return (
-    <form action="/properties" className="glass grid grid-cols-1 gap-4 rounded-xl p-3 shadow-2xl md:grid-cols-[1fr_1fr_1fr_1fr_auto] md:gap-3 transition-all duration-500">
+    <form action="/properties" className="glass grid grid-cols-1 gap-3 rounded-2xl p-3 sm:p-4 shadow-2xl md:grid-cols-[1fr_1fr_1fr_1fr_auto] md:gap-3 transition-all duration-300">
       {/* Hidden inputs to bind custom dropdown values to native form submission */}
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="location" value={location} />
@@ -161,13 +168,13 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
       <input type="hidden" name="minPrice" value={minPrice} />
       <input type="hidden" name="maxPrice" value={maxPrice} />
 
-      <div className="grid grid-cols-4 gap-1.5 w-full md:contents">
+      <div className="grid grid-cols-2 gap-2.5 w-full md:grid-cols-4 md:contents">
         <CustomDropdown
           label="Type"
           value={type}
           onChange={setType}
           options={typeOptions}
-          placeholder="Any type"
+          placeholder="All types"
         />
 
         <CustomDropdown
@@ -175,7 +182,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
           value={location}
           onChange={setLocation}
           options={locationOptions}
-          placeholder="Any district"
+          placeholder="All locations"
         />
 
         <CustomDropdown
@@ -183,7 +190,7 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
           value={minArea}
           onChange={setMinArea}
           options={areaOptions}
-          placeholder="Any size"
+          placeholder="All sizes"
         />
 
         <CustomDropdown
@@ -191,20 +198,21 @@ export function SearchPanel({ properties = [] }: { properties?: SearchPanelPrope
           value={budgetRange}
           onChange={setBudgetRange}
           options={budgetOptions}
-          placeholder="Any budget"
+          placeholder="All budgets"
+          alignRight={true}
         />
       </div>
 
-      <div className="flex gap-2 w-full md:contents">
+      <div className="flex gap-2 w-full md:contents mt-1 md:mt-0">
         <Link 
           href="/properties" 
-          className="flex items-center justify-center gap-1.5 rounded-md border border-[#b89658]/30 px-4 py-2 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition flex-1 h-10 min-h-10 md:hidden"
+          className="flex items-center justify-center gap-1.5 rounded-xl border border-[#b89658]/40 px-4 py-2.5 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/10 transition flex-1 h-11 min-h-11 md:hidden"
         >
-          <SlidersHorizontal size={13} />
-          Filters
+          <SlidersHorizontal size={14} />
+          More Filters
         </Link>
-        <Button type="submit" variant="gold" className="gap-2 flex-1 md:flex-initial h-10 md:h-auto text-xs md:text-sm transition-transform active:scale-95 duration-200">
-          <Search size={15} />
+        <Button type="submit" variant="gold" className="gap-2 flex-1 md:flex-initial h-11 min-h-11 md:h-auto text-xs sm:text-sm font-semibold transition-transform active:scale-95 duration-200 rounded-xl">
+          <Search size={16} />
           Search
         </Button>
       </div>
