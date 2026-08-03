@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import { 
@@ -71,10 +71,10 @@ function formatDate(dateStr: string) {
 
 export default function AdminEnquiriesPage() {
   // State
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+  const [allEnquiries, setAllEnquiries] = useState<Enquiry[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>("NEW");
+  const [statusFilter, setStatusFilter] = useState<string>("");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
@@ -103,13 +103,12 @@ export default function AdminEnquiriesPage() {
     loadMetadata();
   }, []);
 
-  // Fetch updated list on filter change
-  const fetchEnquiries = async () => {
+  // Fetch ALL enquiries to compute exact counts per status tab
+  const fetchAllEnquiries = async () => {
     setLoading(true);
     try {
-      const url = statusFilter ? `/enquiries?status=${statusFilter}` : "/enquiries";
-      const res = await api.get(url);
-      setEnquiries(res.data || []);
+      const res = await api.get("/enquiries");
+      setAllEnquiries(res.data || []);
     } catch (err) {
       console.error("Failed to fetch enquiries:", err);
       toast.error("Failed to load enquiries queue.");
@@ -119,8 +118,34 @@ export default function AdminEnquiriesPage() {
   };
 
   useEffect(() => {
-    fetchEnquiries();
-  }, [statusFilter]);
+    fetchAllEnquiries();
+  }, []);
+
+  // Compute Live Counts for Each Status
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      ALL: allEnquiries.length,
+      NEW: 0,
+      CONTACTED: 0,
+      QUALIFIED: 0,
+      CLOSED: 0,
+      LOST: 0,
+    };
+
+    for (const enq of allEnquiries) {
+      if (counts[enq.status] !== undefined) {
+        counts[enq.status]++;
+      }
+    }
+
+    return counts;
+  }, [allEnquiries]);
+
+  // Filtered list based on statusFilter state
+  const filteredEnquiries = useMemo(() => {
+    if (!statusFilter) return allEnquiries;
+    return allEnquiries.filter((enq) => enq.status === statusFilter);
+  }, [allEnquiries, statusFilter]);
 
   // Handle status/agent update
   const handleUpdate = async (id: string, newStatus: LeadStatus, newAgentId?: string | null) => {
@@ -133,7 +158,7 @@ export default function AdminEnquiriesPage() {
       toast.success("Lead enquiry updated.");
       
       // Update local state
-      setEnquiries(prev => prev.map(enq => {
+      setAllEnquiries(prev => prev.map(enq => {
         if (enq.id === id) {
           const selectedAgent = agents.find(ag => ag.id === newAgentId) || null;
           return {
@@ -155,7 +180,7 @@ export default function AdminEnquiriesPage() {
 
   // Export CSV
   const handleExportCSV = () => {
-    if (enquiries.length === 0) {
+    if (filteredEnquiries.length === 0) {
       toast.error("No enquiries to export.");
       return;
     }
@@ -172,7 +197,7 @@ export default function AdminEnquiriesPage() {
         "Created Date"
       ];
 
-      const rows = enquiries.map((enq) => {
+      const rows = filteredEnquiries.map((enq) => {
         const escapedMessage = enq.message ? `"${enq.message.replace(/"/g, '""')}"` : "";
         const agentName = enq.agent?.name || "Unassigned";
         const createdDate = new Date(enq.createdAt).toISOString();
@@ -213,14 +238,12 @@ export default function AdminEnquiriesPage() {
 
     const results: { name: string; phone: string; email?: string; message?: string }[] = [];
 
-    // Detect if first line is header
     const firstLineLower = lines[0].toLowerCase();
     const hasHeader = firstLineLower.includes("name") || firstLineLower.includes("phone") || firstLineLower.includes("mobile") || firstLineLower.includes("email");
     
     const dataLines = hasHeader ? lines.slice(1) : lines;
 
     for (const line of dataLines) {
-      // Split by tab or comma
       const parts = line.includes("\t") ? line.split("\t") : line.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
       const cleanParts = parts.map(p => p.trim().replace(/^"|"$/g, ''));
 
@@ -252,7 +275,7 @@ export default function AdminEnquiriesPage() {
         const parsed = parseCSVText(content);
         setParsedLeads(parsed);
         if (parsed.length === 0) {
-          toast.error("Could not parse leads. Make sure format is: Name, Phone, Email, Message");
+          toast.error("Could not parse leads. Format: Name, Phone, Email, Message");
         } else {
           toast.success(`Found ${parsed.length} leads in file.`);
         }
@@ -297,7 +320,7 @@ export default function AdminEnquiriesPage() {
     setIsImportModalOpen(false);
     setImportPastedData("");
     setParsedLeads([]);
-    fetchEnquiries();
+    fetchAllEnquiries();
   };
 
   return (
@@ -305,7 +328,7 @@ export default function AdminEnquiriesPage() {
       <div className="w-full max-w-7xl mx-auto">
         
         {/* Header Section & Top Bar */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-black/5 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 border-b border-black/5 pb-6">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#b89658] font-serif block">
               CLIENT REQUESTS
@@ -315,7 +338,7 @@ export default function AdminEnquiriesPage() {
             </h1>
           </div>
 
-          {/* Action Buttons & Filter Dropdown */}
+          {/* Action Buttons & Filter Dropdown with Live Counts */}
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleExportCSV}
@@ -331,23 +354,65 @@ export default function AdminEnquiriesPage() {
               <Download size={15} className="text-[#b89658]" /> Import
             </button>
 
-            {/* Top Right Status Filter Dropdown */}
+            {/* Top Right Status Filter Dropdown with Amounts */}
             <div className="relative shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none rounded-xl border border-black/10 bg-white px-4 py-2 pr-9 text-sm font-semibold text-[#171717] shadow-xs cursor-pointer focus:outline-none focus:border-[#b89658]"
+                className="appearance-none rounded-xl border border-black/10 bg-white px-4 py-2 pr-9 text-sm font-serif font-semibold text-[#171717] shadow-xs cursor-pointer focus:outline-none focus:border-[#b89658]"
               >
-                <option value="">All Statuses</option>
-                <option value="NEW">New</option>
-                <option value="CONTACTED">Contacted</option>
-                <option value="QUALIFIED">Qualified</option>
-                <option value="CLOSED">Closed</option>
-                <option value="LOST">Lost</option>
+                <option value="">All Statuses ({statusCounts.ALL})</option>
+                <option value="NEW">New ({statusCounts.NEW})</option>
+                <option value="CONTACTED">Contacted ({statusCounts.CONTACTED})</option>
+                <option value="QUALIFIED">Qualified ({statusCounts.QUALIFIED})</option>
+                <option value="CLOSED">Closed ({statusCounts.CLOSED})</option>
+                <option value="LOST">Lost ({statusCounts.LOST})</option>
               </select>
               <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500" />
             </div>
           </div>
+        </div>
+
+        {/* Status Filter Tab Pills with Live Badges */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
+          <button
+            onClick={() => setStatusFilter("")}
+            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-serif font-bold transition whitespace-nowrap border ${
+              statusFilter === ""
+                ? "bg-[#171717] text-white border-[#171717] shadow-xs"
+                : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
+            }`}
+          >
+            All Statuses
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-sans font-bold ${
+              statusFilter === "" ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-600"
+            }`}>
+              {statusCounts.ALL}
+            </span>
+          </button>
+
+          {statusOptions.map((opt) => {
+            const isSelected = statusFilter === opt.value;
+            const count = statusCounts[opt.value] || 0;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setStatusFilter(opt.value)}
+                className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-serif font-bold transition whitespace-nowrap border ${
+                  isSelected
+                    ? "bg-[#171717] text-white border-[#171717] shadow-xs"
+                    : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
+                }`}
+              >
+                {opt.label}
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-sans font-bold ${
+                  isSelected ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-600"
+                }`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Enquiries Multi-Column Responsive Grid */}
@@ -356,14 +421,14 @@ export default function AdminEnquiriesPage() {
             [...Array(6)].map((_, i) => (
               <div key={i} className="animate-pulse rounded-2xl border border-black/5 bg-white p-6 h-64 shadow-xs" />
             ))
-          ) : enquiries.length === 0 ? (
+          ) : filteredEnquiries.length === 0 ? (
             <div className="col-span-full grid place-items-center py-20 text-center rounded-2xl bg-white border border-black/5 shadow-xs">
               <Inbox size={48} className="text-[#b89658]/40" />
               <h3 className="mt-3 font-serif font-semibold text-lg text-[#171717]">No enquiries found</h3>
               <p className="mt-1 text-xs text-[#68625a]">No client requests match the current status filter.</p>
             </div>
           ) : (
-            enquiries.map((enq) => {
+            filteredEnquiries.map((enq) => {
               const currentStatusOpt = statusOptions.find(s => s.value === enq.status) || statusOptions[0];
               const cleanPhone = enq.phone.replace(/[^0-9]/g, "");
               const formattedPhoneForWhatsapp = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
@@ -470,7 +535,7 @@ export default function AdminEnquiriesPage() {
                             setSavingId(enq.id);
                             await api.patch(`/enquiries/${enq.id}/notes`, { notes: notesVal });
                             toast.success("Enquiry note saved!");
-                            setEnquiries(prev => prev.map(item => item.id === enq.id ? { ...item, notes: notesVal } : item));
+                            setAllEnquiries(prev => prev.map(item => item.id === enq.id ? { ...item, notes: notesVal } : item));
                           } catch (err: any) {
                             console.error("Failed to save note:", err);
                             toast.error("Failed to save enquiry note.");
