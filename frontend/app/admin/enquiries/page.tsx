@@ -302,10 +302,10 @@ export default function AdminEnquiriesPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f6f0] p-4 sm:p-6 md:p-8 font-sans">
-      <div className="max-w-2xl mx-auto">
+      <div className="w-full max-w-7xl mx-auto">
         
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        {/* Header Section & Top Bar */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-black/5 pb-6">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#b89658] font-serif block">
               CLIENT REQUESTS
@@ -315,51 +315,50 @@ export default function AdminEnquiriesPage() {
             </h1>
           </div>
 
-          {/* Top Right Status Filter Dropdown */}
-          <div className="relative shrink-0">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none rounded-xl border border-black/10 bg-white px-4 py-2 pr-9 text-sm font-semibold text-[#171717] shadow-xs cursor-pointer focus:outline-none focus:border-[#b89658]"
+          {/* Action Buttons & Filter Dropdown */}
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/90 backdrop-blur-xs py-2 px-4 text-sm font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
             >
-              <option value="">All Statuses</option>
-              <option value="NEW">New</option>
-              <option value="CONTACTED">Contacted</option>
-              <option value="QUALIFIED">Qualified</option>
-              <option value="CLOSED">Closed</option>
-              <option value="LOST">Lost</option>
-            </select>
-            <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500" />
+              <Upload size={15} className="text-[#b89658]" /> Export
+            </button>
+
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/90 backdrop-blur-xs py-2 px-4 text-sm font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
+            >
+              <Download size={15} className="text-[#b89658]" /> Import
+            </button>
+
+            {/* Top Right Status Filter Dropdown */}
+            <div className="relative shrink-0">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="appearance-none rounded-xl border border-black/10 bg-white px-4 py-2 pr-9 text-sm font-semibold text-[#171717] shadow-xs cursor-pointer focus:outline-none focus:border-[#b89658]"
+              >
+                <option value="">All Statuses</option>
+                <option value="NEW">New</option>
+                <option value="CONTACTED">Contacted</option>
+                <option value="QUALIFIED">Qualified</option>
+                <option value="CLOSED">Closed</option>
+                <option value="LOST">Lost</option>
+              </select>
+              <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500" />
+            </div>
           </div>
         </div>
 
-        {/* Action Buttons: Export & Import */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/80 backdrop-blur-xs py-2.5 px-4 text-sm sm:text-base font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
-          >
-            <Upload size={16} className="text-[#b89658]" /> Export
-          </button>
-          <button
-            onClick={() => setIsImportModalOpen(true)}
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/80 backdrop-blur-xs py-2.5 px-4 text-sm sm:text-base font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
-          >
-            <Download size={16} className="text-[#b89658]" /> Import
-          </button>
-        </div>
-
-        {/* Enquiries List */}
-        <div className="space-y-6">
+        {/* Enquiries Multi-Column Responsive Grid */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="animate-pulse rounded-2xl border border-black/5 bg-white p-6 h-52 shadow-xs" />
-              ))}
-            </div>
+            [...Array(6)].map((_, i) => (
+              <div key={i} className="animate-pulse rounded-2xl border border-black/5 bg-white p-6 h-64 shadow-xs" />
+            ))
           ) : enquiries.length === 0 ? (
-            <div className="grid place-items-center py-16 text-center rounded-2xl bg-white border border-black/5 shadow-xs">
-              <Inbox size={44} className="text-[#b89658]/40" />
+            <div className="col-span-full grid place-items-center py-20 text-center rounded-2xl bg-white border border-black/5 shadow-xs">
+              <Inbox size={48} className="text-[#b89658]/40" />
               <h3 className="mt-3 font-serif font-semibold text-lg text-[#171717]">No enquiries found</h3>
               <p className="mt-1 text-xs text-[#68625a]">No client requests match the current status filter.</p>
             </div>
