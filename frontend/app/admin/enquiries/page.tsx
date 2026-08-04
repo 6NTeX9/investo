@@ -324,13 +324,13 @@ export default function AdminEnquiriesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f8f6f0] p-3 sm:p-6 md:p-8 font-sans">
+    <main className="min-h-screen bg-[#f8f6f0] p-2 sm:p-6 md:p-8 font-sans">
       <div className="w-full max-w-7xl mx-auto">
         
         {/* Header Section & Top Bar */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 border-b border-black/5 pb-4 sm:pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 md:gap-4 mb-4 md:mb-6 border-b border-black/5 pb-3 md:pb-6">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#b89658] font-serif block">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#b89658] font-serif block">
               CLIENT REQUESTS
             </span>
             <h1 className="mt-0.5 font-serif text-2xl sm:text-4xl font-bold text-[#171717]">
@@ -372,8 +372,8 @@ export default function AdminEnquiriesPage() {
             </div>
           </div>
 
-          {/* Mobile Top Action Row (Export & Import) */}
-          <div className="grid grid-cols-2 gap-2 w-full md:hidden">
+          {/* Mobile Action Bar: Sleek 2-Column Export & Import */}
+          <div className="grid grid-cols-2 gap-2 w-full md:hidden mt-1">
             <button
               onClick={handleExportCSV}
               className="flex items-center justify-center gap-1.5 rounded-xl border-2 border-[#c5a667]/80 bg-white py-2 px-3 text-xs font-serif font-bold text-[#b89658] active:bg-[#b89658]/10 transition shadow-xs"
@@ -390,17 +390,17 @@ export default function AdminEnquiriesPage() {
         </div>
 
         {/* Horizontal Slide Bar for Mobile & Desktop Tabs */}
-        <div className="w-full overflow-x-auto flex items-center gap-2 pb-3 mb-6 scrollbar-none touch-pan-x flex-nowrap -mx-1 px-1">
+        <div className="w-full overflow-x-auto flex items-center gap-2 pb-3 mb-4 md:mb-6 scrollbar-none touch-pan-x flex-nowrap">
           <button
             onClick={() => setStatusFilter("")}
-            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-serif font-bold transition whitespace-nowrap border ${
+            className={`shrink-0 flex items-center gap-1.5 sm:gap-2 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-serif font-bold transition whitespace-nowrap border ${
               statusFilter === ""
                 ? "bg-[#171717] text-white border-[#171717] shadow-xs"
                 : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
             }`}
           >
             All Statuses
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-sans font-bold ${
+            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-sans font-bold ${
               statusFilter === "" ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-600"
             }`}>
               {statusCounts.ALL}
@@ -414,14 +414,14 @@ export default function AdminEnquiriesPage() {
               <button
                 key={opt.value}
                 onClick={() => setStatusFilter(opt.value)}
-                className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-serif font-bold transition whitespace-nowrap border ${
+                className={`shrink-0 flex items-center gap-1.5 sm:gap-2 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-serif font-bold transition whitespace-nowrap border ${
                   isSelected
                     ? "bg-[#171717] text-white border-[#171717] shadow-xs"
                     : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
                 }`}
               >
                 {opt.label}
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-sans font-bold ${
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-sans font-bold ${
                   isSelected ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-600"
                 }`}>
                   {count}
@@ -432,7 +432,7 @@ export default function AdminEnquiriesPage() {
         </div>
 
         {/* Enquiries Multi-Column Responsive Grid */}
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
             [...Array(6)].map((_, i) => (
               <div key={i} className="animate-pulse rounded-2xl border border-black/5 bg-white p-6 h-64 shadow-xs" />
@@ -452,7 +452,7 @@ export default function AdminEnquiriesPage() {
               return (
                 <div
                   key={enq.id}
-                  className={`relative rounded-2xl border border-black/8 bg-white p-3.5 sm:p-5 shadow-sm transition hover:shadow-md ${
+                  className={`relative rounded-xl sm:rounded-2xl border border-black/8 bg-white p-3 sm:p-5 shadow-sm transition hover:shadow-md ${
                     savingId === enq.id ? "opacity-60 pointer-events-none" : ""
                   }`}
                 >
@@ -467,25 +467,25 @@ export default function AdminEnquiriesPage() {
                   <div className="flex items-center justify-between text-sm sm:text-base mb-2.5">
                     <div className="flex items-center gap-2 font-serif font-bold text-[#171717] min-w-0">
                       <span className="truncate">{enq.name}</span>
-                      <span className={`text-[11px] sm:text-xs uppercase tracking-wider ${currentStatusOpt.colorClass} font-sans shrink-0`}>
+                      <span className={`text-[10px] sm:text-xs uppercase tracking-wider ${currentStatusOpt.colorClass} font-sans shrink-0`}>
                         {enq.status}
                       </span>
                     </div>
-                    <span className="text-[11px] sm:text-xs font-serif text-neutral-500 shrink-0 ml-2">
+                    <span className="text-[10px] sm:text-xs font-serif text-neutral-500 shrink-0 ml-1.5">
                       {formatDate(enq.createdAt)}
                     </span>
                   </div>
 
                   {/* Client Message Quote Box */}
-                  <div className="mb-3 rounded-xl bg-[#eceae6] p-2.5 sm:p-3 text-xs sm:text-sm font-serif italic text-neutral-700 leading-relaxed border border-black/5 break-words">
+                  <div className="mb-2.5 rounded-xl bg-[#eceae6] p-2.5 sm:p-3 text-xs sm:text-sm font-serif italic text-neutral-700 leading-relaxed border border-black/5 break-words">
                     &quot;{enq.message || "No specific requirement message provided."}&quot;
                   </div>
 
-                  {/* Contact Info & Action Bar (Fully Responsive) */}
-                  <div className="mb-3 flex items-center justify-between rounded-xl bg-[#eceae6] p-2 sm:p-2.5 px-3 text-xs sm:text-sm font-sans text-neutral-700 border border-black/5 gap-1">
+                  {/* Contact Info & Action Bar (100% Fit for Mobile) */}
+                  <div className="mb-3 flex items-center justify-between rounded-xl bg-[#eceae6] p-2 px-2.5 text-xs sm:text-sm font-sans text-neutral-700 border border-black/5 gap-1">
                     <div className="flex items-center gap-1.5 font-medium shrink-0">
                       <Phone size={13} className="text-neutral-500 shrink-0" />
-                      <span className="text-xs sm:text-sm font-sans">{enq.phone}</span>
+                      <span className="text-xs sm:text-sm font-sans font-semibold text-neutral-800">{enq.phone}</span>
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-3 text-neutral-400 shrink-0">
@@ -494,12 +494,12 @@ export default function AdminEnquiriesPage() {
                         <a
                           href={`mailto:${enq.email}`}
                           title={`Email ${enq.email}`}
-                          className="hover:opacity-80 transition"
+                          className="hover:opacity-80 transition p-0.5"
                         >
-                          <Mail size={15} className="text-neutral-900 fill-neutral-900 sm:w-4 sm:h-4" />
+                          <Mail size={15} className="text-neutral-900 fill-neutral-900" />
                         </a>
                       ) : (
-                        <Mail size={15} className="text-neutral-400 opacity-40 cursor-not-allowed sm:w-4 sm:h-4" title="No email captured" />
+                        <Mail size={15} className="text-neutral-400 opacity-40 cursor-not-allowed p-0.5" title="No email captured" />
                       )}
 
                       <span className="text-neutral-300 font-light">|</span>
@@ -510,7 +510,7 @@ export default function AdminEnquiriesPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Chat on WhatsApp"
-                        className="hover:scale-110 transition shrink-0"
+                        className="hover:scale-110 transition shrink-0 p-0.5"
                       >
                         <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#25D366]" viewBox="0 0 24 24">
                           <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.233-1.371a9.936 9.936 0 0 0 4.777 1.217h.005c5.505 0 9.99-4.478 9.99-9.986 0-2.67-1.037-5.18-2.92-7.061A9.925 9.925 0 0 0 12.012 2zm5.72 14.12c-.244.688-1.22 1.259-1.68 1.32-.46.06-1.065.11-3.04-.7-2.525-1.035-4.155-3.605-4.28-3.77-.125-.165-1.11-1.475-1.11-2.81 0-1.335.7-1.99.95-2.25.25-.26.545-.33.725-.33h.52c.15 0 .35.05.51.435.17.41.58 1.41.63 1.51.05.1.08.22.01.36-.07.14-.11.23-.22.36-.11.13-.23.29-.33.39-.115.115-.235.24-.1.45.135.21.6 1.01.87 1.25.35.31.62.4.87.525.25.125.4.1.55-.075.15-.175.65-.75.82-.99.17-.25.35-.2.58-.11.235.09 1.485.7 1.74.825.255.125.425.19.49.3.06.11.06.63-.18 1.32z"/>
@@ -523,19 +523,19 @@ export default function AdminEnquiriesPage() {
                       <a
                         href={`tel:${enq.phone}`}
                         title="Call Client"
-                        className="hover:opacity-80 transition"
+                        className="hover:opacity-80 transition p-0.5"
                       >
-                        <Phone size={14} className="text-neutral-900 fill-neutral-900 sm:w-3.5 sm:h-3.5" />
+                        <Phone size={14} className="text-neutral-900 fill-neutral-900" />
                       </a>
                     </div>
                   </div>
 
                   {/* Agent Notes Container */}
                   <div className="mb-3">
-                    <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-serif font-bold text-neutral-600 block mb-1">
+                    <span className="text-[10px] uppercase tracking-wider font-serif font-bold text-neutral-600 block mb-1">
                       AGENT NOTES
                     </span>
-                    <div className="relative rounded-xl bg-[#eceae6] p-2.5 pb-10 border border-black/5">
+                    <div className="relative rounded-xl bg-[#eceae6] p-2.5 pb-9 border border-black/5">
                       <textarea
                         defaultValue={enq.notes || ""}
                         id={`notes-${enq.id}`}
@@ -559,7 +559,7 @@ export default function AdminEnquiriesPage() {
                             setSavingId(null);
                           }
                         }}
-                        className="absolute right-2 bottom-2 rounded-md bg-[#171717] px-2.5 py-1 text-xs font-serif font-bold text-white hover:bg-black transition shadow-xs"
+                        className="absolute right-2 bottom-2 rounded-md bg-[#171717] px-2.5 py-1 text-[11px] font-serif font-bold text-white hover:bg-black transition shadow-xs"
                       >
                         Save Note
                       </button>
@@ -570,14 +570,14 @@ export default function AdminEnquiriesPage() {
                   <div className="grid grid-cols-2 gap-2 pt-0.5">
                     {/* Status Picker */}
                     <div>
-                      <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-serif font-bold text-neutral-600 block mb-1">
+                      <span className="text-[10px] uppercase tracking-wider font-serif font-bold text-neutral-600 block mb-1">
                         STATUS
                       </span>
                       <div className="relative">
                         <select
                           value={enq.status}
                           onChange={(e) => handleUpdate(enq.id, e.target.value as LeadStatus, enq.agentId)}
-                          className="w-full appearance-none rounded-xl border border-black/10 bg-white px-2.5 py-1.5 sm:py-2 text-xs sm:text-sm font-serif font-semibold text-[#171717] focus:outline-none focus:border-[#b89658] cursor-pointer pr-6 shadow-2xs truncate"
+                          className="w-full appearance-none rounded-xl border border-black/10 bg-white px-2.5 py-1.5 text-xs sm:text-sm font-serif font-semibold text-[#171717] focus:outline-none focus:border-[#b89658] cursor-pointer pr-6 shadow-2xs truncate"
                         >
                           {statusOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -589,7 +589,7 @@ export default function AdminEnquiriesPage() {
 
                     {/* Assignee Picker */}
                     <div>
-                      <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-serif font-bold text-neutral-600 flex items-center gap-1 mb-1 truncate">
+                      <span className="text-[10px] uppercase tracking-wider font-serif font-bold text-neutral-600 flex items-center gap-1 mb-1 truncate">
                         <UserPlus size={10} className="text-neutral-500 shrink-0" /> ASSIGNEE
                       </span>
                       <div className="relative">
@@ -597,7 +597,7 @@ export default function AdminEnquiriesPage() {
                           value={enq.agentId || ""}
                           onChange={(e) => handleUpdate(enq.id, enq.status, e.target.value || null)}
                           disabled={currentUser?.role === "SALES_AGENT"}
-                          className="w-full appearance-none rounded-xl border border-black/10 bg-white px-2.5 py-1.5 sm:py-2 text-xs sm:text-sm font-serif font-semibold text-[#171717] focus:outline-none focus:border-[#b89658] cursor-pointer pr-6 shadow-2xs disabled:opacity-70 disabled:cursor-not-allowed truncate"
+                          className="w-full appearance-none rounded-xl border border-black/10 bg-white px-2.5 py-1.5 text-xs sm:text-sm font-serif font-semibold text-[#171717] focus:outline-none focus:border-[#b89658] cursor-pointer pr-6 shadow-2xs disabled:opacity-70 disabled:cursor-not-allowed truncate"
                         >
                           <option value="">Unassigned</option>
                           {agents.map(ag => (

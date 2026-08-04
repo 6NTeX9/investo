@@ -241,7 +241,7 @@ export default function AdminShell({ children }: AdminShellProps) {
         </AnimatePresence>
 
         {/* Dynamic Content Panel */}
-        <section className="bg-[#faf9f6]">
+        <section className="bg-[#faf9f6] min-w-0 overflow-x-hidden">
           {children}
         </section>
 
