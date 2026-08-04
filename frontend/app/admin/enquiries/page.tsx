@@ -328,7 +328,7 @@ export default function AdminEnquiriesPage() {
       <div className="w-full max-w-7xl mx-auto">
         
         {/* Header Section & Top Bar */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 border-b border-black/5 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 border-b border-black/5 pb-6">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#b89658] font-serif block">
               CLIENT REQUESTS
@@ -338,46 +338,29 @@ export default function AdminEnquiriesPage() {
             </h1>
           </div>
 
-          {/* Action Buttons & Filter Dropdown with Live Counts */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 w-full sm:w-auto">
             <button
               onClick={handleExportCSV}
-              className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/90 backdrop-blur-xs py-2 px-4 text-sm font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/90 backdrop-blur-xs py-2.5 sm:py-2 px-4 text-xs sm:text-sm font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
             >
               <Upload size={15} className="text-[#b89658]" /> Export
             </button>
 
             <button
               onClick={() => setIsImportModalOpen(true)}
-              className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/90 backdrop-blur-xs py-2 px-4 text-sm font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c5a667]/80 bg-white/90 backdrop-blur-xs py-2.5 sm:py-2 px-4 text-xs sm:text-sm font-serif font-bold text-[#b89658] hover:bg-[#b89658]/5 transition shadow-xs"
             >
               <Download size={15} className="text-[#b89658]" /> Import
             </button>
-
-            {/* Top Right Status Filter Dropdown with Amounts */}
-            <div className="relative shrink-0">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none rounded-xl border border-black/10 bg-white px-4 py-2 pr-9 text-sm font-serif font-semibold text-[#171717] shadow-xs cursor-pointer focus:outline-none focus:border-[#b89658]"
-              >
-                <option value="">All Statuses ({statusCounts.ALL})</option>
-                <option value="NEW">New ({statusCounts.NEW})</option>
-                <option value="CONTACTED">Contacted ({statusCounts.CONTACTED})</option>
-                <option value="QUALIFIED">Qualified ({statusCounts.QUALIFIED})</option>
-                <option value="CLOSED">Closed ({statusCounts.CLOSED})</option>
-                <option value="LOST">Lost ({statusCounts.LOST})</option>
-              </select>
-              <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500" />
-            </div>
           </div>
         </div>
 
         {/* Status Filter Tab Pills with Live Badges */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setStatusFilter("")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-serif font-bold transition whitespace-nowrap border ${
+            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-serif font-bold transition whitespace-nowrap border shrink-0 ${
               statusFilter === ""
                 ? "bg-[#171717] text-white border-[#171717] shadow-xs"
                 : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
@@ -398,7 +381,7 @@ export default function AdminEnquiriesPage() {
               <button
                 key={opt.value}
                 onClick={() => setStatusFilter(opt.value)}
-                className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-serif font-bold transition whitespace-nowrap border ${
+                className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-serif font-bold transition whitespace-nowrap border shrink-0 ${
                   isSelected
                     ? "bg-[#171717] text-white border-[#171717] shadow-xs"
                     : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
