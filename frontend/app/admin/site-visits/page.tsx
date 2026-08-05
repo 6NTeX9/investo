@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import {
@@ -27,23 +27,31 @@ interface SiteVisit {
   createdAt: string;
 }
 
-const STATUS_OPTIONS: { label: string; value: VisitStatus; color: string; dot: string }[] = [
-  { label: "Requested",   value: "REQUESTED",   color: "bg-blue-50 text-blue-700 border-blue-100",     dot: "bg-blue-500" },
-  { label: "Confirmed",   value: "CONFIRMED",   color: "bg-emerald-50 text-emerald-700 border-emerald-100", dot: "bg-emerald-500" },
-  { label: "Rescheduled", value: "RESCHEDULED", color: "bg-indigo-50 text-indigo-700 border-indigo-100",  dot: "bg-indigo-500" },
-  { label: "Completed",   value: "COMPLETED",   color: "bg-teal-50 text-teal-700 border-teal-100",      dot: "bg-teal-500" },
-  { label: "Cancelled",   value: "CANCELLED",   color: "bg-red-50 text-red-700 border-red-100",         dot: "bg-red-400" },
+const STATUS_OPTIONS: { label: string; value: VisitStatus; colorClass: string; dot: string }[] = [
+  { label: "Requested",   value: "REQUESTED",   colorClass: "text-blue-600 font-bold",     dot: "bg-blue-500" },
+  { label: "Confirmed",   value: "CONFIRMED",   colorClass: "text-emerald-600 font-bold", dot: "bg-emerald-500" },
+  { label: "Rescheduled", value: "RESCHEDULED", colorClass: "text-indigo-600 font-bold",  dot: "bg-indigo-500" },
+  { label: "Completed",   value: "COMPLETED",   colorClass: "text-teal-600 font-bold",      dot: "bg-teal-500" },
+  { label: "Cancelled",   value: "CANCELLED",   colorClass: "text-red-600 font-bold",         dot: "bg-red-400" },
 ];
 
 function formatDateTime(d: string) {
-  return new Date(d).toLocaleString("en-IN", {
-    weekday: "short", day: "numeric", month: "short",
-    year: "numeric", hour: "2-digit", minute: "2-digit"
-  });
+  try {
+    return new Date(d).toLocaleString("en-IN", {
+      weekday: "short", day: "numeric", month: "short",
+      year: "numeric", hour: "2-digit", minute: "2-digit"
+    });
+  } catch {
+    return d;
+  }
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  try {
+    return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  } catch {
+    return d;
+  }
 }
 
 /** Returns true if two visits are within 1 hour of each other and share the same agent */
@@ -55,12 +63,11 @@ function hasTimeClash(a: SiteVisit, b: SiteVisit) {
 }
 
 export default function AdminSiteVisitsPage() {
-  const [visits, setVisits]           = useState<SiteVisit[]>([]);
-  const [allVisits, setAllVisits]     = useState<SiteVisit[]>([]); // always unfiltered — for stats
+  const [allVisits, setAllVisits]     = useState<SiteVisit[]>([]);
   const [agents, setAgents]           = useState<Agent[]>([]);
   const [properties, setProperties]   = useState<Property[]>([]);
   const [loading, setLoading]         = useState(true);
-  const [statusFilter, setStatusFilter] = useState("REQUESTED");
+  const [statusFilter, setStatusFilter] = useState("");
   const [savingId, setSavingId]       = useState<string | null>(null);
 
   // Drawer
@@ -89,40 +96,75 @@ export default function AdminSiteVisitsPage() {
     loadMetadata();
   }, []);
 
-  useEffect(() => { loadVisits(); }, [statusFilter]);
-
   const loadMetadata = async () => {
+    setLoading(true);
     try {
-      const [aRes, pRes, meRes, allRes] = await Promise.all([
+      const [aRes, pRes, meRes, vRes] = await Promise.all([
         api.get("/agents"),
         api.get("/properties", { params: { limit: 200 } }),
         api.get("/auth/me"),
-        api.get("/site-visits"),   // unfiltered — powers the stats strip
+        api.get("/site-visits"),
       ]);
-      setAgents(aRes.data);
+      setAgents(aRes.data || []);
       setProperties(pRes.data?.items || pRes.data || []);
-      setCurrentUser(meRes.data);
-      setAllVisits(allRes.data);
+      setCurrentUser(meRes.data || null);
+      setAllVisits(vRes.data || []);
     } catch {
-      toast.error("Failed to load metadata.");
-    }
-  };
-
-  const loadVisits = async () => {
-    setLoading(true);
-    try {
-      const [filteredRes, allRes] = await Promise.all([
-        api.get(statusFilter ? `/site-visits?status=${statusFilter}` : "/site-visits"),
-        api.get("/site-visits"),   // always refresh unfiltered stats too
-      ]);
-      setVisits(filteredRes.data);
-      setAllVisits(allRes.data);
-    } catch {
-      toast.error("Failed to refresh visits.");
+      toast.error("Failed to load site visits data.");
     } finally {
       setLoading(false);
     }
   };
+
+  const reloadVisits = async () => {
+    try {
+      const res = await api.get("/site-visits");
+      setAllVisits(res.data || []);
+    } catch {
+      console.error("Failed to refresh site visits");
+    }
+  };
+
+  // Live Status Counts
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      ALL: allVisits.length,
+      REQUESTED: 0,
+      CONFIRMED: 0,
+      RESCHEDULED: 0,
+      COMPLETED: 0,
+      CANCELLED: 0,
+    };
+
+    for (const v of allVisits) {
+      if (counts[v.status] !== undefined) {
+        counts[v.status]++;
+      }
+    }
+
+    return counts;
+  }, [allVisits]);
+
+  // Filtered Visits
+  const filteredVisits = useMemo(() => {
+    let list = [...allVisits];
+    if (statusFilter) {
+      list = list.filter(v => v.status === statusFilter);
+    }
+    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [allVisits, statusFilter]);
+
+  // Time Clash Detection Set
+  const clashSet = useMemo(() => {
+    const set = new Set<string>();
+    allVisits.forEach(a => allVisits.forEach(b => {
+      if (hasTimeClash(a, b)) {
+        set.add(a.id);
+        set.add(b.id);
+      }
+    }));
+    return set;
+  }, [allVisits]);
 
   const openDrawer = () => {
     setDrawerMode("create");
@@ -186,14 +228,14 @@ export default function AdminSiteVisitsPage() {
       };
 
       if (drawerMode === "edit" && editingVisit) {
-        const res = await api.patch(`/site-visits/${editingVisit.id}`, payload);
+        await api.patch(`/site-visits/${editingVisit.id}`, payload);
         toast.success("Site visit updated successfully!");
       } else {
         await api.post("/site-visits/admin", payload);
         toast.success("Site visit booked successfully!");
       }
       setDrawerOpen(false);
-      loadVisits();
+      reloadVisits();
     } catch (err: any) {
       const msg = err.response?.data?.message;
       toast.error(Array.isArray(msg) ? msg[0] : (msg ?? `Failed to ${drawerMode === "edit" ? "update" : "book"} site visit.`));
@@ -206,13 +248,18 @@ export default function AdminSiteVisitsPage() {
     setSavingId(id);
     try {
       await api.patch(`/site-visits/${id}/status`, { status, assignedAgentId: agentId ?? null });
-      toast.success("Updated.");
-      setVisits(prev => prev.map(v => {
+      toast.success("Site visit updated.");
+      setAllVisits(prev => prev.map(v => {
         if (v.id !== id) return v;
-        return { ...v, status, assignedAgentId: agentId || null, assignedAgent: agents.find(a => a.id === agentId) || null };
+        return {
+          ...v,
+          status,
+          assignedAgentId: agentId || null,
+          assignedAgent: agents.find(a => a.id === agentId) || null
+        };
       }));
     } catch (err: any) {
-      toast.error(err.response?.data?.message ?? "Failed to update.");
+      toast.error(err.response?.data?.message ?? "Failed to update site visit.");
     } finally {
       setSavingId(null);
     }
@@ -225,7 +272,7 @@ export default function AdminSiteVisitsPage() {
       await api.delete(`/site-visits/${deleteId}`);
       toast.success("Site visit removed.");
       setDeleteId(null);
-      setVisits(prev => prev.filter(v => v.id !== deleteId));
+      setAllVisits(prev => prev.filter(v => v.id !== deleteId));
     } catch (err: any) {
       toast.error(err.response?.data?.message ?? "Failed to delete.");
     } finally {
@@ -233,229 +280,327 @@ export default function AdminSiteVisitsPage() {
     }
   };
 
-  // Group visits by date for the schedule view
-  const grouped = visits.reduce<Record<string, SiteVisit[]>>((acc, v) => {
-    const day = new Date(v.preferredAt).toDateString();
-    if (!acc[day]) acc[day] = [];
-    acc[day].push(v);
-    return acc;
-  }, {});
-
-  const clashSet = new Set<string>();
-  visits.forEach(a => visits.forEach(b => { if (hasTimeClash(a, b)) { clashSet.add(a.id); clashSet.add(b.id); } }));
-
   return (
-    <section className="p-6 md:p-8">
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b89658]">Showings schedule</p>
-          <h1 className="mt-2 text-3xl font-semibold">Site Visits</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="focus-ring rounded-md border border-black/10 px-3 py-2.5 text-sm bg-white font-semibold"
-          >
-            <option value="">All Visits</option>
-            {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-          <button
-            onClick={openDrawer}
-            className="flex items-center gap-2 rounded-md bg-[#171717] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2a2a2a]"
-          >
-            <Plus size={16} /> Book Visit
-          </button>
-        </div>
-      </div>
+    <main className="min-h-screen bg-[#f8f6f0] p-2 sm:p-6 md:p-8 font-sans">
+      <div className="w-full max-w-7xl mx-auto">
+        
+        {/* Header Section & Top Bar */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 md:gap-4 mb-4 md:mb-6 border-b border-black/5 pb-3 md:pb-6">
+          <div>
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#b89658] font-serif block">
+              SHOWINGS SCHEDULE
+            </span>
+            <h1 className="mt-0.5 font-serif text-2xl sm:text-4xl font-bold text-[#171717]">
+              Site Visits
+            </h1>
+          </div>
 
-      {/* ── Stats strip ────────────────────────────────────────── */}
-      {!loading && (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {STATUS_OPTIONS.map(opt => {
-            const count = allVisits.filter(v => v.status === opt.value).length;
+          {/* Desktop Top Action Bar (UNTOUCHED FOR DESKTOP) */}
+          <div className="hidden md:flex flex-wrap items-center gap-3">
+            <button
+              onClick={openDrawer}
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#171717] py-2 px-5 text-sm font-serif font-bold text-white hover:bg-black transition shadow-xs"
+            >
+              <Plus size={15} /> Book Visit
+            </button>
+
+            {/* Desktop Status Dropdown */}
+            <div className="relative shrink-0">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="appearance-none rounded-xl border border-black/10 bg-white px-4 py-2 pr-9 text-sm font-serif font-semibold text-[#171717] shadow-xs cursor-pointer focus:outline-none focus:border-[#b89658]"
+              >
+                <option value="">All Visits ({statusCounts.ALL})</option>
+                {STATUS_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label} ({statusCounts[opt.value] || 0})
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500" />
+            </div>
+          </div>
+
+          {/* Mobile Action Bar: Full Width Book Visit Button */}
+          <div className="w-full md:hidden mt-1">
+            <button
+              onClick={openDrawer}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#171717] py-2.5 px-4 text-xs font-serif font-bold text-white active:bg-black transition shadow-xs"
+            >
+              <Plus size={14} /> Book Visit
+            </button>
+          </div>
+        </div>
+
+        {/* Horizontal Slide Bar for Status Tabs (Mobile & Desktop) */}
+        <div className="w-full overflow-x-auto flex items-center gap-2 pb-3 mb-4 md:mb-6 scrollbar-none touch-pan-x flex-nowrap">
+          <button
+            onClick={() => setStatusFilter("")}
+            className={`shrink-0 flex items-center gap-1.5 sm:gap-2 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-serif font-bold transition whitespace-nowrap border ${
+              statusFilter === ""
+                ? "bg-[#171717] text-white border-[#171717] shadow-xs"
+                : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
+            }`}
+          >
+            All Visits
+            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-sans font-bold ${
+              statusFilter === "" ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-600"
+            }`}>
+              {statusCounts.ALL}
+            </span>
+          </button>
+
+          {STATUS_OPTIONS.map((opt) => {
+            const isSelected = statusFilter === opt.value;
+            const count = statusCounts[opt.value] || 0;
             return (
               <button
                 key={opt.value}
-                onClick={() => setStatusFilter(statusFilter === opt.value ? "" : opt.value)}
-                className={`rounded-lg border p-3 text-center transition hover:shadow-sm ${
-                  statusFilter === opt.value ? "ring-2 ring-[#b89658]" : ""
-                } ${opt.color}`}
+                onClick={() => setStatusFilter(opt.value)}
+                className={`shrink-0 flex items-center gap-1.5 sm:gap-2 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-serif font-bold transition whitespace-nowrap border ${
+                  isSelected
+                    ? "bg-[#171717] text-white border-[#171717] shadow-xs"
+                    : "bg-white text-neutral-700 border-black/10 hover:bg-neutral-50"
+                }`}
               >
-                <p className="text-2xl font-semibold">{count}</p>
-                <p className="text-xs font-medium mt-0.5">{opt.label}</p>
+                {opt.label}
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-sans font-bold ${
+                  isSelected ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-600"
+                }`}>
+                  {count}
+                </span>
               </button>
             );
           })}
         </div>
-      )}
 
-      {/* ── Clash alert ────────────────────────────────────────── */}
-      {clashSet.size > 0 && (
-        <div className="mt-4 flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm font-semibold text-amber-800">
-          <AlertCircle size={16} className="shrink-0" />
-          {clashSet.size} visit{clashSet.size > 1 ? "s" : ""} have a potential time clash with the same assigned agent. Review below (highlighted in amber).
-        </div>
-      )}
+        {/* Time Clash Alert Banner */}
+        {clashSet.size > 0 && (
+          <div className="mb-6 flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 px-4 text-xs sm:text-sm font-semibold text-amber-800 shadow-2xs">
+            <AlertCircle size={16} className="shrink-0 text-amber-600" />
+            <span>
+              <strong>{clashSet.size} visit{clashSet.size > 1 ? "s" : ""}</strong> have a potential time clash with the same assigned agent.
+            </span>
+          </div>
+        )}
 
-      {/* ── Visit list grouped by day ───────────────────────────── */}
-      <div className="mt-6 space-y-8">
-        {loading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse rounded-xl border border-black/5 bg-white h-36" />
-            ))}
-          </div>
-        ) : visits.length === 0 ? (
-          <div className="grid place-items-center py-20 text-center rounded-xl bg-white border border-black/5 luxury-shadow">
-            <Calendar size={48} className="text-[#b89658]/40" />
-            <h3 className="mt-4 font-semibold text-lg">No visits found</h3>
-            <p className="mt-1 text-sm text-[#68625a]">Book the first site visit using the button above.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {[...visits]
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .map(visit => {
-                const opt = STATUS_OPTIONS.find(o => o.value === visit.status) || STATUS_OPTIONS[0];
-                const isClash = clashSet.has(visit.id);
-                const isSaving = savingId === visit.id;
-                return (
-                  <div
-                    key={visit.id}
-                    className={`relative rounded-xl border bg-white p-5 luxury-shadow transition flex flex-col md:grid md:grid-cols-[1fr_260px] gap-5 items-start ${
-                      isClash ? "border-amber-300 bg-amber-50/30" : "border-black/5 hover:border-[#b89658]/30"
-                    } ${isSaving ? "opacity-60 pointer-events-none" : ""}`}
-                  >
-                    {isSaving && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-xl z-10">
-                        <Loader2 className="animate-spin text-[#b89658]" size={22} />
+        {/* Site Visits Multi-Column Responsive Grid */}
+        <div className="grid gap-3 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {loading ? (
+            [...Array(6)].map((_, i) => (
+              <div key={i} className="animate-pulse rounded-2xl border border-black/5 bg-white p-6 h-64 shadow-xs" />
+            ))
+          ) : filteredVisits.length === 0 ? (
+            <div className="col-span-full grid place-items-center py-16 sm:py-20 text-center rounded-2xl bg-white border border-black/5 shadow-xs">
+              <Calendar size={44} className="text-[#b89658]/40" />
+              <h3 className="mt-3 font-serif font-semibold text-lg text-[#171717]">No site visits found</h3>
+              <p className="mt-1 text-xs text-[#68625a]">No showings match the current status filter.</p>
+            </div>
+          ) : (
+            filteredVisits.map((visit) => {
+              const currentStatusOpt = STATUS_OPTIONS.find(s => s.value === visit.status) || STATUS_OPTIONS[0];
+              const isClash = clashSet.has(visit.id);
+              const isSaving = savingId === visit.id;
+              const cleanPhone = visit.phone.replace(/[^0-9]/g, "");
+              const formattedPhoneForWhatsapp = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+              return (
+                <div
+                  key={visit.id}
+                  className={`relative rounded-xl sm:rounded-2xl border bg-white p-3 sm:p-5 shadow-sm transition hover:shadow-md flex flex-col justify-between ${
+                    isClash ? "border-amber-300 bg-amber-50/20" : "border-black/8"
+                  } ${isSaving ? "opacity-60 pointer-events-none" : ""}`}
+                >
+                  {/* Saving Loader Overlay */}
+                  {isSaving && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-2xl z-10 backdrop-blur-xs">
+                      <Loader2 className="animate-spin text-[#b89658]" size={24} />
+                    </div>
+                  )}
+
+                  <div>
+                    {/* Time Clash Alert Badge */}
+                    {isClash && (
+                      <div className="mb-2 inline-flex items-center gap-1 rounded-md bg-amber-100 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                        ⚠️ Schedule Time Clash
                       </div>
                     )}
 
-                    {/* ── Left: client details ── */}
-                    <div className="space-y-2.5 w-full min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="flex items-center gap-1.5 font-semibold text-[#171717]">
-                          <User size={15} className="text-[#b89658]" />
-                          {visit.name}
+                    {/* Header Row: Client Name + Status Badge + Date */}
+                    <div className="flex items-center justify-between text-sm sm:text-base mb-2.5">
+                      <div className="flex items-center gap-2 font-serif font-bold text-[#171717] min-w-0">
+                        <span className="truncate">{visit.name}</span>
+                        <span className={`text-[10px] sm:text-xs uppercase tracking-wider ${currentStatusOpt.colorClass} font-sans shrink-0`}>
+                          {visit.status}
                         </span>
-                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${opt.color}`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${opt.dot}`} />
-                          {opt.label}
-                        </span>
-                        {isClash && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 border border-amber-200 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                            ⚠️ Time clash
-                          </span>
-                        )}
-                        {visit.property && (
-                          <span className="inline-flex items-center gap-1 rounded bg-[#f7f4ee] px-2 py-0.5 text-xs font-semibold text-[#b89658]">
-                            <Sparkles size={10} /> {visit.property.title}
-                          </span>
-                        )}
                       </div>
-
-                      {/* Time block */}
-                      <div className="inline-flex items-center gap-2 rounded-md bg-[#171717]/5 px-3 py-2 text-sm">
-                        <Clock size={14} className="text-[#b89658] shrink-0" />
-                        <span className="font-semibold">{formatDateTime(visit.preferredAt)}</span>
-                      </div>
-
-                      {/* Contact row */}
-                      <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-[#68625a] font-medium">
-                        <span className="flex items-center gap-1.5"><Phone size={12} /> {visit.phone}</span>
-                        {visit.email && <span className="flex items-center gap-1.5"><Mail size={12} /> {visit.email}</span>}
-                        {visit.assignedAgent && (
-                          <span className="flex items-center gap-1.5 text-[#b89658] font-semibold">
-                            <UserPlus size={12} /> Assigned: {visit.assignedAgent.name}
-                          </span>
-                        )}
-                      </div>
-
-                      {visit.message && (
-                        <p className="text-sm text-[#68625a] italic border-l-2 border-[#b89658]/30 pl-3 leading-relaxed">
-                          "{visit.message}"
-                        </p>
-                      )}
-
-                      <p className="text-[11px] text-[#68625a]/60">
-                        Booked on {formatDate(visit.createdAt)}
-                      </p>
+                      <span className="text-[10px] sm:text-xs font-serif text-neutral-500 shrink-0 ml-1.5">
+                        {formatDate(visit.createdAt)}
+                      </span>
                     </div>
 
-                    {/* ── Right: controls ── */}
-                    <div className="w-full space-y-3 border-t border-black/5 pt-4 md:border-t-0 md:pt-0 shrink-0">
-                      <div className="grid gap-1">
-                        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a]">Status</label>
-                        <select
-                          value={visit.status}
-                          onChange={e => {
-                            const newStatus = e.target.value as VisitStatus;
-                            if (newStatus === "RESCHEDULED") {
-                              openEditDrawer({ ...visit, status: newStatus });
-                            } else {
-                              handleUpdate(visit.id, newStatus, visit.assignedAgentId);
-                            }
-                          }}
-                          className="focus-ring rounded border border-black/10 px-2.5 py-2 text-sm bg-white"
-                        >
-                          {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                        </select>
+                    {/* Visit Time Badge */}
+                    <div className="mb-2.5 flex items-center gap-2 rounded-xl bg-[#171717] p-2.5 px-3 text-xs font-serif text-white shadow-2xs">
+                      <Clock size={14} className="text-[#b89658] shrink-0" />
+                      <span className="font-semibold tracking-wide">{formatDateTime(visit.preferredAt)}</span>
+                    </div>
+
+                    {/* Property Attached Badge */}
+                    {visit.property && (
+                      <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[#f7f4ee] px-2.5 py-1 text-xs font-serif font-semibold text-[#b89658] border border-[#b89658]/20 max-w-full truncate">
+                        <Sparkles size={11} className="shrink-0" />
+                        <span className="truncate">{visit.property.title}</span>
+                      </div>
+                    )}
+
+                    {/* Client Message / Requirement Quote Box */}
+                    {visit.message && (
+                      <div className="mb-3 rounded-xl bg-[#eceae6] p-2.5 sm:p-3 text-xs sm:text-sm font-serif italic text-neutral-700 leading-relaxed border border-black/5 break-words">
+                        &quot;{visit.message}&quot;
+                      </div>
+                    )}
+
+                    {/* Contact Info & Action Bar (100% Fit for Mobile) */}
+                    <div className="mb-3 flex items-center justify-between rounded-xl bg-[#eceae6] p-2 px-2.5 text-xs sm:text-sm font-sans text-neutral-700 border border-black/5 gap-1">
+                      <div className="flex items-center gap-1.5 font-medium shrink-0">
+                        <Phone size={13} className="text-neutral-500 shrink-0" />
+                        <span className="text-xs sm:text-sm font-sans font-semibold text-neutral-800">{visit.phone}</span>
                       </div>
 
-                      <div className="grid gap-1">
-                        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#68625a] flex items-center gap-1">
-                          <UserPlus size={11} /> Assigned Sales Person
-                        </label>
-                        <select
-                          value={visit.assignedAgentId || ""}
-                          onChange={e => handleUpdate(visit.id, visit.status, e.target.value || null)}
-                          disabled={currentUser?.role === "SALES_AGENT"}
-                          className="focus-ring rounded border border-black/10 px-2.5 py-2 text-sm bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-[#fcfbfa]"
-                        >
-                          <option value="">— Unassigned —</option>
-                          {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                        </select>
-                      </div>
+                      <div className="flex items-center gap-2 sm:gap-3 text-neutral-400 shrink-0">
+                        {/* Email Icon */}
+                        {visit.email ? (
+                          <a
+                            href={`mailto:${visit.email}`}
+                            title={`Email ${visit.email}`}
+                            className="hover:opacity-80 transition p-0.5"
+                          >
+                            <Mail size={15} className="text-neutral-900 fill-neutral-900" />
+                          </a>
+                        ) : (
+                          <Mail size={15} className="text-neutral-400 opacity-40 cursor-not-allowed p-0.5" title="No email captured" />
+                        )}
 
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => openEditDrawer(visit)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded border border-black/10 py-1.5 text-xs font-semibold text-[#171717] hover:bg-black/5 transition"
+                        <span className="text-neutral-300 font-light">|</span>
+
+                        {/* WhatsApp Icon */}
+                        <a
+                          href={`https://wa.me/${formattedPhoneForWhatsapp}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Chat on WhatsApp"
+                          className="hover:scale-110 transition shrink-0 p-0.5"
                         >
-                          <Pencil size={12} className="text-[#b89658]" /> Edit
-                        </button>
-                        <button
-                          onClick={() => setDeleteId(visit.id)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded border border-red-100 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition"
+                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#25D366]" viewBox="0 0 24 24">
+                            <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.233-1.371a9.936 9.936 0 0 0 4.777 1.217h.005c5.505 0 9.99-4.478 9.99-9.986 0-2.67-1.037-5.18-2.92-7.061A9.925 9.925 0 0 0 12.012 2zm5.72 14.12c-.244.688-1.22 1.259-1.68 1.32-.46.06-1.065.11-3.04-.7-2.525-1.035-4.155-3.605-4.28-3.77-.125-.165-1.11-1.475-1.11-2.81 0-1.335.7-1.99.95-2.25.25-.26.545-.33.725-.33h.52c.15 0 .35.05.51.435.17.41.58 1.41.63 1.51.05.1.08.22.01.36-.07.14-.11.23-.22.36-.11.13-.23.29-.33.39-.115.115-.235.24-.1.45.135.21.6 1.01.87 1.25.35.31.62.4.87.525.25.125.4.1.55-.075.15-.175.65-.75.82-.99.17-.25.35-.2.58-.11.235.09 1.485.7 1.74.825.255.125.425.19.49.3.06.11.06.63-.18 1.32z"/>
+                          </svg>
+                        </a>
+
+                        <span className="text-neutral-300 font-light">|</span>
+
+                        {/* Call Phone Receiver Icon */}
+                        <a
+                          href={`tel:${visit.phone}`}
+                          title="Call Client"
+                          className="hover:opacity-80 transition p-0.5"
                         >
-                          <Trash2 size={12} /> Remove
-                        </button>
+                          <Phone size={14} className="text-neutral-900 fill-neutral-900" />
+                        </a>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-          </div>
-        )}
+
+                  <div>
+                    {/* Status & Assignee Controls Row */}
+                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-black/5 mb-3">
+                      {/* Status Picker */}
+                      <div>
+                        <span className="text-[10px] uppercase tracking-wider font-serif font-bold text-neutral-600 block mb-1">
+                          STATUS
+                        </span>
+                        <div className="relative">
+                          <select
+                            value={visit.status}
+                            onChange={(e) => {
+                              const newStatus = e.target.value as VisitStatus;
+                              if (newStatus === "RESCHEDULED") {
+                                openEditDrawer({ ...visit, status: newStatus });
+                              } else {
+                                handleUpdate(visit.id, newStatus, visit.assignedAgentId);
+                              }
+                            }}
+                            className="w-full appearance-none rounded-xl border border-black/10 bg-white px-2.5 py-1.5 text-xs sm:text-sm font-serif font-semibold text-[#171717] focus:outline-none focus:border-[#b89658] cursor-pointer pr-6 shadow-2xs truncate"
+                          >
+                            {STATUS_OPTIONS.map(opt => (
+                              <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400" />
+                        </div>
+                      </div>
+
+                      {/* Assignee Picker */}
+                      <div>
+                        <span className="text-[10px] uppercase tracking-wider font-serif font-bold text-neutral-600 flex items-center gap-1 mb-1 truncate">
+                          <UserPlus size={10} className="text-neutral-500 shrink-0" /> ASSIGNEE
+                        </span>
+                        <div className="relative">
+                          <select
+                            value={visit.assignedAgentId || ""}
+                            onChange={(e) => handleUpdate(visit.id, visit.status, e.target.value || null)}
+                            disabled={currentUser?.role === "SALES_AGENT"}
+                            className="w-full appearance-none rounded-xl border border-black/10 bg-white px-2.5 py-1.5 text-xs sm:text-sm font-serif font-semibold text-[#171717] focus:outline-none focus:border-[#b89658] cursor-pointer pr-6 shadow-2xs disabled:opacity-70 disabled:cursor-not-allowed truncate"
+                          >
+                            <option value="">Unassigned</option>
+                            {agents.map(ag => (
+                              <option key={ag.id} value={ag.id}>{ag.name}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Footer: Edit & Remove */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => openEditDrawer(visit)}
+                        className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-black/10 bg-white py-1.5 text-xs font-serif font-bold text-[#171717] hover:bg-neutral-50 transition shadow-2xs"
+                      >
+                        <Pencil size={12} className="text-[#b89658]" /> Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(visit.id)}
+                        className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-red-200 bg-red-50/50 py-1.5 text-xs font-serif font-bold text-red-600 hover:bg-red-100 transition shadow-2xs"
+                      >
+                        <Trash2 size={12} /> Remove
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              );
+            })
+          )}
+        </div>
+
       </div>
 
-      {/* ── Add Visit Drawer ─────────────────────────────────────── */}
+      {/* ── Add / Edit Visit Drawer ────────────────────────────────── */}
       <div className={`fixed inset-0 z-50 transition-all duration-300 ${drawerOpen ? "visible" : "invisible"}`}>
         <div
           onClick={() => !submitting && setDrawerOpen(false)}
-          className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${drawerOpen ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity duration-300 ${drawerOpen ? "opacity-100" : "opacity-0"}`}
         />
         <div className={`absolute bottom-0 right-0 top-0 w-full max-w-lg bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${drawerOpen ? "translate-x-0" : "translate-x-full"}`}>
           {/* Drawer header */}
           <div className="flex items-center justify-between border-b border-black/10 p-5">
             <div>
-              <h2 className="text-xl font-semibold text-[#171717]">
+              <h2 className="text-xl font-serif font-bold text-[#171717]">
                 {drawerMode === "edit" ? "Edit Site Visit" : "Book a Site Visit"}
               </h2>
-              <p className="text-xs text-[#68625a] mt-0.5">
+              <p className="text-xs text-[#68625a] mt-0.5 font-sans">
                 {drawerMode === "edit" ? "Modify visit details and schedules." : "Fill in client details and preferred visit time."}
               </p>
             </div>
@@ -467,14 +612,14 @@ export default function AdminSiteVisitsPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
             {/* Client info */}
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#b89658] border-b border-black/5 pb-1">Client Details</h3>
+            <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-[#b89658] border-b border-black/5 pb-1">Client Details</h3>
 
             <div className="grid gap-1.5">
               <label className="text-xs font-semibold text-[#68625a]">Client Name *</label>
               <input
                 type="text" required value={fName} onChange={e => setFName(e.target.value)}
                 placeholder="e.g. Priya Mehta"
-                className="focus-ring rounded border border-black/10 px-3 py-2 text-sm"
+                className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm"
               />
             </div>
 
@@ -484,7 +629,7 @@ export default function AdminSiteVisitsPage() {
                 <input
                   type="tel" required value={fPhone} onChange={e => setFPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="focus-ring rounded border border-black/10 px-3 py-2 text-sm"
+                  className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm"
                 />
               </div>
               <div className="grid gap-1.5">
@@ -492,13 +637,13 @@ export default function AdminSiteVisitsPage() {
                 <input
                   type="email" value={fEmail} onChange={e => setFEmail(e.target.value)}
                   placeholder="client@email.com"
-                  className="focus-ring rounded border border-black/10 px-3 py-2 text-sm"
+                  className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm"
                 />
               </div>
             </div>
 
             {/* Visit details */}
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#b89658] border-b border-black/5 pb-1 pt-2">Visit Schedule</h3>
+            <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-[#b89658] border-b border-black/5 pb-1 pt-2">Visit Schedule</h3>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
@@ -506,14 +651,14 @@ export default function AdminSiteVisitsPage() {
                 <input
                   type="date" required value={fDate} onChange={e => setFDate(e.target.value)}
                   min={new Date().toISOString().split("T")[0]}
-                  className="focus-ring rounded border border-black/10 px-3 py-2 text-sm"
+                  className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm"
                 />
               </div>
               <div className="grid gap-1.5">
                 <label className="text-xs font-semibold text-[#68625a]">Time *</label>
                 <input
                   type="time" required value={fTime} onChange={e => setFTime(e.target.value)}
-                  className="focus-ring rounded border border-black/10 px-3 py-2 text-sm"
+                  className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm"
                 />
               </div>
             </div>
@@ -522,7 +667,7 @@ export default function AdminSiteVisitsPage() {
               <label className="text-xs font-semibold text-[#68625a]">Property (optional)</label>
               <select
                 value={fPropertyId} onChange={e => setFPropertyId(e.target.value)}
-                className="focus-ring rounded border border-black/10 px-3 py-2 text-sm bg-white"
+                className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm bg-white"
               >
                 <option value="">— Select property —</option>
                 {properties.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
@@ -530,14 +675,14 @@ export default function AdminSiteVisitsPage() {
             </div>
 
             {/* Assignment */}
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#b89658] border-b border-black/5 pb-1 pt-2">Assignment</h3>
+            <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-[#b89658] border-b border-black/5 pb-1 pt-2">Assignment</h3>
 
             <div className="grid gap-1.5">
               <label className="text-xs font-semibold text-[#68625a]">Assign Sales Person</label>
               <select
                 value={fAgentId} onChange={e => setFAgentId(e.target.value)}
                 disabled={currentUser?.role === "SALES_AGENT"}
-                className="focus-ring rounded border border-black/10 px-3 py-2 text-sm bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-[#fcfbfa]"
+                className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-[#fcfbfa]"
               >
                 <option value="">— Unassigned —</option>
                 {agents.map(a => <option key={a.id} value={a.id}>{a.name}{a.phone ? ` · ${a.phone}` : ""}</option>)}
@@ -548,7 +693,7 @@ export default function AdminSiteVisitsPage() {
               <label className="text-xs font-semibold text-[#68625a]">Status</label>
               <select
                 value={fStatus} onChange={e => setFStatus(e.target.value as VisitStatus)}
-                className="focus-ring rounded border border-black/10 px-3 py-2 text-sm bg-white"
+                className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm bg-white"
               >
                 {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -559,7 +704,7 @@ export default function AdminSiteVisitsPage() {
               <textarea
                 value={fMessage} onChange={e => setFMessage(e.target.value)}
                 rows={3} placeholder="Any specific requirements or notes..."
-                className="focus-ring rounded border border-black/10 px-3 py-2 text-sm resize-none"
+                className="focus-ring rounded-xl border border-black/10 px-3 py-2 text-sm resize-none"
               />
             </div>
           </form>
@@ -568,13 +713,13 @@ export default function AdminSiteVisitsPage() {
           <div className="border-t border-black/10 p-5 bg-[#fcfbfa] flex justify-end gap-3 shrink-0">
             <button
               type="button" disabled={submitting} onClick={() => setDrawerOpen(false)}
-              className="rounded-md border border-black/10 px-5 py-2.5 text-sm font-semibold hover:bg-black/5 transition disabled:opacity-50"
+              className="rounded-xl border border-black/10 px-5 py-2.5 text-xs font-serif font-bold text-neutral-600 hover:bg-black/5 transition disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit} disabled={submitting}
-              className="flex items-center gap-2 rounded-md bg-[#171717] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2a2a2a] disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl bg-[#171717] px-6 py-2.5 text-xs font-serif font-bold text-white transition hover:bg-black disabled:opacity-50 shadow-xs"
             >
               {submitting
                 ? <><Loader2 size={15} className="animate-spin" /><span>{drawerMode === "edit" ? "Saving..." : "Booking..."}</span></>
@@ -586,22 +731,21 @@ export default function AdminSiteVisitsPage() {
 
       {/* ── Delete confirm modal ───────────────────────────────── */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div onClick={() => !deleting && setDeleteId(null)} className="absolute inset-0 bg-black/40" />
-          <div className="relative bg-white rounded-lg p-6 max-w-sm w-full shadow-2xl border border-black/5">
-            <h3 className="font-semibold text-lg text-red-600">Remove Site Visit</h3>
-            <p className="mt-2 text-sm text-[#68625a]">Are you sure you want to remove this site visit? This cannot be undone.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-black/10">
+            <h3 className="font-serif font-bold text-lg text-red-600">Remove Site Visit</h3>
+            <p className="mt-2 text-xs text-[#68625a] font-sans">Are you sure you want to remove this site visit? This action cannot be undone.</p>
             <div className="mt-5 flex justify-end gap-3">
-              <button disabled={deleting} onClick={() => setDeleteId(null)} className="rounded border border-black/10 px-4 py-2 text-sm font-semibold hover:bg-black/5 disabled:opacity-50">
+              <button disabled={deleting} onClick={() => setDeleteId(null)} className="rounded-xl border border-black/10 px-4 py-2 text-xs font-serif font-bold text-neutral-600 hover:bg-black/5 disabled:opacity-50">
                 Cancel
               </button>
-              <button disabled={deleting} onClick={handleDelete} className="flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">
-                {deleting ? <><Loader2 size={13} className="animate-spin" /><span>Removing...</span></> : <span>Remove</span>}
+              <button disabled={deleting} onClick={handleDelete} className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-serif font-bold text-white hover:bg-red-700 disabled:opacity-50 shadow-xs">
+                {deleting ? <><Loader2 size={13} className="animate-spin" /><span>Removing...</span></> : <span>Remove Visit</span>}
               </button>
             </div>
           </div>
         </div>
       )}
-    </section>
+    </main>
   );
 }
