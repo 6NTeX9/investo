@@ -1,10 +1,10 @@
 import Image from "next/image";
-import { BadgeCheck, Building, CalendarDays, MessageSquareText } from "lucide-react";
-import { LinkButton } from "@/components/ui/button";
+import { BadgeCheck, Building, CalendarDays } from "lucide-react";
 import { SearchPanel } from "@/components/home/search-panel";
 import { PropertyCard } from "@/components/property/property-card";
 import { ClientPropertyLoader } from "@/components/home/client-property-loader";
-import { testimonials } from "@/lib/data";
+import { FAQAccordion } from "@/components/home/faq-accordion";
+import { ReviewsSection } from "@/components/home/reviews-section";
 import { getLiveProperties } from "@/lib/live-properties";
 import { FadeUp, StaggerContainer, StaggerItem, Parallax, Float } from "@/components/ui/scroll-animation";
 
@@ -129,10 +129,10 @@ export default async function HomePage() {
             ].map((item, index) => (
               <StaggerItem key={item.label} className="h-full">
                 <Float delay={index * 0.3} duration={5} yDelta={5} className="h-full">
-                  <a href={`/projects/${item.statusVal}`} className="block h-full rounded-lg border border-black/10 p-3 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#b89658]/30 bg-white text-center sm:text-left">
-                    <item.icon size={18} className="text-[#b89658] mx-auto sm:mx-0" />
-                    <p className="mt-2 sm:mt-4 text-xl sm:text-2xl font-bold tracking-tight">{item.count}</p>
-                    <p className="mt-1 text-[10px] sm:text-xs text-[#68625a] font-medium leading-tight">
+                  <a href={`/projects/${item.statusVal}`} className="block h-full rounded-lg border border-black/10 p-3 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#b89658]/30 bg-[#171717] text-center sm:text-left text-white shadow-md">
+                    <item.icon size={18} className="text-[#d6bd82] mx-auto sm:mx-0" />
+                    <p className="mt-2 sm:mt-4 text-xl sm:text-2xl font-bold tracking-tight text-white">{item.count}</p>
+                    <p className="mt-1 text-[10px] sm:text-xs text-white/80 font-medium leading-tight">
                       {item.label} <span className="hidden sm:inline">projects</span>
                     </p>
                   </a>
@@ -163,79 +163,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Frequently Asked Questions (FAQ) Section */}
+      {/* Frequently Asked Questions (FAQ) Section - Interactive Accordion */}
       <section className="section-shell mt-12 sm:mt-16">
-        <div className="rounded-2xl bg-white p-6 sm:p-8 md:p-10 border border-black/5 luxury-shadow">
-          <div className="max-w-4xl">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">
-              Frequently Asked Questions
-            </span>
-            <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[#171717]">
-              Real Estate Investment &amp; Buying Guide in Bangalore
-            </h2>
-            <div className="mt-6 space-y-6 text-xs sm:text-sm md:text-base leading-relaxed text-[#4f4942]">
-              <div>
-                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
-                  What makes BricksNBeyond different from traditional real estate brokers in Bangalore?
-                </h3>
-                <p className="mt-1 text-[#68625a]">
-                  BricksNBeyond operates as an exclusive property discovery and investment advisory firm. Rather than pushing single developer inventories, we perform independent legal diligence, check RERA timelines, analyze micro-market rental yields, and present unbiased property shortlists tailored to your financial goals.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
-                  Which areas in Bangalore offer the highest capital appreciation for luxury apartments?
-                </h3>
-                <p className="mt-1 text-[#68625a]">
-                  Key growth hubs with strong capital appreciation include North Bangalore (around Yelahanka and Airport Corridor due to aerospace and tech parks), East Bangalore (Whitefield and ITPL for high rental yields), and South Bangalore (Sarjapur Road and Koramangala for premium lifestyle residences).
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
-                  How do I book a site visit with BricksNBeyond?
-                </h3>
-                <p className="mt-1 text-[#68625a]">
-                  You can request a direct site visit by browsing our curated property listings, clicking &ldquo;Book Site Visit&rdquo;, or contacting our sales team. We arrange private luxury transport, direct developer walkthroughs, and assist with pricing negotiations at zero advisory fee.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#171717] text-sm sm:text-base">
-                  Are all listed projects RERA registered and legally verified?
-                </h3>
-                <p className="mt-1 text-[#68625a]">
-                  Yes, every residential apartment, luxury villa project, and commercial development hosted on BricksNBeyond is verified against Karnataka RERA regulations, builder title deeds, and bank approval status before publication.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FAQAccordion />
       </section>
 
-      <section className="section-shell mt-12 sm:mt-16 grid gap-6 grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] pb-16">
-        <FadeUp className="h-full">
-          <div className="rounded-lg bg-[#171717] p-6 text-white sm:p-8 md:p-10 h-full flex flex-col justify-between">
-            <div>
-              <MessageSquareText size={24} className="text-[#d6bd82]" />
-              <h2 className="mt-4 sm:mt-6 max-w-2xl font-[var(--font-display)] text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight leading-tight">Need a sharper shortlist before the weekend?</h2>
-              <p className="mt-3 max-w-2xl text-xs sm:text-sm text-white/80 leading-relaxed">Tell us your budget, target location, and preferred visit window. A sales advisor will build the first shortlist and coordinate direct developer access.</p>
-            </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <LinkButton href="/contact" variant="gold" className="transition-transform active:scale-95 duration-200 text-xs sm:text-sm">Request callback</LinkButton>
-              <LinkButton href="/contact?tab=visit" rel="nofollow" variant="ghost" className="transition-transform active:scale-95 duration-200 !border-white/25 !text-white !bg-white/10 hover:!bg-white/20 text-xs sm:text-sm">Book site visit</LinkButton>
-            </div>
-          </div>
-        </FadeUp>
-        <StaggerContainer className="grid gap-3 h-fit">
-          {testimonials.map((quote) => (
-            <StaggerItem key={quote}>
-              <blockquote className="rounded-lg bg-white p-4 sm:p-5 text-xs sm:text-sm md:text-base leading-relaxed luxury-shadow border border-black/5 hover:border-[#b89658]/20 transition-colors duration-300">
-                “{quote}”
-              </blockquote>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
-      </section>
+      {/* Client Reviews & Testimonials Section */}
+      <ReviewsSection />
     </main>
   );
 }
+
 
