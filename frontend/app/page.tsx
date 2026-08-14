@@ -71,6 +71,43 @@ export default async function HomePage() {
       </section>
 
 
+      {/* Indian Independence Day Celebration Banner */}
+      <section className="section-shell mt-10 sm:mt-14">
+        <FadeUp>
+          <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-[#171717] shadow-xl">
+            <div className="relative aspect-[16/9] w-full">
+              <Image
+                src="/independence-day.jpg"
+                alt="BricksNBeyond Celebrating Independence Day - Freedom to Build Your Dream Home"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1200px) 100vw, 1200px"
+                priority
+              />
+            </div>
+            <div className="p-5 sm:p-8 bg-gradient-to-r from-[#171717] via-[#1a1714] to-[#171717] border-t border-[#d6bd82]/20 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] text-[#d6bd82] font-serif block">
+                  INDEPENDENCE DAY ADVISORY SPECIAL
+                </span>
+                <h3 className="mt-1 text-xl sm:text-3xl font-serif font-bold text-white tracking-tight">
+                  Freedom to Build Your Dream Home
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-neutral-300 font-sans max-w-xl">
+                  Celebrate 77+ Years of Freedom with BricksNBeyond. Enjoy zero advisory fees, exclusive developer pricing, and premium site visit coordination across Bangalore.
+                </p>
+              </div>
+              <a
+                href="/contact"
+                className="shrink-0 rounded-xl bg-[#b89658] hover:bg-[#c5a667] px-6 py-3 text-xs sm:text-sm font-serif font-bold text-white transition shadow-md"
+              >
+                Claim Independence Offer
+              </a>
+            </div>
+          </div>
+        </FadeUp>
+      </section>
+
       <section className="section-shell mt-10 sm:mt-16">
         <StaggerContainer className="grid gap-3 grid-cols-3 md:gap-6 text-center sm:text-left">
           {[
