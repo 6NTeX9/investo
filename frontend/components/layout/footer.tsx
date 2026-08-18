@@ -29,7 +29,20 @@ export function Footer() {
               hello&#64;bricksnbeyond&#46;in
             </a>
           </p>
-          <p className="mt-2">Instagram · LinkedIn · YouTube</p>
+          <p className="mt-2 flex items-center gap-3">
+            <a
+              href="https://www.instagram.com/bricksnbeyond.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#d6bd82] hover:underline font-medium flex items-center gap-1"
+            >
+              Instagram
+            </a>
+            <span>·</span>
+            <a href="tel:+919006206309" className="hover:text-white transition font-mono text-xs">
+              +91 9006206309
+            </a>
+          </p>
         </div>
       </div>
     </footer>

@@ -36,7 +36,7 @@ const nav = [
 ];
 
 // ── Replace this with your Instagram profile URL when ready ───────────────
-const INSTAGRAM_URL = "https://www.instagram.com/";
+const INSTAGRAM_URL = "https://www.instagram.com/bricksnbeyond.in/";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -82,7 +82,7 @@ export function Navbar() {
             <InstagramIcon size={18} />
           </a>
 
-          <LinkButton href="tel:+918045678900" variant="ghost" className="gap-2 text-xs font-semibold">
+          <LinkButton href="tel:+919006206309" variant="ghost" className="gap-2 text-xs font-semibold">
             <Phone size={14} className="text-[#b89658]" />
             <span>Call Sales</span>
           </LinkButton>
@@ -92,7 +92,7 @@ export function Navbar() {
         {/* Mobile Top Shelf Actions */}
         <div className="flex items-center gap-2 lg:hidden">
           <a
-            href="tel:+918045678900"
+            href="tel:+919006206309"
             className="flex items-center gap-1.5 rounded-full border border-[#b89658]/40 bg-[#b89658]/10 px-2.5 py-1.5 text-xs font-semibold text-[#b89658] transition-all hover:bg-[#b89658]/20 shadow-xs"
             aria-label="Call sales"
           >
@@ -143,7 +143,7 @@ export function Navbar() {
 
         <div className="mt-6 grid gap-2.5 border-t border-black/10 pt-5">
           <a
-            href="tel:+918045678900"
+            href="tel:+919006206309"
             className="flex items-center justify-center gap-2 rounded-xl bg-[#b89658] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#a38347]"
             onClick={closeMenu}
           >

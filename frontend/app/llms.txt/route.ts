@@ -30,7 +30,7 @@ export async function GET() {
 - Contact & Advisory Consultations: https://www.bricksnbeyond.in/contact
 
 ## Contact Information
-- Phone / Sales Advisory: +91 80 4567 8900
+- Phone: +91 9006206309
 - Email: hello@bricksnbeyond.in
 - Headquarters: Bangalore, Karnataka, India
 `;
