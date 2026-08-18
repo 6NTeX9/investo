@@ -31,11 +31,32 @@ export default function AdminShell({ children }: AdminShellProps) {
   const [verified, setVerified] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hasNewEnquiriesAlert, setHasNewEnquiriesAlert] = useState(false);
 
   useEffect(() => {
     // Enforce light theme
     document.documentElement.classList.remove("dark");
   }, []);
+
+  // Web Audio Chime Sound for live alerts
+  const playChime = () => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.35);
+    } catch {
+      // Audio context blocked by browser policy until user interaction
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -59,6 +80,56 @@ export default function AdminShell({ children }: AdminShellProps) {
 
     checkAuth();
   }, [router, pathname]);
+
+  // Live background polling for NEW client enquiries (every 12 seconds)
+  useEffect(() => {
+    if (!verified) return;
+
+    let initialCheck = true;
+    let seenIds = new Set<string>();
+
+    const pollNewEnquiries = async () => {
+      try {
+        const res = await api.get("/enquiries?status=NEW");
+        const newEnquiries: any[] = res.data || [];
+        
+        if (initialCheck) {
+          newEnquiries.forEach(e => seenIds.add(e.id));
+          initialCheck = false;
+          return;
+        }
+
+        const freshArrivals = newEnquiries.filter(e => !seenIds.has(e.id));
+        if (freshArrivals.length > 0) {
+          freshArrivals.forEach(e => seenIds.add(e.id));
+          setHasNewEnquiriesAlert(true);
+          playChime();
+
+          const latest = freshArrivals[0];
+          toast.info(`🔔 New Client Enquiry! ${latest.name} (${latest.phone})`, {
+            duration: 8000,
+            action: {
+              label: "View Lead",
+              onClick: () => router.push("/admin/enquiries"),
+            },
+          });
+        }
+      } catch {
+        // Silent catch for background poll
+      }
+    };
+
+    pollNewEnquiries();
+    const interval = setInterval(pollNewEnquiries, 12000);
+    return () => clearInterval(interval);
+  }, [verified, router]);
+
+  // Reset alert indicator when navigating to enquiries page
+  useEffect(() => {
+    if (pathname === "/admin/enquiries") {
+      setHasNewEnquiriesAlert(false);
+    }
+  }, [pathname]);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -97,8 +168,13 @@ export default function AdminShell({ children }: AdminShellProps) {
         
         {/* Mobile Header */}
         <div className="flex items-center justify-between border-b border-black/10 px-4 py-3.5 lg:hidden bg-white">
-          <div>
+          <div className="flex items-center gap-2">
             <p className="font-semibold text-base sm:text-lg tracking-wide text-[#171717]">BricksNBeyond CMS</p>
+            {hasNewEnquiriesAlert && (
+              <span className="animate-pulse rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                NEW LEAD
+              </span>
+            )}
           </div>
           <button
             onClick={() => setIsMobileMenuOpen(true)}
@@ -118,18 +194,26 @@ export default function AdminShell({ children }: AdminShellProps) {
             <nav className="mt-6 grid gap-1">
               {allowedNavItems.map((item) => {
                 const isActive = pathname === item.href;
+                const isEnquiryItem = item.name === "Enquiries";
                 return (
                   <Link 
                     key={item.name} 
                     href={item.href}
-                    className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition ${
+                    className={`flex items-center justify-between rounded-md px-3 py-2 text-sm transition ${
                       isActive 
                         ? "bg-[#f7f4ee] text-[#171717] font-semibold" 
                         : "text-[#68625a] hover:bg-[#f7f4ee]/50 hover:text-[#171717]"
                     }`}
                   >
-                    <item.icon size={16} className={isActive ? "text-[#b89658]" : "text-[#68625a]"} />
-                    <span>{item.name}</span>
+                    <div className="flex items-center gap-3">
+                      <item.icon size={16} className={isActive ? "text-[#b89658]" : "text-[#68625a]"} />
+                      <span>{item.name}</span>
+                    </div>
+                    {isEnquiryItem && hasNewEnquiriesAlert && (
+                      <span className="animate-pulse rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white uppercase">
+                        New
+                      </span>
+                    )}
                   </Link>
                 );
               })}
