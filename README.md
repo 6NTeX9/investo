@@ -20,7 +20,7 @@ npm run seed
 npm run dev
 ```
 
-Live link: `bricksnbeyond.in`
+Live link: `https://www.bricksnbeyond.in`
 
 ## Apps
 
