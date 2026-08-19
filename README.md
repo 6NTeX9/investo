@@ -20,9 +20,7 @@ npm run seed
 npm run dev
 ```
 
-Frontend: `http://localhost:3000`
-
-Backend Swagger: `http://localhost:4000/docs`
+Live link: `bricksnbeyond.in`
 
 ## Apps
 
