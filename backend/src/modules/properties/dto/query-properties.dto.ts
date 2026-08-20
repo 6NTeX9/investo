@@ -53,12 +53,6 @@ export class QueryPropertiesDto {
   @IsInt()
   minArea?: number;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Transform(({ value }) => value === "true" || value === true)
-  @IsBoolean()
-  includeUnpublished?: boolean;
-
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @Transform(({ value }) => Number(value ?? 1))

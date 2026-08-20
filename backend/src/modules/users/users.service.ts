@@ -47,6 +47,14 @@ export class UsersService {
   async create(dto: CreateUserDto) {
     const existing = await this.database.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new ConflictException("A user with this email already exists.");
+
+    if (dto.role === Role.SUPER_ADMIN) {
+      const existingSuperAdmin = await this.database.user.findFirst({ where: { role: Role.SUPER_ADMIN } });
+      if (existingSuperAdmin) {
+        throw new ConflictException("Super Admin user already exists. Cannot create another via standard endpoint.");
+      }
+    }
+
     const { password, ...userData } = dto;
     const passwordHash = await hash(password, 12);
 
@@ -82,6 +90,10 @@ export class UsersService {
   }) {
     const user = await this.database.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException("User not found");
+
+    if (dto.role === Role.SUPER_ADMIN && user.role !== Role.SUPER_ADMIN) {
+      throw new ConflictException("Cannot promote user to SUPER_ADMIN.");
+    }
 
     if (dto.email && dto.email !== user.email) {
       const conflict = await this.database.user.findUnique({ where: { email: dto.email } });

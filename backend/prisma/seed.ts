@@ -4,7 +4,12 @@ import { hash } from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await hash("Admin@12345", 12);
+  const initialPassword = process.env.INITIAL_ADMIN_PASSWORD;
+  if (!initialPassword || initialPassword.length < 8) {
+    throw new Error("INITIAL_ADMIN_PASSWORD environment variable (min 8 chars) is required to run seed script safely.");
+  }
+
+  const passwordHash = await hash(initialPassword, 12);
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@bricksnbeyond.com" },

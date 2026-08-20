@@ -26,9 +26,9 @@ export class UsersController {
     return this.users.create(dto);
   }
 
-  /** Edit name, email, phone, role, status */
+  /** Edit name, email, phone, role, status - Restricted to SUPER_ADMIN & ADMIN */
   @Patch(":id")
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   update(
     @Param("id") id: string,
     @Body() body: {
@@ -43,7 +43,7 @@ export class UsersController {
   }
 
   @Patch(":id/toggle-active")
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   toggleActive(@Param("id") id: string) {
     return this.users.toggleActive(id);
   }

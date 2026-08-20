@@ -1,21 +1,26 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsDate, IsEmail, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import { IsDate, IsEmail, IsEnum, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { VisitStatus } from "@prisma/client";
 
 export class CreateSiteVisitDto {
   @ApiProperty()
   @IsString()
   @MinLength(2)
+  @MaxLength(100)
   name!: string;
 
   @ApiProperty()
   @IsString()
+  @MinLength(8)
+  @MaxLength(20)
+  @Matches(/^[\d\+\-\s\(\)]{8,20}$/, { message: "Invalid phone number format" })
   phone!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsEmail()
+  @MaxLength(100)
   email?: string;
 
   @ApiProperty()
@@ -26,11 +31,13 @@ export class CreateSiteVisitDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   message?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   propertyId?: string;
 }
 

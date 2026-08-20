@@ -17,7 +17,15 @@ export class PropertiesController {
   @Get()
   @Header("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300")
   findAll(@Query() query: QueryPropertiesDto) {
-    return this.properties.findAll(query, query.includeUnpublished);
+    return this.properties.findAll(query, false);
+  }
+
+  @Get("admin/all")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.SALES_MANAGER)
+  findAllAdmin(@Query() query: QueryPropertiesDto) {
+    return this.properties.findAll(query, true);
   }
 
   @Get("categories")
