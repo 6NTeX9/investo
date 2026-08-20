@@ -130,19 +130,19 @@ function MetricCard({
   return (
     <Link
       href={href}
-      className="group flex flex-col justify-between rounded-xl border border-black/5 bg-white p-5 luxury-shadow transition-all duration-300 hover:-translate-y-0.5 hover:border-[#b89658]/40"
+      className="group flex flex-col justify-between rounded-xl border border-black/5 bg-white p-3.5 sm:p-4 luxury-shadow transition-all duration-300 hover:-translate-y-0.5 hover:border-[#b89658]/40"
     >
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#68625a]">{label}</p>
-        <span className={`grid size-9 place-items-center rounded-lg ${accent}`}>
-          <Icon size={18} />
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#68625a]">{label}</p>
+        <span className={`grid size-7 place-items-center rounded-md ${accent}`}>
+          <Icon size={14} />
         </span>
       </div>
-      <div className="mt-4">
-        <p className="font-[var(--font-display)] text-3xl sm:text-4xl font-bold tracking-tight text-[#171717]">{value}</p>
-        <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-[#b89658] group-hover:text-[#171717] transition">
+      <div className="mt-2.5 flex items-baseline justify-between gap-2">
+        <p className="font-[var(--font-display)] text-2xl font-bold tracking-tight text-[#171717]">{value}</p>
+        <p className="flex items-center gap-1 text-[11px] font-semibold text-[#b89658] group-hover:text-[#171717] transition">
           <span>{detail}</span>
-          <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+          <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
         </p>
       </div>
     </Link>
@@ -252,7 +252,7 @@ export default function AdminPage() {
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <section className="space-y-6">
+    <section className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* CMS Standard Header */}
       <header className="flex flex-col gap-4 border-b border-black/5 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -264,24 +264,22 @@ export default function AdminPage() {
             Focus on fresh enquiries, requested site visits, and leads that need a follow-up.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          {lastUpdated && (
+            <span className="text-xs text-[#68625a] font-medium hidden sm:inline-block">
+              Last updated {lastUpdated.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}
+            </span>
+          )}
           <button
             type="button"
             onClick={() => void loadDashboard(true)}
             disabled={isRefreshing}
-            className="flex items-center gap-2 rounded-md border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-[#4f4942] transition hover:bg-black/5 hover:text-[#171717] disabled:cursor-wait luxury-shadow"
+            className="flex items-center gap-1.5 rounded-md border border-black/10 bg-white px-2.5 py-1.5 text-xs font-semibold text-[#4f4942] transition hover:bg-black/5 hover:text-[#171717] disabled:cursor-wait luxury-shadow"
             aria-label="Refresh dashboard"
           >
-            <RefreshCw size={14} className={isRefreshing ? "animate-spin text-[#b89658]" : "text-[#b89658]"} />
+            <RefreshCw size={13} className={isRefreshing ? "animate-spin text-[#b89658]" : "text-[#b89658]"} />
             <span>Refresh</span>
           </button>
-          <Link
-            href="/admin/properties"
-            className="flex items-center gap-2 rounded-md bg-[#171717] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#2a2a2a] shadow-xs"
-          >
-            <Plus size={15} />
-            <span>Add Property</span>
-          </Link>
         </div>
       </header>
 
