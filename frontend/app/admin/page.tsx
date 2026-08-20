@@ -18,7 +18,8 @@ import {
   RefreshCw,
   Target,
   UserRoundCheck,
-  UsersRound
+  UsersRound,
+  TrendingUp
 } from "lucide-react";
 import { api } from "@/services/api";
 
@@ -58,12 +59,12 @@ type DashboardData = {
 
 type Agent = { id: string };
 
-const leadStages: Array<{ status: LeadStatus; label: string; tone: string }> = [
-  { status: "NEW", label: "New", tone: "bg-sky-500" },
-  { status: "CONTACTED", label: "Contacted", tone: "bg-amber-500" },
-  { status: "QUALIFIED", label: "Qualified", tone: "bg-violet-500" },
-  { status: "CLOSED", label: "Closed", tone: "bg-emerald-500" },
-  { status: "LOST", label: "Lost", tone: "bg-slate-400" }
+const leadStages: Array<{ status: LeadStatus; label: string; tone: string; textTone: string }> = [
+  { status: "NEW", label: "New Leads", tone: "bg-sky-500", textTone: "text-sky-700 bg-sky-50 border-sky-200" },
+  { status: "CONTACTED", label: "Contacted", tone: "bg-amber-500", textTone: "text-amber-700 bg-amber-50 border-amber-200" },
+  { status: "QUALIFIED", label: "Qualified", tone: "bg-violet-500", textTone: "text-violet-700 bg-violet-50 border-violet-200" },
+  { status: "CLOSED", label: "Closed / Won", tone: "bg-emerald-500", textTone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+  { status: "LOST", label: "Lost", tone: "bg-slate-400", textTone: "text-slate-600 bg-slate-50 border-slate-200" }
 ];
 
 const leadStatusStyles: Record<LeadStatus, string> = {
@@ -129,18 +130,19 @@ function MetricCard({
   return (
     <Link
       href={href}
-      className="group flex min-h-36 flex-col justify-between border border-black/10 bg-white p-4 transition hover:border-black/20 hover:shadow-sm sm:p-5"
+      className="group flex flex-col justify-between rounded-xl border border-black/5 bg-white p-5 luxury-shadow transition-all duration-300 hover:-translate-y-0.5 hover:border-[#b89658]/40"
     >
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#68625a]">{label}</p>
-        <span className={`grid h-9 w-9 place-items-center ${accent}`}>
-          <Icon size={17} />
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#68625a]">{label}</p>
+        <span className={`grid size-9 place-items-center rounded-lg ${accent}`}>
+          <Icon size={18} />
         </span>
       </div>
-      <div>
-        <p className="text-3xl font-semibold tracking-normal text-[#171717]">{value}</p>
-        <p className="mt-1 flex items-center gap-1 text-xs text-[#68625a]">
-          {detail} <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
+      <div className="mt-4">
+        <p className="font-[var(--font-display)] text-3xl sm:text-4xl font-bold tracking-tight text-[#171717]">{value}</p>
+        <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-[#b89658] group-hover:text-[#171717] transition">
+          <span>{detail}</span>
+          <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
         </p>
       </div>
     </Link>
@@ -149,10 +151,10 @@ function MetricCard({
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="grid min-h-48 place-items-center border border-dashed border-black/10 px-5 text-center">
+    <div className="grid min-h-40 place-items-center rounded-xl border border-dashed border-black/10 p-6 text-center">
       <div>
-        <CheckCircle2 size={22} className="mx-auto text-emerald-600" />
-        <p className="mt-2 text-sm font-medium text-[#171717]">{label}</p>
+        <CheckCircle2 size={24} className="mx-auto text-emerald-600" />
+        <p className="mt-2 text-sm font-semibold text-[#171717]">{label}</p>
         <p className="mt-1 text-xs text-[#68625a]">You are all caught up for now.</p>
       </div>
     </div>
@@ -237,9 +239,9 @@ export default function AdminPage() {
   if (isLoading) {
     return (
       <div className="grid min-h-[52svh] place-items-center px-5">
-        <div className="flex items-center gap-3 text-sm text-[#68625a]">
-          <Loader2 className="animate-spin text-[#b89658]" size={20} />
-          Loading operations dashboard
+        <div className="flex items-center gap-3 text-sm font-medium text-[#68625a]">
+          <Loader2 className="animate-spin text-[#b89658]" size={22} />
+          Loading operations dashboard...
         </div>
       </div>
     );
@@ -250,185 +252,261 @@ export default function AdminPage() {
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <section className="p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col gap-5 border-b border-black/10 pb-5 lg:flex-row lg:items-end lg:justify-between">
+    <section className="space-y-6">
+      {/* CMS Standard Header */}
+      <header className="flex flex-col gap-4 border-b border-black/5 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#b89658]">Operations dashboard</p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-normal text-[#171717] sm:text-3xl">
-            {greeting}, keep the pipeline moving.
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">Operations Dashboard</p>
+          <h1 className="mt-1 font-[var(--font-display)] text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[#171717]">
+            {greeting}, keep the pipeline moving
           </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68625a]">
+          <p className="mt-1 text-xs sm:text-sm text-[#68625a]">
             Focus on fresh enquiries, requested site visits, and leads that need a follow-up.
           </p>
         </div>
-        <div className="flex items-center gap-2 self-start lg:self-auto">
-          <span className="hidden items-center gap-2 border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 sm:inline-flex">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live data
-          </span>
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => void loadDashboard(true)}
             disabled={isRefreshing}
-            className="grid h-10 w-10 place-items-center border border-black/10 bg-white text-[#68625a] transition hover:border-black/20 hover:text-[#171717] disabled:cursor-wait"
+            className="flex items-center gap-2 rounded-md border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-[#4f4942] transition hover:bg-black/5 hover:text-[#171717] disabled:cursor-wait luxury-shadow"
             aria-label="Refresh dashboard"
-            title="Refresh dashboard"
           >
-            <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
+            <RefreshCw size={14} className={isRefreshing ? "animate-spin text-[#b89658]" : "text-[#b89658]"} />
+            <span>Refresh</span>
           </button>
           <Link
             href="/admin/properties"
-            className="inline-flex h-10 items-center gap-2 bg-[#171717] px-3.5 text-xs font-semibold text-white transition hover:bg-black"
+            className="flex items-center gap-2 rounded-md bg-[#171717] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#2a2a2a] shadow-xs"
           >
-            <Plus size={15} /> Add property
+            <Plus size={15} />
+            <span>Add Property</span>
           </Link>
         </div>
       </header>
 
+      {/* Urgent Action Banners */}
       {(freshLeadCount > 0 || requestedVisitCount > 0) && (
-        <div className="mt-5 grid gap-px overflow-hidden border border-black/10 bg-black/10 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {freshLeadCount > 0 && (
-            <Link href="/admin/enquiries" className="group flex items-center justify-between gap-3 bg-sky-50 px-4 py-3.5 transition hover:bg-sky-100">
-              <div className="flex items-center gap-3">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-sky-600 text-white"><MessageSquare size={16} /></span>
+            <Link
+              href="/admin/enquiries"
+              className="group flex items-center justify-between rounded-xl border border-sky-200/80 bg-sky-50/70 p-4 luxury-shadow transition-all duration-300 hover:border-sky-300 hover:bg-sky-50"
+            >
+              <div className="flex items-center gap-3.5">
+                <span className="grid size-10 place-items-center rounded-lg bg-sky-600 text-white shadow-xs">
+                  <MessageSquare size={18} />
+                </span>
                 <div>
-                  <p className="text-sm font-semibold text-sky-900">{freshLeadCount} fresh {freshLeadCount === 1 ? "enquiry" : "enquiries"}</p>
-                  <p className="mt-0.5 text-xs text-sky-700">Review and assign them now.</p>
+                  <p className="text-sm font-semibold text-sky-950">
+                    {freshLeadCount} fresh {freshLeadCount === 1 ? "enquiry" : "enquiries"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-sky-700">Review and assign to advisory desk now.</p>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-sky-700 transition group-hover:translate-x-0.5" />
+              <ChevronRight size={18} className="text-sky-700 transition group-hover:translate-x-1" />
             </Link>
           )}
           {requestedVisitCount > 0 && (
-            <Link href="/admin/site-visits" className="group flex items-center justify-between gap-3 bg-amber-50 px-4 py-3.5 transition hover:bg-amber-100">
-              <div className="flex items-center gap-3">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-amber-500 text-white"><CalendarCheck2 size={16} /></span>
+            <Link
+              href="/admin/site-visits"
+              className="group flex items-center justify-between rounded-xl border border-amber-200/80 bg-amber-50/70 p-4 luxury-shadow transition-all duration-300 hover:border-amber-300 hover:bg-amber-50"
+            >
+              <div className="flex items-center gap-3.5">
+                <span className="grid size-10 place-items-center rounded-lg bg-amber-500 text-white shadow-xs">
+                  <CalendarCheck2 size={18} />
+                </span>
                 <div>
-                  <p className="text-sm font-semibold text-amber-900">{requestedVisitCount} {requestedVisitCount === 1 ? "visit" : "visits"} awaiting action</p>
-                  <p className="mt-0.5 text-xs text-amber-700">Confirm a time and assign an advisor.</p>
+                  <p className="text-sm font-semibold text-amber-950">
+                    {requestedVisitCount} {requestedVisitCount === 1 ? "site visit" : "site visits"} awaiting action
+                  </p>
+                  <p className="mt-0.5 text-xs text-amber-700">Confirm time slot &amp; assign sales agent.</p>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-amber-700 transition group-hover:translate-x-0.5" />
+              <ChevronRight size={18} className="text-amber-700 transition group-hover:translate-x-1" />
             </Link>
           )}
         </div>
       )}
 
-      <div className="mt-5 grid gap-px overflow-hidden border border-black/10 bg-black/10 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Published portfolio" value={dashboard?.properties ?? 0} detail="Manage properties" href="/admin/properties" icon={Building2} accent="bg-[#f4ead6] text-[#8d6b31]" />
-        <MetricCard label="Open pipeline" value={view.openPipeline} detail="Review enquiries" href="/admin/enquiries" icon={Inbox} accent="bg-sky-100 text-sky-700" />
-        <MetricCard label="Visits today" value={view.todayVisits} detail="Open calendar" href="/admin/site-visits" icon={CalendarCheck2} accent="bg-amber-100 text-amber-700" />
-        <MetricCard label="Close rate" value={`${view.closeRate}%`} detail={`${agents.length} active advisors`} href="/admin/agent-reports" icon={Target} accent="bg-emerald-100 text-emerald-700" />
+      {/* Top Key Metrics Grid */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          label="Published Portfolio"
+          value={dashboard?.properties ?? 0}
+          detail="Manage properties"
+          href="/admin/properties"
+          icon={Building2}
+          accent="bg-[#f7f4ee] text-[#b89658]"
+        />
+        <MetricCard
+          label="Open Pipeline"
+          value={view.openPipeline}
+          detail="Review enquiries"
+          href="/admin/enquiries"
+          icon={Inbox}
+          accent="bg-sky-50 text-sky-700"
+        />
+        <MetricCard
+          label="Visits Scheduled Today"
+          value={view.todayVisits}
+          detail="Open calendar"
+          href="/admin/site-visits"
+          icon={CalendarCheck2}
+          accent="bg-amber-50 text-amber-700"
+        />
+        <MetricCard
+          label="Conversion Close Rate"
+          value={`${view.closeRate}%`}
+          detail={`${agents.length} active advisors`}
+          href="/admin/agent-reports"
+          icon={Target}
+          accent="bg-emerald-50 text-emerald-700"
+        />
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-        <section className="border border-black/10 bg-white">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/10 px-4 py-4 sm:px-5">
+      {/* Pipeline Progress & Action Queue */}
+      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        {/* Lead Pipeline */}
+        <section className="rounded-xl border border-black/5 bg-white p-5 sm:p-6 luxury-shadow">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/5 pb-4">
             <div>
-              <p className="text-sm font-semibold text-[#171717]">Lead pipeline</p>
-              <p className="mt-1 text-xs text-[#68625a]">Current distribution across every enquiry.</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">Pipeline Health</p>
+              <h2 className="mt-0.5 font-[var(--font-display)] text-xl font-bold tracking-tight text-[#171717]">
+                Lead Pipeline Distribution
+              </h2>
             </div>
-            <Link href="/admin/enquiries" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8d6b31] hover:text-[#171717]">
-              Open leads <ArrowRight size={13} />
+            <Link href="/admin/enquiries" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#b89658] hover:text-[#171717] transition">
+              <span>View all leads</span>
+              <ArrowRight size={13} />
             </Link>
           </div>
-          <div className="divide-y divide-black/5 px-4 sm:px-5">
+
+          <div className="mt-4 divide-y divide-black/5">
             {leadStages.map((stage) => {
               const count = view.byLeadStatus[stage.status];
               const progress = view.leadCount ? Math.round((count / view.leadCount) * 100) : 0;
               return (
-                <div key={stage.status} className="grid grid-cols-[94px_1fr_42px] items-center gap-3 py-3.5 sm:grid-cols-[110px_1fr_46px]">
-                  <span className="text-xs font-medium text-[#4f4942]">{stage.label}</span>
-                  <div className="h-2 overflow-hidden bg-[#eeeae2]" aria-label={`${stage.label}: ${count} leads`}>
-                    <div className={`h-full ${stage.tone} transition-[width] duration-500`} style={{ width: `${progress}%` }} />
+                <div key={stage.status} className="grid grid-cols-[100px_1fr_48px] items-center gap-4 py-3 sm:grid-cols-[120px_1fr_54px]">
+                  <span className="text-xs font-semibold text-[#4f4942]">{stage.label}</span>
+                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#f4f1ea]">
+                    <div className={`h-full rounded-full ${stage.tone} transition-all duration-500`} style={{ width: `${progress}%` }} />
                   </div>
-                  <span className="text-right text-sm font-semibold tabular-nums text-[#171717]">{count}</span>
+                  <span className="text-right text-xs font-bold tabular-nums text-[#171717]">{count}</span>
                 </div>
               );
             })}
           </div>
-          <div className="grid grid-cols-2 border-t border-black/10 bg-[#fcfbf8] text-center">
-            <div className="border-r border-black/10 px-4 py-3">
-              <p className="text-lg font-semibold tabular-nums">{view.leadCount}</p>
-              <p className="mt-0.5 text-[11px] uppercase tracking-[0.1em] text-[#68625a]">Total leads</p>
+
+          <div className="mt-4 grid grid-cols-2 rounded-lg border border-black/5 bg-[#faf9f6] p-3 text-center">
+            <div className="border-r border-black/5 px-2">
+              <p className="font-[var(--font-display)] text-2xl font-bold text-[#171717] tabular-nums">{view.leadCount}</p>
+              <p className="mt-0.5 text-[10px] uppercase font-semibold tracking-wider text-[#68625a]">Total Enquiries</p>
             </div>
-            <div className="px-4 py-3">
-              <p className="text-lg font-semibold tabular-nums">{view.byLeadStatus.QUALIFIED}</p>
-              <p className="mt-0.5 text-[11px] uppercase tracking-[0.1em] text-[#68625a]">Ready for a visit</p>
+            <div className="px-2">
+              <p className="font-[var(--font-display)] text-2xl font-bold text-[#171717] tabular-nums">{view.byLeadStatus.QUALIFIED}</p>
+              <p className="mt-0.5 text-[10px] uppercase font-semibold tracking-wider text-[#68625a]">Visit Ready</p>
             </div>
           </div>
         </section>
 
-        <section className="border border-black/10 bg-white">
-          <div className="flex items-center justify-between border-b border-black/10 px-4 py-4 sm:px-5">
-            <div>
-              <p className="text-sm font-semibold text-[#171717]">Action queue</p>
-              <p className="mt-1 text-xs text-[#68625a]">Work that needs a decision.</p>
+        {/* Action Queue */}
+        <section className="rounded-xl border border-black/5 bg-white p-5 sm:p-6 luxury-shadow flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-black/5 pb-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">Pending Tasks</p>
+                <h2 className="mt-0.5 font-[var(--font-display)] text-xl font-bold tracking-tight text-[#171717]">
+                  Action Queue
+                </h2>
+              </div>
+              <CircleAlert size={18} className="text-[#b89658]" />
             </div>
-            <CircleAlert size={18} className="text-[#b89658]" />
+
+            <div className="mt-3 divide-y divide-black/5">
+              {[
+                { label: "Fresh leads to respond to", value: freshLeadCount, href: "/admin/enquiries", icon: MessageSquare, tone: "text-sky-700 bg-sky-50" },
+                { label: "Leads without an advisor", value: view.unassignedLeads.length, href: "/admin/enquiries", icon: UserRoundCheck, tone: "text-violet-700 bg-violet-50" },
+                { label: "Visits awaiting confirmation", value: requestedVisitCount, href: "/admin/site-visits", icon: CalendarCheck2, tone: "text-amber-700 bg-amber-50" }
+              ].map(({ label, value, href, icon: Icon, tone }) => (
+                <Link key={label} href={href} className="group flex items-center gap-3 py-3 transition hover:opacity-80">
+                  <span className={`grid size-8 place-items-center rounded-lg ${tone} shrink-0`}><Icon size={14} /></span>
+                  <span className="min-w-0 flex-1 text-xs font-semibold text-[#4f4942]">{label}</span>
+                  <span className="text-xs font-bold tabular-nums text-[#171717] bg-[#f7f4ee] px-2 py-0.5 rounded border border-black/5">{value}</span>
+                  <ChevronRight size={15} className="text-[#68625a] transition group-hover:translate-x-1" />
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="divide-y divide-black/5">
-            {[
-              { label: "Fresh leads to respond to", value: freshLeadCount, href: "/admin/enquiries", icon: MessageSquare, tone: "text-sky-700 bg-sky-50" },
-              { label: "Leads without an advisor", value: view.unassignedLeads.length, href: "/admin/enquiries", icon: UserRoundCheck, tone: "text-violet-700 bg-violet-50" },
-              { label: "Visits awaiting confirmation", value: requestedVisitCount, href: "/admin/site-visits", icon: CalendarCheck2, tone: "text-amber-700 bg-amber-50" }
-            ].map(({ label, value, href, icon: Icon, tone }) => (
-              <Link key={label} href={href} className="group flex items-center gap-3 px-4 py-3.5 transition hover:bg-[#fcfbf8] sm:px-5">
-                <span className={`grid h-8 w-8 place-items-center rounded-full ${tone}`}><Icon size={14} /></span>
-                <span className="min-w-0 flex-1 text-sm text-[#4f4942]">{label}</span>
-                <span className="text-sm font-semibold tabular-nums text-[#171717]">{value}</span>
-                <ChevronRight size={15} className="text-[#68625a] transition group-hover:translate-x-0.5" />
-              </Link>
-            ))}
-          </div>
-          <div className="border-t border-black/10 bg-[#fcfbf8] px-4 py-3 sm:px-5">
-            <Link href="/admin/site-visits" className="inline-flex items-center gap-2 text-xs font-semibold text-[#8d6b31] hover:text-[#171717]">
-              <Plus size={14} /> Schedule a site visit
+
+          <div className="mt-6 border-t border-black/5 pt-4">
+            <Link href="/admin/site-visits" className="flex items-center justify-center gap-2 rounded-md border border-[#b89658] px-4 py-2.5 text-xs font-semibold text-[#b89658] hover:bg-[#b89658]/5 transition">
+              <Plus size={14} />
+              <span>Schedule Site Visit</span>
             </Link>
           </div>
         </section>
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <section className="border border-black/10 bg-white">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/10 px-4 py-4 sm:px-5">
+      {/* Upcoming Site Visits & Recent Activity */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Upcoming Visits */}
+        <section className="rounded-xl border border-black/5 bg-white p-5 sm:p-6 luxury-shadow">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/5 pb-4">
             <div>
-              <p className="text-sm font-semibold text-[#171717]">Upcoming site visits</p>
-              <p className="mt-1 text-xs text-[#68625a]">Next confirmed, requested, or rescheduled appointments.</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">Appointments</p>
+              <h2 className="mt-0.5 font-[var(--font-display)] text-xl font-bold tracking-tight text-[#171717]">
+                Upcoming Site Visits
+              </h2>
             </div>
-            <Link href="/admin/site-visits" className="text-xs font-semibold text-[#8d6b31] hover:text-[#171717]">View calendar</Link>
+            <Link href="/admin/site-visits" className="text-xs font-semibold text-[#b89658] hover:text-[#171717] transition">
+              View Calendar
+            </Link>
           </div>
+
           {view.pendingVisits.length === 0 ? (
-            <EmptyState label="No upcoming site visits" />
+            <div className="mt-4">
+              <EmptyState label="No upcoming site visits" />
+            </div>
           ) : (
-            <div className="divide-y divide-black/5">
+            <div className="mt-2 divide-y divide-black/5">
               {view.pendingVisits.slice(0, 5).map((visit) => (
-                <Link key={visit.id} href="/admin/site-visits" className="group grid grid-cols-[minmax(0,1fr)_auto] gap-3 px-4 py-3.5 transition hover:bg-[#fcfbf8] sm:px-5">
+                <Link key={visit.id} href="/admin/site-visits" className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 transition hover:opacity-80">
                   <div className="min-w-0">
                     <div className="flex min-w-0 items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-[#171717]">{visit.name}</p>
-                      <span className={`shrink-0 border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] ${visitStatusStyles[visit.status]}`}>{visit.status}</span>
+                      <p className="truncate text-xs font-bold text-[#171717]">{visit.name}</p>
+                      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${visitStatusStyles[visit.status]}`}>{visit.status}</span>
                     </div>
-                    <p className="mt-1 truncate text-xs text-[#68625a]">{visit.property?.title ?? "General site visit"}{visit.assignedAgent?.name ? ` · ${visit.assignedAgent.name}` : " · Unassigned"}</p>
+                    <p className="mt-0.5 truncate text-[11px] text-[#68625a]">
+                      {visit.property?.title ?? "General Site Visit"}
+                      {visit.assignedAgent?.name ? ` · Advisor: ${visit.assignedAgent.name}` : " · Unassigned"}
+                    </p>
                   </div>
-                  <time className="self-center text-right text-xs font-medium text-[#4f4942]">{formatVisitDate(visit.preferredAt)}</time>
+                  <time className="shrink-0 text-right text-xs font-semibold text-[#b89658]">{formatVisitDate(visit.preferredAt)}</time>
                 </Link>
               ))}
             </div>
           )}
         </section>
 
-        <section className="border border-black/10 bg-white">
-          <div className="flex items-center justify-between border-b border-black/10 px-4 py-4 sm:px-5">
+        {/* Latest Activity */}
+        <section className="rounded-xl border border-black/5 bg-white p-5 sm:p-6 luxury-shadow">
+          <div className="flex items-center justify-between border-b border-black/5 pb-4">
             <div>
-              <p className="text-sm font-semibold text-[#171717]">Latest activity</p>
-              <p className="mt-1 text-xs text-[#68625a]">New client activity across the CRM.</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#b89658]">Audit Feed</p>
+              <h2 className="mt-0.5 font-[var(--font-display)] text-xl font-bold tracking-tight text-[#171717]">
+                Latest Activity
+              </h2>
             </div>
-            <Clock3 size={17} className="text-[#68625a]" />
+            <Clock3 size={17} className="text-[#b89658]" />
           </div>
+
           {view.activity.length === 0 ? (
-            <EmptyState label="No activity recorded yet" />
+            <div className="mt-4">
+              <EmptyState label="No activity recorded yet" />
+            </div>
           ) : (
-            <div className="divide-y divide-black/5">
+            <div className="mt-2 divide-y divide-black/5">
               {view.activity.map((item) => {
                 const isLead = item.kind === "lead";
                 const Icon = isLead ? MessageSquare : CalendarCheck2;
@@ -437,16 +515,19 @@ export default function AdminPage() {
                   ? leadStatusStyles[item.status as LeadStatus]
                   : visitStatusStyles[item.status as VisitStatus];
                 return (
-                  <Link key={`${item.kind}-${item.id}`} href={href} className="group flex gap-3 px-4 py-3.5 transition hover:bg-[#fcfbf8] sm:px-5">
-                    <span className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full ${isLead ? "bg-sky-50 text-sky-700" : "bg-amber-50 text-amber-700"}`}><Icon size={14} /></span>
+                  <Link key={`${item.kind}-${item.id}`} href={href} className="group flex items-center gap-3 py-3 transition hover:opacity-80">
+                    <span className={`grid size-8 shrink-0 place-items-center rounded-lg ${isLead ? "bg-sky-50 text-sky-700" : "bg-amber-50 text-amber-700"}`}><Icon size={14} /></span>
                     <div className="min-w-0 flex-1">
                       <div className="flex min-w-0 items-center justify-between gap-2">
-                        <p className="truncate text-sm font-semibold text-[#171717]">{item.name}</p>
-                        <span className={`shrink-0 border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] ${statusClass}`}>{item.status}</span>
+                        <p className="truncate text-xs font-bold text-[#171717]">{item.name}</p>
+                        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${statusClass}`}>{item.status}</span>
                       </div>
-                      <p className="mt-1 truncate text-xs text-[#68625a]">{isLead ? "New enquiry" : "Site visit"}{item.property?.title ? ` · ${item.property.title}` : ""}</p>
+                      <p className="mt-0.5 truncate text-[11px] text-[#68625a]">
+                        {isLead ? "New Enquiry" : "Site Visit"}
+                        {item.property?.title ? ` · ${item.property.title}` : ""}
+                      </p>
                     </div>
-                    <span className="shrink-0 pt-0.5 text-[11px] text-[#68625a]">{timeAgo(item.createdAt)}</span>
+                    <span className="shrink-0 text-[10px] font-semibold text-[#68625a]">{timeAgo(item.createdAt)}</span>
                   </Link>
                 );
               })}
@@ -455,10 +536,12 @@ export default function AdminPage() {
         </section>
       </div>
 
-      <footer className="mt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-[#68625a]">
-        <span>{lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}` : "Dashboard data unavailable"}</span>
-        <Link href="/admin/agent-reports" className="inline-flex items-center gap-1.5 font-medium text-[#8d6b31] hover:text-[#171717]">
-          <UsersRound size={13} /> Open agent reports
+      {/* Footer Meta */}
+      <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-black/5 pt-4 text-xs text-[#68625a]">
+        <span>{lastUpdated ? `Last synchronized ${lastUpdated.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}` : "Dashboard data unavailable"}</span>
+        <Link href="/admin/agent-reports" className="inline-flex items-center gap-1.5 font-semibold text-[#b89658] hover:text-[#171717] transition">
+          <UsersRound size={14} />
+          <span>Open Agent Performance Reports</span>
         </Link>
       </footer>
     </section>
